@@ -53,10 +53,10 @@ export type ChangePasswordInput = {
   newPassword: string;
 };
 
-// GET /api/profile response
-export type Profile = User;
+// GET /api/profile
 
 // NFT
+
 export type NftNetwork = "ethereum" | "polygon" | "solana";
 
 export type NftEdition = {
@@ -83,6 +83,8 @@ export type Nft = {
   available: number;
   total: number;
   editions: NftEdition[];
+
+  rarityLabel: string | null;
   createdAt: IsoDate;
   updatedAt: IsoDate;
 
@@ -111,7 +113,7 @@ export type NftFacets = {
   priceRange: { minEth: EthAmount; maxEth: EthAmount };
 };
 
-// GET /api/nfts — responde
+// GET /api/nfts
 export type NftListResponse = Paginated<Nft> & {
   facets: NftFacets;
 };
@@ -160,6 +162,7 @@ export type UpdateCartItemInput = {
 export type Coupon = {
   code: string;
   discountPercent: number;
+  expiresAt: IsoDate | null;
 };
 
 export type Quote = {
