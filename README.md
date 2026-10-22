@@ -44,21 +44,25 @@ Todo o backend é **simulado via MSW** (Mock Service Worker) na camada de rede, 
 
 ## Stack
 
-| Camada              | Tecnologia                         |
-| ------------------- | ---------------------------------- |
-| UI                  | React + TypeScript                 |
-| Build               | Vite                               |
-| Rotas               | TanStack Router                    |
-| Estado remoto       | TanStack Query                     |
-| HTTP                | Axios                              |
-| Tempo real          | Socket.IO client                   |
-| Estilo              | Tailwind CSS v4                    |
-| Componentes         | shadcn/ui                          |
-| Mocking             | MSW (+ `@mswjs/socket.io-binding`) |
-| Testes E2E / visual | Playwright                         |
-| Auditoria           | Lighthouse                         |
-| Lint                | ESLint                             |
-| Deploy              | Vercel                             |
+| Camada              | Tecnologia                                            |
+| ------------------- | ----------------------------------------------------- |
+| UI                  | React + TypeScript                                    |
+| Build               | Vite                                                  |
+| Rotas               | TanStack Router (file-based)                          |
+| Estado remoto       | TanStack Query                                        |
+| HTTP                | Axios                                                 |
+| Tempo real          | Socket.IO client                                      |
+| Estilo              | Tailwind CSS v4 (`@theme` + design tokens)            |
+| Componentes         | shadcn/ui (new-york, adaptado ao tema)                |
+| Mocking             | MSW v3 (+ `@mswjs/socket.io-binding`)                 |
+| Validação           | zod + react-hook-form                                 |
+| Notificações        | sonner                                                |
+| Ícones              | lucide-react                                          |
+| Fonte               | Roboto Mono (`@fontsource/roboto-mono`, subset latin) |
+| Testes E2E / visual | Playwright (desktop 1440×900 + mobile 390×844)        |
+| Auditoria           | Lighthouse                                            |
+| Lint                | ESLint (flat config)                                  |
+| Deploy              | Vercel                                                |
 
 ---
 
@@ -84,9 +88,12 @@ Todo o backend é **simulado via MSW** (Mock Service Worker) na camada de rede, 
 
 Pré-requisitos: **Node.js ≥ 20** (recomendado 22+; testado em v24) e **npm**.
 
-```bash
+```powershell
 # instalar dependências
 npm install
+
+# criar arquivo de variáveis locais
+Copy-Item .env.example .env.local
 
 # rodar em modo desenvolvimento (com mocks ativos)
 npm run dev
@@ -96,7 +103,7 @@ A aplicação abre em `http://localhost:5173`.
 
 Para build de produção local:
 
-```bash
+```powershell
 npm run build
 npm run preview
 ```
@@ -107,8 +114,8 @@ npm run preview
 
 Crie um arquivo `.env.local` na raiz a partir do exemplo:
 
-```bash
-cp .env.example .env.local
+```powershell
+Copy-Item .env.example .env.local
 ```
 
 | Variável            | Descrição                        | Valor padrão            |
@@ -157,18 +164,17 @@ Usuários disponíveis nos mocks (serão detalhados na Fase 1):
 
 ## Scripts disponíveis
 
-| Comando               | Descrição                           |
-| --------------------- | ----------------------------------- |
-| `npm run dev`         | Dev server com mocks ativos         |
-| `npm run build`       | Build de produção                   |
-| `npm run preview`     | Preview do build                    |
-| `npm run lint`        | ESLint                              |
-| `npm run typecheck`   | Checagem de tipos (a configurar)    |
-| `npm run test:e2e`    | Playwright (a configurar)           |
-| `npm run test:e2e:ui` | Playwright UI mode (a configurar)   |
-| `npm run lighthouse`  | Auditoria Lighthouse (a configurar) |
-
-> Em construção — completado nos Blocos 0.5 e 0.7.
+| Comando                   | Descrição                                     |
+| ------------------------- | --------------------------------------------- |
+| `npm run dev`             | Dev server com mocks ativos                   |
+| `npm run build`           | Build de produção (`tsc -b && vite build`)    |
+| `npm run preview`         | Preview do build                              |
+| `npm run lint`            | ESLint                                        |
+| `npm run typecheck`       | Checagem de tipos (`tsc -b --noEmit`)         |
+| `npm run test:e2e`        | Playwright (todos os projetos)                |
+| `npm run test:e2e:ui`     | Playwright em modo UI                         |
+| `npm run test:e2e:report` | Abre o relatório HTML do Playwright           |
+| `npm run lighthouse`      | Auditoria Lighthouse (a configurar na Fase 6) |
 
 ---
 
@@ -215,21 +221,30 @@ A versão publicada corresponde ao código entregue, com mocks e tempo real ativ
 ```text
 src/
 ├── features/        # features por domínio
-│   ├── auth/
-│   ├── catalog/
-│   ├── nft/
-│   ├── cart/
-│   ├── checkout/
-│   ├── account/
-│   └── wallets/
+│   ├── account/     # profile
+│   ├── auth/        # login, register
+│   ├── cart/        # cart
+│   ├── catalog/     # home
+│   ├── checkout/    # checkout, order confirmation
+│   ├── nft/         # nft detail
+│   └── wallets/     # wallets
 ├── shared/          # reutilizáveis entre features
-│   ├── api/         # cliente Axios + contratos
-│   ├── components/  # UI (shadcn/ui customizados + compostos)
+│   ├── api/         # cliente Axios, erros, contratos, query keys
+│   ├── components/  # UI (shadcn/ui customizados + layout)
 │   ├── hooks/
-│   └── lib/         # utils
+│   └── lib/         # utils (env, cn)
 ├── mocks/           # MSW (handlers, fixtures, cenários)
+│   ├── handlers/
+│   ├── browser.ts
+│   ├── server.ts
+│   └── index.ts
 ├── routes/          # TanStack Router (file-based)
+│   └── routeTree.gen.ts  # gerado pelo plugin (commitado)
 └── assets/
+e2e/                 # testes Playwright
+public/
+├── mockServiceWorker.js
+└── (assets estáticos)
 ```
 
 > Em construção — refinado ao final da Fase 0.

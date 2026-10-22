@@ -1,5 +1,7 @@
 // Common
+
 export type EthAmount = string;
+
 export type IsoDate = string;
 
 export type Paginated<T> = {
@@ -11,10 +13,13 @@ export type Paginated<T> = {
 };
 
 // Session / User
+
 export type User = {
   id: string;
-  name: string;
+  username: string;
+  displayName: string;
   email: string;
+  ensName: string | null;
   avatarUrl: string | null;
   createdAt: IsoDate;
 };
@@ -30,14 +35,16 @@ export type LoginInput = {
 };
 
 export type RegisterInput = {
-  name: string;
+  username: string;
   email: string;
   password: string;
 };
 
 export type UpdateProfileInput = {
-  name?: string;
+  displayName?: string;
+  username?: string;
   email?: string;
+  ensName?: string | null;
   avatarUrl?: string | null;
 };
 
@@ -46,22 +53,30 @@ export type ChangePasswordInput = {
   newPassword: string;
 };
 
+// GET /api/profile response
+export type Profile = User;
+
 // NFT
+export type NftNetwork = "ethereum" | "polygon" | "solana";
+
 export type NftEdition = {
   id: string;
   name: string;
   available: number;
   total: number;
   priceEth: EthAmount;
+  tokenId: string;
 };
 
 export type Nft = {
   id: string;
+  tokenId: string;
   name: string;
   description: string;
   imageUrl: string;
   galleryUrls: string[];
   collection: string;
+  network: NftNetwork;
   creator: { id: string; name: string; avatarUrl: string | null };
   owner: { id: string; name: string; avatarUrl: string | null };
   priceEth: EthAmount;
@@ -70,12 +85,14 @@ export type Nft = {
   editions: NftEdition[];
   createdAt: IsoDate;
   updatedAt: IsoDate;
+
   version: number;
 };
 
 export type NftListQuery = {
   q?: string;
-  collection?: string;
+  collections?: string[];
+  networks?: NftNetwork[];
   minPriceEth?: EthAmount;
   maxPriceEth?: EthAmount;
   sort?: "recent" | "price-asc" | "price-desc" | "name-asc" | "name-desc";
@@ -83,13 +100,31 @@ export type NftListQuery = {
   pageSize?: number;
 };
 
+export type FacetCount = {
+  value: string;
+  count: number;
+};
+
+export type NftFacets = {
+  collections: FacetCount[];
+  networks: FacetCount[];
+  priceRange: { minEth: EthAmount; maxEth: EthAmount };
+};
+
+// GET /api/nfts — responde
+export type NftListResponse = Paginated<Nft> & {
+  facets: NftFacets;
+};
+
 // Favorites
+
 export type Favorite = {
   nftId: string;
   createdAt: IsoDate;
 };
 
 // Cart
+
 export type CartItem = {
   nftId: string;
   editionId: string | null;
@@ -97,6 +132,9 @@ export type CartItem = {
   unitPriceEth: EthAmount;
   name: string;
   imageUrl: string;
+  network: NftNetwork;
+  tokenId: string;
+  editionName: string | null;
   maxAvailable: number;
 };
 
@@ -118,6 +156,7 @@ export type UpdateCartItemInput = {
 };
 
 // Quote
+
 export type Coupon = {
   code: string;
   discountPercent: number;
@@ -130,6 +169,8 @@ export type Quote = {
   totalEth: EthAmount;
   coupon: Coupon | null;
   issuedAt: IsoDate;
+
+  expiresAt: IsoDate;
   items: Array<{
     nftId: string;
     editionId: string | null;
@@ -144,11 +185,14 @@ export type QuoteInput = {
 };
 
 // Order
+
 export type OrderStatus = "pending" | "confirmed" | "declined";
 
 export type OrderItem = {
   nftId: string;
   editionId: string | null;
+  editionName: string | null;
+  tokenId: string;
   name: string;
   imageUrl: string;
   quantity: number;
@@ -160,6 +204,7 @@ export type Order = {
   status: OrderStatus;
   createdAt: IsoDate;
   updatedAt: IsoDate;
+  confirmedAt: IsoDate | null;
   items: OrderItem[];
   subtotalEth: EthAmount;
   discountEth: EthAmount;
@@ -167,28 +212,39 @@ export type Order = {
   totalEth: EthAmount;
   couponCode: string | null;
   walletId: string;
-  network: string;
+  walletLabel: string;
+  walletAddress: string;
+  network: WalletNetwork;
   transactionRef: string | null;
   explorerUrl: string | null;
+
   version: number;
 };
 
 export type CreateOrderInput = {
   quoteIssuedAt: IsoDate;
   walletId: string;
-  network: string;
+  network: WalletNetwork;
   couponCode?: string;
+
   idempotencyKey: string;
 };
 
 // Wallets
-export type WalletNetwork = "ethereum" | "polygon" | "base";
+
+export type WalletNetwork = "ethereum" | "polygon" | "solana";
+
+export type WalletType =
+  "metamask" | "ledger" | "walletconnect" | "coinbase" | "other";
 
 export type Wallet = {
   id: string;
   label: string;
   address: string;
   network: WalletNetwork;
+  ensName: string | null;
+  walletType: WalletType;
+  referralCode: string | null;
   isPrimary: boolean;
   createdAt: IsoDate;
 };
@@ -197,6 +253,9 @@ export type CreateWalletInput = {
   label: string;
   address: string;
   network: WalletNetwork;
+  ensName?: string | null;
+  walletType: WalletType;
+  referralCode?: string | null;
   isPrimary?: boolean;
 };
 

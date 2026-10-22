@@ -4,6 +4,7 @@ export type ApiErrorCode =
   | "FORBIDDEN"
   | "NOT_FOUND"
   | "CONFLICT"
+  | "IDEMPOTENCY_CONFLICT"
   | "UNAVAILABLE"
   | "RATE_LIMITED"
   | "TIMEOUT"
@@ -47,4 +48,8 @@ export function isNotFound(value: unknown): value is ApiError {
 
 export function isConflict(value: unknown): value is ApiError {
   return isApiError(value) && value.code === "CONFLICT";
+}
+
+export function isIdempotencyConflict(value: unknown): value is ApiError {
+  return isApiError(value) && value.code === "IDEMPOTENCY_CONFLICT";
 }
