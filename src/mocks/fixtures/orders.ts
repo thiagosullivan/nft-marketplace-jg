@@ -12,7 +12,7 @@ const PENDING_ITEMS: OrderItem[] = [
   {
     nftId: "nft-003",
     editionId: "nft-003-ed-1",
-    editionName: "Edição padrão",
+    editionLabel: "Edição padrão",
     tokenId: "#0003",
     name: "Ivory Baron #003",
     imageUrl: "/nfts/prod-3.png",
@@ -25,7 +25,7 @@ const CONFIRMED_ITEMS: OrderItem[] = [
   {
     nftId: "nft-010",
     editionId: "nft-010-ed-1",
-    editionName: "Edição padrão",
+    editionLabel: "Edição padrão",
     tokenId: "#0100",
     name: "Crimson Drifter #010",
     imageUrl: "/nfts/prod-2.png",
@@ -35,7 +35,7 @@ const CONFIRMED_ITEMS: OrderItem[] = [
   {
     nftId: "nft-004",
     editionId: "nft-004-ed-2",
-    editionName: "Edição 2",
+    editionLabel: "Edição 2",
     tokenId: "#0041",
     name: "Emerald Wanderer #004",
     imageUrl: "/nfts/prod-4.png",
@@ -45,7 +45,7 @@ const CONFIRMED_ITEMS: OrderItem[] = [
   {
     nftId: "nft-013",
     editionId: "nft-013-ed-1",
-    editionName: "Edição padrão",
+    editionLabel: "Edição padrão",
     tokenId: "#0130",
     name: "Violet Ape #013",
     imageUrl: "/nfts/prod-1.png",

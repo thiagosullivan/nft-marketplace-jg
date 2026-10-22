@@ -20,7 +20,7 @@ import {
 // mock persists on localStorage.
 
 const STORAGE_KEY = "nftmarketplace:db";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 export type Db = {
   version: number;
@@ -28,6 +28,7 @@ export type Db = {
   credentials: Record<string, string>;
   nfts: Nft[];
   favorites: Favorite[];
+  favoritesByUser: Record<string, Favorite[]>;
   carts: Record<string, Cart>;
   coupons: Coupon[];
   orders: Order[];
@@ -47,6 +48,7 @@ function buildInitialDb(): Db {
     credentials: { ...seedCredentials },
     nfts: clone(seedNfts as Nft[]),
     favorites: [],
+    favoritesByUser: {},
     carts: {},
     coupons: clone(seedCoupons as Coupon[]),
     orders: clone(seedOrders as Order[]),
@@ -141,9 +143,8 @@ export function findNft(db: Db, id: string): Nft | undefined {
 export type FavoritesByUser = Record<string, Favorite[]>;
 
 export function getFavoritesFor(db: Db, userId: string): Favorite[] {
-  const internal = db as Db & { favoritesByUser?: FavoritesByUser };
-  internal.favoritesByUser ??= {};
-  return internal.favoritesByUser[userId] ?? [];
+  db.favoritesByUser ??= {};
+  return db.favoritesByUser[userId] ?? [];
 }
 
 export function setFavoritesFor(
@@ -151,7 +152,6 @@ export function setFavoritesFor(
   userId: string,
   favorites: Favorite[],
 ): void {
-  const internal = db as Db & { favoritesByUser?: FavoritesByUser };
-  internal.favoritesByUser ??= {};
-  internal.favoritesByUser[userId] = favorites;
+  db.favoritesByUser ??= {};
+  db.favoritesByUser[userId] = favorites;
 }
