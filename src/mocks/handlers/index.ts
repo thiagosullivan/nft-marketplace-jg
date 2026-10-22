@@ -1,8 +1,4 @@
-import { http, HttpResponse } from "msw";
+import { authHandlers } from "./auth";
+import { profileHandlers } from "./profile";
 
-export const handlers = [
-  // health endpoint
-  http.get("/api/health", () => {
-    return HttpResponse.json({ ok: true, timestamp: new Date().toISOString() });
-  }),
-];
+export const handlers = [...authHandlers, ...profileHandlers];
