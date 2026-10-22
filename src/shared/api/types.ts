@@ -54,6 +54,7 @@ export type ChangePasswordInput = {
 };
 
 // GET /api/profile
+export type Profile = User;
 
 // NFT
 
@@ -61,11 +62,17 @@ export type NftNetwork = "ethereum" | "polygon" | "solana";
 
 export type NftEdition = {
   id: string;
-  name: string;
-  available: number;
+  label: string;
+  isOpen: boolean;
   total: number;
+  available: number;
   priceEth: EthAmount;
   tokenId: string;
+};
+
+export type NftRating = {
+  average: number;
+  count: number;
 };
 
 export type Nft = {
@@ -83,11 +90,14 @@ export type Nft = {
   available: number;
   total: number;
   editions: NftEdition[];
+  attributes: string[];
+  contractAddress: string;
+  royaltyPercent: number;
+  rating: NftRating;
 
   rarityLabel: string | null;
   createdAt: IsoDate;
   updatedAt: IsoDate;
-
   version: number;
 };
 
@@ -125,6 +135,10 @@ export type Favorite = {
   createdAt: IsoDate;
 };
 
+export type FavoriteListResponse = {
+  items: Nft[];
+};
+
 // Cart
 
 export type CartItem = {
@@ -136,7 +150,7 @@ export type CartItem = {
   imageUrl: string;
   network: NftNetwork;
   tokenId: string;
-  editionName: string | null;
+  editionLabel: string | null;
   maxAvailable: number;
 };
 
@@ -194,7 +208,7 @@ export type OrderStatus = "pending" | "confirmed" | "declined";
 export type OrderItem = {
   nftId: string;
   editionId: string | null;
-  editionName: string | null;
+  editionLabel: string | null;
   tokenId: string;
   name: string;
   imageUrl: string;
@@ -220,7 +234,6 @@ export type Order = {
   network: WalletNetwork;
   transactionRef: string | null;
   explorerUrl: string | null;
-
   version: number;
 };
 
@@ -229,7 +242,6 @@ export type CreateOrderInput = {
   walletId: string;
   network: WalletNetwork;
   couponCode?: string;
-
   idempotencyKey: string;
 };
 
