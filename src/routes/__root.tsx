@@ -1,0 +1,35 @@
+import { createRootRoute, Outlet } from "@tanstack/react-router";
+import { Header } from "@/shared/components/layout/header";
+import { Footer } from "@/shared/components/layout/footer";
+
+export const Route = createRootRoute({
+  component: RootLayout,
+  notFoundComponent: NotFoundPage,
+});
+
+function RootLayout() {
+  return (
+    <div className="flex min-h-dvh flex-col bg-background text-foreground">
+      <Header />
+      <main className="flex-1">
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+function NotFoundPage() {
+  return (
+    <div className="container mx-auto flex max-w-2xl flex-col items-center justify-center gap-4 px-4 py-24 text-center">
+      <h1 className="text-4xl font-bold text-primary">404</h1>
+      <p className="text-muted-foreground">Página não encontrada.</p>
+      <a
+        href="/"
+        className="text-sm text-primary underline underline-offset-4 hover:text-primary-light"
+      >
+        Voltar para a home
+      </a>
+    </div>
+  );
+}
