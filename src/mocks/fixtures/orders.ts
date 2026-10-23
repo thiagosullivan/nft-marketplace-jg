@@ -74,6 +74,8 @@ export const seedOrders: readonly Order[] = [
     transactionRef: null,
     explorerUrl: null,
     version: 1,
+    settleAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+    settleStatus: "confirmed",
   },
   {
     id: "order-seed-confirmed",
@@ -96,5 +98,7 @@ export const seedOrders: readonly Order[] = [
     explorerUrl:
       "https://etherscan.io/tx/0x9f4c1a7e3d2b8f5e6c1d0a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0c9d",
     version: 2,
+    settleAt: null,
+    settleStatus: null,
   },
 ];

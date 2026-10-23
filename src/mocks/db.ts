@@ -20,7 +20,9 @@ import {
 // mock persists on localStorage.
 
 const STORAGE_KEY = "nftmarketplace:db";
-const DB_VERSION = 2;
+const DB_VERSION = 3;
+
+export type DbWallet = Wallet & { ownerId: string };
 
 export type Db = {
   version: number;
@@ -32,7 +34,7 @@ export type Db = {
   carts: Record<string, Cart>;
   coupons: Coupon[];
   orders: Order[];
-  wallets: Wallet[];
+  wallets: DbWallet[];
   idempotency: Record<string, string>;
   activeUserId: string | null;
 };
@@ -40,6 +42,13 @@ export type Db = {
 function clone<T>(value: T): T {
   return structuredClone(value);
 }
+
+const WALLET_OWNERS: Record<string, string> = {
+  "wallet-maria-eth": "user-maria",
+  "wallet-maria-polygon": "user-maria",
+  "wallet-fernando-sol": "user-fernando",
+  "wallet-thais-eth": "user-thais",
+};
 
 function buildInitialDb(): Db {
   return {
@@ -52,7 +61,10 @@ function buildInitialDb(): Db {
     carts: {},
     coupons: clone(seedCoupons as Coupon[]),
     orders: clone(seedOrders as Order[]),
-    wallets: clone(seedWallets as Wallet[]),
+    wallets: clone(seedWallets as Wallet[]).map((w) => ({
+      ...w,
+      ownerId: WALLET_OWNERS[w.id] ?? "user-maria",
+    })),
     idempotency: {},
     activeUserId: null,
   };

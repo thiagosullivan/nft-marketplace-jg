@@ -235,6 +235,8 @@ export type Order = {
   transactionRef: string | null;
   explorerUrl: string | null;
   version: number;
+  settleAt: IsoDate | null;
+  settleStatus: "confirmed" | "declined" | null;
 };
 
 export type CreateOrderInput = {
