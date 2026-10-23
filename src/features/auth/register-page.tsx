@@ -77,8 +77,8 @@ export function RegisterPage() {
 
   return (
     <AuthModalShell
-      title="Criar conta"
-      subtitle="Crie seu perfil de colecionador e conecte uma carteira quando quiser."
+      activeTab="register"
+      onTabChange={switchMode}
       onClose={close}
     >
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
@@ -197,17 +197,6 @@ export function RegisterPage() {
             </Button>
           </div>
         </div>
-
-        <p className="text-center text-sm text-muted-foreground">
-          Já tem conta?{" "}
-          <button
-            type="button"
-            className="text-primary underline underline-offset-4"
-            onClick={() => switchMode("login")}
-          >
-            Entrar
-          </button>
-        </p>
       </form>
     </AuthModalShell>
   );

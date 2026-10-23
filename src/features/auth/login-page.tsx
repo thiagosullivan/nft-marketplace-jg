@@ -54,11 +54,7 @@ export function LoginPage() {
   });
 
   return (
-    <AuthModalShell
-      title="Entrar"
-      subtitle="Acesse sua conta para comprar, favoritar e gerenciar carteiras."
-      onClose={close}
-    >
+    <AuthModalShell activeTab="login" onTabChange={switchMode} onClose={close}>
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
         <div className="space-y-2">
           <Label htmlFor="login-email">E-mail</Label>
@@ -125,17 +121,6 @@ export function LoginPage() {
             </Button>
           </div>
         </div>
-
-        <p className="text-center text-sm text-muted-foreground">
-          Não tem conta?{" "}
-          <button
-            type="button"
-            className="text-primary underline underline-offset-4"
-            onClick={() => switchMode("register")}
-          >
-            Criar conta
-          </button>
-        </p>
       </form>
     </AuthModalShell>
   );
