@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { http } from "@/shared/api";
 import type { NftListQuery, NftListResponse } from "@/shared/api/types";
 import { nftKeys } from "@/shared/api/query-keys";
@@ -23,6 +23,6 @@ export function useNftList(query: NftListQuery) {
       return data;
     },
     staleTime: 30_000,
-    placeholderData: (prev) => prev,
+    placeholderData: keepPreviousData,
   });
 }
