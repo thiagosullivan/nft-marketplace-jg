@@ -23,8 +23,12 @@ async function fillLogin(
   creds: { email: string; password: string },
 ) {
   const dialog = page.getByRole("dialog");
-  await dialog.getByLabel("E-mail").fill(creds.email);
-  await dialog.getByLabel("Senha").fill(creds.password);
+  await dialog
+    .getByRole("textbox", { name: "E-mail", exact: true })
+    .fill(creds.email);
+  await dialog
+    .getByRole("textbox", { name: "Senha", exact: true })
+    .fill(creds.password);
   await dialog.getByRole("button", { name: "Entrar", exact: true }).click();
 }
 
