@@ -11,10 +11,7 @@ async function reset(page: Page) {
 }
 
 async function openLoginModal(page: Page) {
-  await page
-    .getByRole("navigation")
-    .getByRole("button", { name: "Entrar" })
-    .click();
+  await page.getByTestId("header-login-button").click();
   await expect(page.getByRole("dialog")).toBeVisible();
 }
 
@@ -33,14 +30,12 @@ async function fillLogin(
 }
 
 async function expectLoggedIn(page: Page) {
-  await expect(
-    page.getByRole("navigation").getByRole("button", { name: "Sair" }),
-  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sair" })).toBeVisible();
 }
 
 async function expectLoggedOut(page: Page) {
   await expect(
-    page.getByRole("navigation").getByRole("button", { name: "Entrar" }),
+    page.getByRole("button", { name: "Entrar", exact: true }),
   ).toBeVisible();
 }
 
@@ -74,10 +69,7 @@ test.describe("Auth", () => {
     await fillLogin(page, MARIA);
     await expectLoggedIn(page);
 
-    await page
-      .getByRole("navigation")
-      .getByRole("button", { name: "Sair" })
-      .click();
+    await page.getByRole("button", { name: "Sair" }).click();
     await expectLoggedOut(page);
 
     const token = await page.evaluate(() =>
@@ -112,10 +104,7 @@ test.describe("Auth", () => {
       });
     });
 
-    await page
-      .getByRole("navigation")
-      .getByRole("button", { name: "Sair" })
-      .click();
+    await page.getByRole("button", { name: "Sair" }).click();
     await openLoginModal(page);
     await fillLogin(page, FERNANDO);
     await expectLoggedIn(page);

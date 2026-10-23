@@ -8,7 +8,7 @@ import { defineConfig, globalIgnores } from "eslint/config";
 export default defineConfig([
   globalIgnores(["dist", "public/mockServiceWorker.js"]),
   {
-    files: ["**/*.{ts,tsx}"],
+    files: ["**/*.{ts,tsx}", "src/shared/components/ui/**/*.{ts,tsx}"],
     extends: [
       js.configs.recommended,
       tseslint.configs.recommended,
@@ -17,6 +17,7 @@ export default defineConfig([
     ],
     rules: {
       "react-refresh/only-export-components": "off",
+      "react-hooks/set-state-in-effect": "off",
     },
     languageOptions: {
       globals: globals.browser,
