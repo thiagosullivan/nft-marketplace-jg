@@ -15,9 +15,7 @@ const queryClient = new QueryClient({
       retry: 1,
       refetchOnWindowFocus: false,
     },
-    mutations: {
-      retry: 0,
-    },
+    mutations: { retry: 0 },
   },
 });
 
@@ -46,11 +44,9 @@ async function bootstrap() {
 
   window.addEventListener("auth:unauthorized", () => {
     const current = window.location.pathname + window.location.search;
-    if (current.startsWith("/login") || current.startsWith("/register")) {
-      return;
-    }
-    const redirect = encodeURIComponent(current);
-    router.navigate({ to: "/login", search: { redirect } });
+    window.dispatchEvent(
+      new CustomEvent("auth:open-login", { detail: { redirect: current } }),
+    );
   });
 
   createRoot(document.getElementById("root")!).render(

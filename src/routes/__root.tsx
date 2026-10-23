@@ -1,6 +1,8 @@
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { Header } from "@/shared/components/layout/header";
 import { Footer } from "@/shared/components/layout/footer";
+import { AuthModalProvider } from "@/features/auth/auth-modal-provider";
+import { AuthModalHost } from "@/features/auth/auth-modal-host";
 
 export const Route = createRootRoute({
   component: RootLayout,
@@ -9,13 +11,16 @@ export const Route = createRootRoute({
 
 function RootLayout() {
   return (
-    <div className="flex min-h-dvh flex-col bg-background text-foreground">
-      <Header />
-      <main className="flex-1">
-        <Outlet />
-      </main>
-      <Footer />
-    </div>
+    <AuthModalProvider>
+      <div className="flex min-h-dvh flex-col bg-background text-foreground">
+        <Header />
+        <main className="flex-1">
+          <Outlet />
+        </main>
+        <Footer />
+        <AuthModalHost />
+      </div>
+    </AuthModalProvider>
   );
 }
 

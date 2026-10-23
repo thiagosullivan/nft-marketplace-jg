@@ -2,6 +2,7 @@ import type { NftListQuery } from "./types";
 
 export const sessionKeys = {
   all: ["session"] as const,
+  current: () => ["session", "current"] as const,
 };
 
 export const nftKeys = {
