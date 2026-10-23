@@ -78,6 +78,7 @@ export const nftHandlers = [
     }
 
     const q = queryString(url, "q")?.toLowerCase();
+    const isNew = queryString(url, "new") === "true";
     const collections = queryArray(url, "collections");
     const networks = queryArray(url, "networks");
     const minPriceRaw = queryString(url, "minPriceEth");
@@ -95,6 +96,10 @@ export const nftHandlers = [
           n.collection.toLowerCase().includes(q) ||
           n.description.toLowerCase().includes(q),
       );
+    }
+    if (isNew) {
+      const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000; // 7 dias
+      items = items.filter((n) => new Date(n.createdAt).getTime() >= cutoff);
     }
     if (collections && collections.length > 0) {
       items = items.filter((n) => collections.includes(n.collection));

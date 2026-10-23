@@ -141,8 +141,7 @@ function eth(value: number): string {
 }
 
 function dateFromIndex(index: number): IsoDate {
-  const base = Date.UTC(2026, 0, 1, 12, 0, 0);
-  const ts = base + index * 6 * 60 * 60 * 1000; // +6h por NFT
+  const ts = Date.now() - (index + 1) * 24 * 60 * 60 * 1000;
   return new Date(ts).toISOString();
 }
 

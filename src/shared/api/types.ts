@@ -108,6 +108,7 @@ export type Nft = {
 
 export type NftListQuery = {
   q?: string;
+  new?: boolean;
   collections?: string[];
   networks?: NftNetwork[];
   minPriceEth?: EthAmount;

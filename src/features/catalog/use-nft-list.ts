@@ -9,6 +9,7 @@ export function useNftList(query: NftListQuery) {
     queryFn: async () => {
       const params = new URLSearchParams();
       if (query.q) params.set("q", query.q);
+      if (query.new) params.set("new", "true");
       for (const c of query.collections ?? []) params.append("collections", c);
       for (const n of query.networks ?? []) params.append("networks", n);
       if (query.minPriceEth) params.set("minPriceEth", query.minPriceEth);

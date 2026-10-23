@@ -13,6 +13,7 @@ const SORT_ENUM = z.enum([
   "name-asc",
   "name-desc",
 ]);
+const TAB_ENUM = z.enum(["all", "new", "trending"]);
 
 const searchSchema = z.object({
   auth: z.enum(["login", "register"]).optional(),
@@ -23,6 +24,7 @@ const searchSchema = z.object({
   minPriceEth: z.string().optional(),
   maxPriceEth: z.string().optional(),
   sort: SORT_ENUM.optional(),
+  tab: TAB_ENUM.optional(),
   page: z.coerce.number().int().positive().optional(),
 });
 
