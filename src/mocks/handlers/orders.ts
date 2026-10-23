@@ -62,7 +62,7 @@ export const orderHandlers = [
     const err = await applyScenario();
     if (err) return err;
 
-    const auth = requireAuth();
+    const auth = requireAuth(request);
     if (auth instanceof Response) return auth;
 
     const body = (await request.json()) as Partial<CreateOrderInput>;
@@ -243,11 +243,11 @@ export const orderHandlers = [
   }),
 
   // GET /api/orders/:id
-  http.get("/api/orders/:id", async ({ params }) => {
+  http.get("/api/orders/:id", async ({ params, request }) => {
     const err = await applyScenario();
     if (err) return err;
 
-    const auth = requireAuth();
+    const auth = requireAuth(request);
     if (auth instanceof Response) return auth;
 
     const db = auth.db;

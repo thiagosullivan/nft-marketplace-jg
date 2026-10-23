@@ -15,13 +15,13 @@ import {
 
 export const profileHandlers = [
   // GET /api/profile
-  http.get("/api/profile", async () => {
+  http.get("/api/profile", async ({ request }) => {
     const err = await applyScenario();
     if (err) return err;
 
-    const auth = requireAuth();
-    if (auth instanceof Response) return auth;
+    const auth = requireAuth(request);
 
+    if (auth instanceof Response) return auth;
     return json(auth.user);
   }),
 
@@ -30,7 +30,7 @@ export const profileHandlers = [
     const err = await applyScenario();
     if (err) return err;
 
-    const auth = requireAuth();
+    const auth = requireAuth(request);
     if (auth instanceof Response) return auth;
 
     const body = (await request.json()) as UpdateProfileInput;
@@ -104,7 +104,7 @@ export const profileHandlers = [
     const err = await applyScenario();
     if (err) return err;
 
-    const auth = requireAuth();
+    const auth = requireAuth(request);
     if (auth instanceof Response) return auth;
 
     const body = (await request.json()) as { avatarUrl?: string | null };
@@ -120,7 +120,7 @@ export const profileHandlers = [
     const err = await applyScenario();
     if (err) return err;
 
-    const auth = requireAuth();
+    const auth = requireAuth(request);
     if (auth instanceof Response) return auth;
 
     const body = (await request.json()) as Partial<ChangePasswordInput>;

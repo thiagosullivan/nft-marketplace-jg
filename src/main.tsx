@@ -38,12 +38,20 @@ async function bootstrap() {
   if (env.VITE_ENABLE_MOCKS) {
     const { handleResetFromUrl, exposeMswHelpers } =
       await import("@/mocks/reset");
-
     handleResetFromUrl();
     const { enableMocking } = await import("@/mocks");
     await enableMocking();
     exposeMswHelpers();
   }
+
+  window.addEventListener("auth:unauthorized", () => {
+    const current = window.location.pathname + window.location.search;
+    if (current.startsWith("/login") || current.startsWith("/register")) {
+      return;
+    }
+    const redirect = encodeURIComponent(current);
+    router.navigate({ to: "/login", search: { redirect } });
+  });
 
   createRoot(document.getElementById("root")!).render(
     <StrictMode>

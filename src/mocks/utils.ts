@@ -1,5 +1,5 @@
-import type { IsoDate, Paginated } from "@/shared/api/types";
-import { getActiveUser, loadDb, type Db } from "./db";
+import type { IsoDate, Paginated, User } from "@/shared/api/types";
+import { loadDb, findUserById, type Db, type DbToken } from "./db";
 import { scenarioDelay, globalErrorResponse } from "./scenario";
 
 export async function applyScenarioDelay(): Promise<void> {
@@ -35,18 +35,49 @@ export function errorResponse(
   return json({ code, message, fields }, status);
 }
 
-export function currentUser(db: Db) {
-  return getActiveUser(db);
+/** Extrai o token de `Authorization: Bearer <token>`. */
+export function extractBearerToken(request: Request): string | null {
+  const header = request.headers.get("Authorization");
+  if (!header) return null;
+  const [scheme, token] = header.split(" ");
+  if (scheme?.toLowerCase() !== "bearer" || !token) return null;
+  return token;
 }
 
-export function requireAuth():
-  { db: Db; user: NonNullable<ReturnType<typeof getActiveUser>> } | Response {
-  const db = loadDb();
-  const user = getActiveUser(db);
-  if (!user) {
-    return errorResponse(401, "UNAUTHORIZED", "Sessão inválida ou expirada.");
+export type AuthContext = {
+  db: Db;
+  user: User;
+  token: string;
+  tokenData: DbToken;
+};
+
+export function requireAuth(request: Request): AuthContext | Response {
+  const token = extractBearerToken(request);
+  if (!token) {
+    return errorResponse(401, "UNAUTHORIZED", "Token ausente.");
   }
-  return { db, user };
+
+  const db = loadDb();
+  const tokenData = db.tokens[token];
+  if (!tokenData) {
+    return errorResponse(401, "UNAUTHORIZED", "Token inválido.");
+  }
+  if (new Date(tokenData.expiresAt).getTime() < Date.now()) {
+    delete db.tokens[token];
+    return errorResponse(401, "UNAUTHORIZED", "Sessão expirada.");
+  }
+
+  const user = findUserById(db, tokenData.userId);
+  if (!user) {
+    return errorResponse(401, "UNAUTHORIZED", "Usuário não encontrado.");
+  }
+
+  return { db, user, token, tokenData };
+}
+
+export function generateToken(): string {
+  const rand = () => Math.random().toString(36).slice(2, 12);
+  return `tok_${rand()}${rand()}`;
 }
 
 export function paginate<T>(

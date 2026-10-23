@@ -86,11 +86,11 @@ function buildCartItem(
 
 export const cartHandlers = [
   // GET /api/cart
-  http.get("/api/cart", async () => {
+  http.get("/api/cart", async ({ request }) => {
     const err = await applyScenario();
     if (err) return err;
 
-    const auth = requireAuth();
+    const auth = requireAuth(request);
     if (auth instanceof Response) return auth;
 
     return json(getCartFor(auth.db, auth.user.id));
@@ -101,7 +101,7 @@ export const cartHandlers = [
     const err = await applyScenario();
     if (err) return err;
 
-    const auth = requireAuth();
+    const auth = requireAuth(request);
     if (auth instanceof Response) return auth;
 
     const body = (await request.json()) as Partial<AddToCartInput>;
@@ -151,7 +151,7 @@ export const cartHandlers = [
     const err = await applyScenario();
     if (err) return err;
 
-    const auth = requireAuth();
+    const auth = requireAuth(request);
     if (auth instanceof Response) return auth;
 
     const body = (await request.json()) as Partial<UpdateCartItemInput>;
@@ -205,7 +205,7 @@ export const cartHandlers = [
     const err = await applyScenario();
     if (err) return err;
 
-    const auth = requireAuth();
+    const auth = requireAuth(request);
     if (auth instanceof Response) return auth;
 
     const url = new URL(request.url);
@@ -236,7 +236,7 @@ export const cartHandlers = [
     const err = await applyScenario();
     if (err) return err;
 
-    const auth = requireAuth();
+    const auth = requireAuth(request);
     if (auth instanceof Response) return auth;
 
     const body = (await request.json()) as { items?: AddToCartInput[] };

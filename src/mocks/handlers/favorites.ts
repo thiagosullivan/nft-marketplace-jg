@@ -11,11 +11,11 @@ import {
 
 export const favoriteHandlers = [
   // GET /api/favorites
-  http.get("/api/favorites", async () => {
+  http.get("/api/favorites", async ({ request }) => {
     const err = await applyScenario();
     if (err) return err;
 
-    const auth = requireAuth();
+    const auth = requireAuth(request);
     if (auth instanceof Response) return auth;
 
     const favorites = getFavoritesFor(auth.db, auth.user.id);
@@ -30,7 +30,7 @@ export const favoriteHandlers = [
     const err = await applyScenario();
     if (err) return err;
 
-    const auth = requireAuth();
+    const auth = requireAuth(request);
     if (auth instanceof Response) return auth;
 
     const body = (await request.json()) as { nftId?: string };
@@ -54,11 +54,11 @@ export const favoriteHandlers = [
   }),
 
   // DELETE /api/favorites/:nftId
-  http.delete("/api/favorites/:nftId", async ({ params }) => {
+  http.delete("/api/favorites/:nftId", async ({ params, request }) => {
     const err = await applyScenario();
     if (err) return err;
 
-    const auth = requireAuth();
+    const auth = requireAuth(request);
     if (auth instanceof Response) return auth;
 
     const nftId = String(params.nftId);

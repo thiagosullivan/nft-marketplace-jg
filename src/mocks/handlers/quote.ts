@@ -37,7 +37,7 @@ export const quoteHandlers = [
     const err = await applyScenario();
     if (err) return err;
 
-    const auth = requireAuth();
+    const auth = requireAuth(request);
     if (auth instanceof Response) return auth;
 
     const body = (await request.json().catch(() => ({}))) as QuoteInput;

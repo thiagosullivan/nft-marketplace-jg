@@ -33,11 +33,11 @@ function toPublic(w: DbWallet): Wallet {
 
 export const walletHandlers = [
   // GET /api/wallets
-  http.get("/api/wallets", async () => {
+  http.get("/api/wallets", async ({ request }) => {
     const err = await applyScenario();
     if (err) return err;
 
-    const auth = requireAuth();
+    const auth = requireAuth(request);
     if (auth instanceof Response) return auth;
 
     const mine = auth.db.wallets.filter((w) => w.ownerId === auth.user.id);
@@ -49,7 +49,7 @@ export const walletHandlers = [
     const err = await applyScenario();
     if (err) return err;
 
-    const auth = requireAuth();
+    const auth = requireAuth(request);
     if (auth instanceof Response) return auth;
 
     const body = (await request.json()) as Partial<CreateWalletInput>;
@@ -97,7 +97,7 @@ export const walletHandlers = [
     const err = await applyScenario();
     if (err) return err;
 
-    const auth = requireAuth();
+    const auth = requireAuth(request);
     if (auth instanceof Response) return auth;
 
     const db = auth.db;

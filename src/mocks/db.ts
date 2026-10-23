@@ -20,9 +20,14 @@ import {
 // mock persists on localStorage.
 
 const STORAGE_KEY = "nftmarketplace:db";
-const DB_VERSION = 3;
+const DB_VERSION = 4;
 
 export type DbWallet = Wallet & { ownerId: string };
+
+export type DbToken = {
+  userId: string;
+  expiresAt: IsoDate;
+};
 
 export type Db = {
   version: number;
@@ -36,6 +41,7 @@ export type Db = {
   orders: Order[];
   wallets: DbWallet[];
   idempotency: Record<string, string>;
+  tokens: Record<string, DbToken>;
   activeUserId: string | null;
 };
 
@@ -66,6 +72,7 @@ function buildInitialDb(): Db {
       ownerId: WALLET_OWNERS[w.id] ?? "user-maria",
     })),
     idempotency: {},
+    tokens: {},
     activeUserId: null,
   };
 }

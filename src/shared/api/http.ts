@@ -1,5 +1,6 @@
 import axios, { AxiosError, type AxiosInstance } from "axios";
 import { env } from "@/shared/lib/env";
+import { getToken, clearAuth } from "@/shared/lib/auth-store";
 import { ApiError, type ApiErrorBody, type ApiErrorCode } from "./errors";
 
 function mapStatusToCode(status: number): ApiErrorCode {
@@ -24,12 +25,9 @@ function mapStatusToCode(status: number): ApiErrorCode {
 }
 
 function normalizeError(error: AxiosError): ApiError {
-  // Timeout
   if (error.code === "ECONNABORTED") {
     return new ApiError({ code: "TIMEOUT", message: "Request timed out." });
   }
-
-  // No response
   if (!error.response) {
     return new ApiError({ code: "NETWORK_ERROR", message: "Network error." });
   }
@@ -55,18 +53,24 @@ export const http: AxiosInstance = axios.create({
   withCredentials: false,
 });
 
-// Request interceptor
 http.interceptors.request.use((config) => {
+  const token = getToken();
+  if (token) {
+    config.headers = config.headers ?? {};
+    config.headers.Authorization = `Bearer ${token}`;
+  }
   return config;
 });
 
-// Response interceptor
 http.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
     const apiError = normalizeError(error);
 
-    // window.dispatchEvent(new CustomEvent("auth:unauthorized"));
+    if (apiError.code === "UNAUTHORIZED") {
+      clearAuth();
+      window.dispatchEvent(new CustomEvent("auth:unauthorized"));
+    }
 
     return Promise.reject(apiError);
   },

@@ -1,11 +1,17 @@
 import { http } from "msw";
-import type { LoginInput, RegisterInput, Session } from "@/shared/api/types";
+import type {
+  AuthResponse,
+  LoginInput,
+  RegisterInput,
+  Session,
+} from "@/shared/api/types";
 import { findUserByEmail, findUserById, loadDb, saveDb } from "../db";
 import { hashPassword, seedCredentials } from "../fixtures";
 import {
   applyScenario,
-  currentUser,
   errorResponse,
+  extractBearerToken,
+  generateToken,
   isEmail,
   json,
   nowIso,
@@ -13,13 +19,19 @@ import {
 
 const SESSION_DURATION_MS = 1000 * 60 * 60 * 2; // 2h
 
-function sessionFor(userId: string, expiresAt: string): Session {
+function buildSession(userId: string, expiresAt: string): Session {
   const db = loadDb();
   const user = findUserById(db, userId);
-  if (!user) {
-    throw new Error(`Usuário ${userId} não encontrado no db.`);
-  }
+  if (!user) throw new Error(`Usuário ${userId} não encontrado.`);
   return { user, expiresAt };
+}
+
+function issueToken(userId: string, expiresAt: string): string {
+  const db = loadDb();
+  const token = generateToken();
+  db.tokens[token] = { userId, expiresAt };
+  saveDb(db);
+  return token;
 }
 
 export const authHandlers = [
@@ -77,11 +89,15 @@ export const authHandlers = [
 
     db.users.push(newUser);
     db.credentials[newUser.email] = hashPassword(body.password!);
-    db.activeUserId = id;
     saveDb(db);
 
     const expiresAt = new Date(Date.now() + SESSION_DURATION_MS).toISOString();
-    return json(sessionFor(id, expiresAt), 201);
+    const token = issueToken(id, expiresAt);
+    const response: AuthResponse = {
+      session: buildSession(id, expiresAt),
+      token,
+    };
+    return json(response, 201);
   }),
 
   // POST /api/auth/login
@@ -113,35 +129,49 @@ export const authHandlers = [
       return errorResponse(401, "UNAUTHORIZED", "E-mail ou senha incorretos.");
     }
 
-    db.activeUserId = user.id;
-    saveDb(db);
-
     const expiresAt = new Date(Date.now() + SESSION_DURATION_MS).toISOString();
-    return json(sessionFor(user.id, expiresAt));
+    const token = issueToken(user.id, expiresAt);
+    const response: AuthResponse = {
+      session: buildSession(user.id, expiresAt),
+      token,
+    };
+    return json(response);
   }),
 
   // POST /api/auth/logout
-  http.post("/api/auth/logout", async () => {
+  http.post("/api/auth/logout", async ({ request }) => {
     const err = await applyScenario();
     if (err) return err;
 
-    const db = loadDb();
-    db.activeUserId = null;
-    saveDb(db);
+    const token = extractBearerToken(request);
+    if (token) {
+      const db = loadDb();
+      delete db.tokens[token];
+      saveDb(db);
+    }
     return json({ ok: true });
   }),
 
   // GET /api/auth/session
-  http.get("/api/auth/session", async () => {
+  http.get("/api/auth/session", async ({ request }) => {
     const err = await applyScenario();
     if (err) return err;
 
-    const db = loadDb();
-    const user = currentUser(db);
-    if (!user) {
-      return errorResponse(401, "UNAUTHORIZED", "Sem sessão ativa.");
+    const token = extractBearerToken(request);
+    if (!token) {
+      return errorResponse(401, "UNAUTHORIZED", "Token ausente.");
     }
-    const expiresAt = new Date(Date.now() + SESSION_DURATION_MS).toISOString();
-    return json(sessionFor(user.id, expiresAt));
+    const db = loadDb();
+    const tokenData = db.tokens[token];
+    if (!tokenData) {
+      return errorResponse(401, "UNAUTHORIZED", "Token inválido.");
+    }
+    if (new Date(tokenData.expiresAt).getTime() < Date.now()) {
+      delete db.tokens[token];
+      saveDb(db);
+      return errorResponse(401, "UNAUTHORIZED", "Sessão expirada.");
+    }
+
+    return json(buildSession(tokenData.userId, tokenData.expiresAt));
   }),
 ];

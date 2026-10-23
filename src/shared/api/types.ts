@@ -29,6 +29,11 @@ export type Session = {
   expiresAt: IsoDate;
 };
 
+export type AuthResponse = {
+  session: Session;
+  token: string;
+};
+
 export type LoginInput = {
   email: string;
   password: string;
