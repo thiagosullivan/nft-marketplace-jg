@@ -1,15 +1,17 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
 import { isApiError } from "@/shared/api";
 import { useLogin } from "./use-auth";
 import { useAuthModal } from "./auth-modal-provider";
 import { AuthModalShell } from "./auth-modal-shell";
+import { PasswordInput } from "./password-input";
+import FacebookIcon from "../../../public/fb-icon.png";
+import GoogleIcon from "../../../public/gg-icon.png";
 
 const loginSchema = z.object({
   email: z.string().email("E-mail inválido."),
@@ -55,60 +57,95 @@ export function LoginPage() {
 
   return (
     <AuthModalShell activeTab="login" onTabChange={switchMode} onClose={close}>
-      <form onSubmit={onSubmit} className="space-y-4" noValidate>
-        <div className="space-y-2">
-          <Label htmlFor="login-email">E-mail</Label>
-          <Input
-            id="login-email"
-            type="email"
-            autoComplete="email"
-            aria-invalid={!!errors.email}
-            aria-describedby={errors.email ? "login-email-error" : undefined}
-            {...register("email")}
-          />
-          {errors.email && (
-            <p id="login-email-error" className="text-sm text-destructive">
-              {errors.email.message}
-            </p>
-          )}
+      <p className="text-[13px] text-center text-foreground mb-6 px-12">
+        Entre para gerenciar sua carteira, coleção e perfil de criador.
+      </p>
+      <form
+        onSubmit={onSubmit}
+        className="flex flex-col items-center mx-auto gap-y-3 w-full"
+        noValidate
+      >
+        <div className="space-y-2 max-w-85 w-full">
+          <div className="space-y-2 w-full">
+            <Input
+              id="login-email"
+              type="email"
+              autoComplete="email"
+              aria-label="E-mail"
+              aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? "login-email-error" : undefined}
+              placeholder="e-mail"
+              {...register("email")}
+              className="rounded-sm min-h-10 border-border bg-transparent! focus:outline-none! focus:ring-0!"
+            />
+            {errors.email && (
+              <p id="login-email-error" className="text-sm text-destructive">
+                {errors.email.message}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2 w-full">
+            <PasswordInput
+              id="login-password"
+              autoComplete="current-password"
+              aria-label="Senha"
+              aria-invalid={!!errors.password}
+              aria-describedby={
+                errors.password ? "login-password-error" : undefined
+              }
+              placeholder="senha"
+              {...register("password")}
+              className="rounded-sm min-h-10 border-border bg-transparent! focus:outline-none! focus:ring-0!"
+            />
+            {errors.password && (
+              <p id="login-password-error" className="text-sm text-destructive">
+                {errors.password.message}
+              </p>
+            )}
+          </div>
+
+          <Link
+            to="/"
+            className="flex justify-end text-sm text-accent font-normal mb-6"
+          >
+            Esqueceu a senha?
+          </Link>
+
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full rounded-sm text-ink font-bold text-base min-h-[45px]"
+          >
+            {isSubmitting ? "Entrando..." : "Entrar"}
+          </Button>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="login-password">Senha</Label>
-          <Input
-            id="login-password"
-            type="password"
-            autoComplete="current-password"
-            aria-invalid={!!errors.password}
-            aria-describedby={
-              errors.password ? "login-password-error" : undefined
-            }
-            {...register("password")}
-          />
-          {errors.password && (
-            <p id="login-password-error" className="text-sm text-destructive">
-              {errors.password.message}
+        <div className="space-y-2 pt-2 w-full">
+          <div className="flex items-center mb-3">
+            <div className="w-full h-px mt-1 bg-border mr-3" />
+            <p className="text-center text-xs text-foreground text-nowrap">
+              Ou continue com
             </p>
-          )}
-        </div>
+            <div className="w-full h-px mt-1 bg-border ml-3" />
+          </div>
 
-        <Button type="submit" disabled={isSubmitting} className="w-full">
-          {isSubmitting ? "Entrando..." : "Entrar"}
-        </Button>
-
-        <div className="space-y-2 pt-2">
-          <p className="text-center text-xs text-muted-foreground">
-            Ou continue com
-          </p>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="flex flex-col gap-y-3 px-12 mb-[93px]">
             <Button
               type="button"
               variant="outline"
               disabled
               aria-disabled="true"
               onClick={() => toast.info("Indisponível na demonstração.")}
+              className="rounded-sm bg-transparent! min-h-10 text-[13px] font-medium gap-3"
             >
-              Google
+              <img
+                src={GoogleIcon}
+                alt=""
+                className="size-5"
+                aria-hidden="true"
+              />
+              Continuar com Google
             </Button>
             <Button
               type="button"
@@ -116,8 +153,15 @@ export function LoginPage() {
               disabled
               aria-disabled="true"
               onClick={() => toast.info("Indisponível na demonstração.")}
+              className="rounded-sm bg-transparent! min-h-10 text-[13px] font-medium gap-3"
             >
-              Facebook
+              <img
+                src={FacebookIcon}
+                alt=""
+                className="size-5"
+                aria-hidden="true"
+              />
+              Continuar com Facebook
             </Button>
           </div>
         </div>
