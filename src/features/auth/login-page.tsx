@@ -100,6 +100,32 @@ export function LoginPage() {
           {isSubmitting ? "Entrando..." : "Entrar"}
         </Button>
 
+        <div className="space-y-2 pt-2">
+          <p className="text-center text-xs text-muted-foreground">
+            Ou continue com
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              disabled
+              aria-disabled="true"
+              onClick={() => toast.info("Indisponível na demonstração.")}
+            >
+              Google
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              disabled
+              aria-disabled="true"
+              onClick={() => toast.info("Indisponível na demonstração.")}
+            >
+              Facebook
+            </Button>
+          </div>
+        </div>
+
         <p className="text-center text-sm text-muted-foreground">
           Não tem conta?{" "}
           <button
