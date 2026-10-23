@@ -27,14 +27,14 @@ export function AuthModalShell({
         role="dialog"
         aria-modal="true"
         aria-labelledby="auth-modal-tab-login"
-        className="relative w-full max-w-md rounded-lg border border-border bg-surface-raised p-6 shadow-xl"
+        className="relative w-full max-w-md bg-surface-card py-12 shadow-xl border-b-10 border-b-primary"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"
           onClick={onClose}
           aria-label="Fechar"
-          className="absolute right-4 top-4 text-muted-foreground hover:text-foreground"
+          className="absolute right-4 top-4 text-primary hover:text-foreground"
         >
           <X className="size-5" />
         </button>
@@ -42,7 +42,7 @@ export function AuthModalShell({
         <div
           role="tablist"
           aria-label="Autenticação"
-          className="mb-6 flex items-center gap-2 pr-8"
+          className="mb-10 flex items-center justify-center gap-2"
         >
           <button
             type="button"
@@ -52,7 +52,7 @@ export function AuthModalShell({
             aria-controls="auth-modal-panel"
             onClick={() => onTabChange("login")}
             className={cn(
-              "text-2xl font-bold transition-colors",
+              "text-xl font-medium transition-colors",
               activeTab === "login"
                 ? "text-primary"
                 : "text-foreground hover:text-primary",
@@ -60,7 +60,7 @@ export function AuthModalShell({
           >
             Entrar
           </button>
-          <span aria-hidden="true" className="text-2xl font-bold text-primary">
+          <span aria-hidden="true" className="text-xl font-medium text-primary">
             |
           </span>
           <button
@@ -71,7 +71,7 @@ export function AuthModalShell({
             aria-controls="auth-modal-panel"
             onClick={() => onTabChange("register")}
             className={cn(
-              "text-2xl font-bold transition-colors",
+              "text-xl font-medium transition-colors",
               activeTab === "register"
                 ? "text-primary"
                 : "text-foreground hover:text-primary",
