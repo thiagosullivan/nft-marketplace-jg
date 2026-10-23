@@ -10,8 +10,8 @@ import { useRegister } from "./use-auth";
 import { useAuthModal } from "./auth-modal-provider";
 import { AuthModalShell } from "./auth-modal-shell";
 import { PasswordInput } from "./password-input";
-import FacebookIcon from "../../../public/fb-icon.png";
-import GoogleIcon from "../../../public/gg-icon.png";
+import FacebookIcon from "../../../public/icons/fb-icon.png";
+import GoogleIcon from "../../../public/icons/gg-icon.png";
 
 const registerSchema = z
   .object({
