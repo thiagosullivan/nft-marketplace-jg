@@ -36,8 +36,13 @@ declare module "@tanstack/react-router" {
 
 async function bootstrap() {
   if (env.VITE_ENABLE_MOCKS) {
+    const { handleResetFromUrl, exposeMswHelpers } =
+      await import("@/mocks/reset");
+
+    handleResetFromUrl();
     const { enableMocking } = await import("@/mocks");
     await enableMocking();
+    exposeMswHelpers();
   }
 
   createRoot(document.getElementById("root")!).render(
