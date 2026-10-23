@@ -1,13 +1,19 @@
+import { lazy, Suspense } from "react";
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { Header } from "@/shared/components/layout/header";
 import { Footer } from "@/shared/components/layout/footer";
 import { AuthModalProvider } from "@/features/auth/auth-modal-provider";
-import { AuthModalHost } from "@/features/auth/auth-modal-host";
 
 export const Route = createRootRoute({
   component: RootLayout,
   notFoundComponent: NotFoundPage,
 });
+
+const AuthModalHost = lazy(() =>
+  import("@/features/auth/auth-modal-host").then((m) => ({
+    default: m.AuthModalHost,
+  })),
+);
 
 function RootLayout() {
   return (
@@ -18,7 +24,9 @@ function RootLayout() {
           <Outlet />
         </main>
         <Footer />
-        <AuthModalHost />
+        <Suspense fallback={null}>
+          <AuthModalHost />
+        </Suspense>
       </div>
     </AuthModalProvider>
   );
