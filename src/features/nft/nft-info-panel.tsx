@@ -4,8 +4,9 @@ import { useToggleFavorite } from "@/features/favorites";
 import { NftEditionSelector } from "./nft-edition-selector";
 import { NftQuantityStepper } from "./nft-quantity-stepper";
 import { NftRating } from "./nft-rating";
-import { FaLinkedinIn, FaRegHeart, FaTwitter } from "react-icons/fa";
+import { FaHeart, FaLinkedinIn, FaRegHeart, FaTwitter } from "react-icons/fa";
 import { CiMail } from "react-icons/ci";
+import { toast } from "sonner";
 
 type Props = {
   nft: Nft;
@@ -43,6 +44,22 @@ export function NftInfoPanel({
   const isFav = isFavorite(nft.id);
   const soldOut = edition.available <= 0;
   const max = editionMax(edition);
+
+  const onToggleFavorite = async () => {
+    const wasFavorite = isFav;
+    try {
+      await toggle(nft);
+      toast.success(
+        wasFavorite ? "Removido dos favoritos." : "Adicionado aos favoritos.",
+      );
+    } catch {
+      toast.error(
+        wasFavorite
+          ? "Não foi possível remover dos favoritos."
+          : "Não foi possível adicionar aos favoritos.",
+      );
+    }
+  };
 
   return (
     <div className="space-y-6 w-full">
@@ -112,16 +129,17 @@ export function NftInfoPanel({
           <Button
             type="button"
             variant="outline"
-            onClick={() => void toggle(nft)}
+            onClick={() => void onToggleFavorite()}
             disabled={favoritePending}
             aria-pressed={isFav}
             aria-label={
               isFav ? "Remover dos favoritos" : "Adicionar aos favoritos"
             }
-            className="min-h-10 w-[130px] rounded-sm text-sm font-medium border border-accent! text-accent bg-transparent! hover:text-accent cursor-pointer"
+            className={`min-h-10 ${isFav ? "w-[180px]" : "w-[130px]"} rounded-sm text-sm font-medium border border-accent! text-accent bg-transparent! hover:text-accent cursor-pointer`}
           >
-            <FaRegHeart />
-            {isFav ? "Favoritado" : "Favoritar"}
+            {isFav ? <FaHeart /> : <FaRegHeart />}
+
+            {isFav ? "Remover favorito" : "Favoritar"}
           </Button>
           {/* <NftShareMenu title={nft.name} /> */}
         </div>
