@@ -24,6 +24,7 @@ import { cn } from "@/shared/lib/utils";
 import { FiltersSidebar, type FiltersValue } from "./filters-sidebar.tsx";
 import NftTrending from "./nft-trending.tsx";
 import { PromoBanner, type Promo } from "./promo-banner.tsx";
+import { BlogCard, type BlogPost } from "./blog-card.tsx";
 
 export type HomeSearch = {
   q?: string;
@@ -77,6 +78,45 @@ const PROMOS: Promo[] = [
     title: "Arte digital selecionada e muito mais",
     text: "Explore novos artistas, coleções verificadas e obras digitais que definem a cultura.",
     href: "/",
+  },
+];
+
+const POSTS: BlogPost[] = [
+  {
+    id: "post-1",
+    image: "/nfts/prod-2.png",
+    title: "Como funciona a propriedade de NFTs",
+    date: "12 de setembro",
+    readTime: "Leitura de 6 min",
+    resume: "Aprenda a colecionar, negociar e verificar ativos digitais.",
+    url: "/",
+  },
+  {
+    id: "post-2",
+    image: "/nfts/prod-1.png",
+    title: "10 artistas digitais para acompanhar",
+    date: "13 de setembro",
+    readTime: "Leitura de 2 min",
+    resume: "Conheça criadores que moldam a cultura digital.",
+    url: "/",
+  },
+  {
+    id: "post-3",
+    image: "/nfts/prod-4.png",
+    title: "Raridade, atributos e procedência",
+    date: "15 de setembro",
+    readTime: "Leitura de 3 min",
+    resume: "Entenda raridade, procedência, direitos autorais e utilidade.",
+    url: "/",
+  },
+  {
+    id: "post-4",
+    image: "/nfts/prod-3.png",
+    title: "Como proteger sua carteira",
+    date: "15 de setembro",
+    readTime: "Leitura de 2 min",
+    resume: "Proteja sua carteira, seus ativos e sua identidade.",
+    url: "/",
   },
 ];
 
@@ -142,7 +182,7 @@ export function HomePage({ search }: { search: HomeSearch }) {
         networks: next.networks.length > 0 ? next.networks : undefined,
         minPriceEth: next.minPriceEth,
         maxPriceEth: next.maxPriceEth,
-        page: 1, // reseta a página ao filtrar
+        page: 1,
       }),
       resetScroll: false,
     });
@@ -308,10 +348,27 @@ export function HomePage({ search }: { search: HomeSearch }) {
         </section>
       </div>
 
-      <section className="flex gap-7 flex-col md:flex-row">
+      <section className="flex gap-7 flex-col md:flex-row mb-23">
         {PROMOS.map((p) => (
           <PromoBanner key={p.id} promo={p} />
         ))}
+      </section>
+
+      <section>
+        <div className="text-center">
+          <h2 className="text-[28px] font-bold text-foreground mb-3">
+            Diário da Cunhagem
+          </h2>
+          <p className="text-secondary text-sm font-normal mb-10">
+            Histórias, guias e insights para colecionadores sobre o universo da
+            propriedade digital.
+          </p>
+        </div>
+        <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {POSTS.map((p) => (
+            <BlogCard key={p.id} post={p} />
+          ))}
+        </div>
       </section>
     </div>
   );
