@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { cn } from "@/shared/lib/utils";
-import Filter from "./filter";
+import { FiltersSidebar, type FiltersValue } from "./filters-sidebar.tsx";
 
 export type HomeSearch = {
   q?: string;
@@ -53,7 +53,6 @@ const SORT_OPTIONS: Array<{
   { value: "name-desc", label: "Nome: Z–A" },
 ];
 
-/** Default de sort por tab (quando o usuário não escolheu um sort). */
 function defaultSortFor(
   tab: NonNullable<HomeSearch["tab"]>,
 ): NonNullable<HomeSearch["sort"]> {
@@ -67,7 +66,7 @@ export function HomePage({ search }: { search: HomeSearch }) {
 
   const page = search.page ?? 1;
   const tab = search.tab ?? "all";
-  const sort = search.sort; // pode ser undefined (usuário não escolheu)
+  const sort = search.sort;
   const effectiveSort = sort ?? defaultSortFor(tab);
   const selectValue = sort ?? defaultSortFor(tab);
 
@@ -108,6 +107,43 @@ export function HomePage({ search }: { search: HomeSearch }) {
     });
   };
 
+  const filters: FiltersValue = {
+    collections: search.collections ?? [],
+    networks: search.networks ?? [],
+    minPriceEth: search.minPriceEth,
+    maxPriceEth: search.maxPriceEth,
+  };
+
+  const setFilters = (next: FiltersValue) => {
+    void navigate({
+      to: "/",
+      search: (prev) => ({
+        ...prev,
+        collections: next.collections.length > 0 ? next.collections : undefined,
+        networks: next.networks.length > 0 ? next.networks : undefined,
+        minPriceEth: next.minPriceEth,
+        maxPriceEth: next.maxPriceEth,
+        page: 1, // reseta a página ao filtrar
+      }),
+      resetScroll: false,
+    });
+  };
+
+  const clearFilters = () => {
+    void navigate({
+      to: "/",
+      search: (prev) => ({
+        ...prev,
+        collections: undefined,
+        networks: undefined,
+        minPriceEth: undefined,
+        maxPriceEth: undefined,
+        page: 1,
+      }),
+      resetScroll: false,
+    });
+  };
+
   return (
     <div className="container mx-auto max-w-300 px-4 py-8">
       <div className="mb-24">
@@ -116,10 +152,16 @@ export function HomePage({ search }: { search: HomeSearch }) {
 
       <div className="flex items-start gap-12 w-full">
         <aside
-          className="hidden lg:block max-w-[310px] w-full"
+          className="hidden lg:block max-w-[310px] w-full space-y-6"
           aria-label="Filtros"
         >
-          <Filter />
+          <FiltersSidebar
+            facets={data?.facets}
+            value={filters}
+            onChange={setFilters}
+            onClear={clearFilters}
+          />
+          <p>IMAGEM</p>
         </aside>
 
         <section aria-busy={isLoading || isFetching} className="w-full">
