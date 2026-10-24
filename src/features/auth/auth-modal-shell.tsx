@@ -19,22 +19,24 @@ export function AuthModalShell({
 }: Props) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/80 px-4 py-12"
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink/80 px-4 py-6 sm:items-center sm:py-12"
       role="presentation"
-      onClick={onClose}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="auth-modal-tab-login"
-        className="relative w-full max-w-md bg-surface-card py-12 shadow-xl border-b-10 border-b-primary"
+        className="relative z-10 my-auto w-full max-w-md bg-surface-card py-12 shadow-xl border-b-10 border-b-primary"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"
           onClick={onClose}
           aria-label="Fechar"
-          className="absolute right-4 top-4 text-primary hover:text-foreground"
+          className="absolute right-4 top-4 z-20 text-primary hover:text-foreground"
         >
           <X className="size-5" />
         </button>

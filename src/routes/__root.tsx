@@ -1,4 +1,5 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { Header } from "@/shared/components/layout/header";
 import { Footer } from "@/shared/components/layout/footer";
@@ -24,12 +25,19 @@ function RootLayout() {
           <Outlet />
         </main>
         <Footer />
+      </div>
+      <ModalPortal>
         <Suspense fallback={null}>
           <AuthModalHost />
         </Suspense>
-      </div>
+      </ModalPortal>
     </AuthModalProvider>
   );
+}
+
+function ModalPortal({ children }: { children: ReactNode }) {
+  if (typeof document === "undefined") return null;
+  return createPortal(children, document.body);
 }
 
 function NotFoundPage() {
