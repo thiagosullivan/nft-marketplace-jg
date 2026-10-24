@@ -3,6 +3,7 @@ import { NftGallery } from "./nft-gallery";
 import { NftInfoPanel } from "./nft-info-panel";
 import { NftTabs } from "./nft-tabs";
 import { Link } from "@tanstack/react-router";
+import { NftRelatedSection } from "./nft-related-section";
 
 type Props = {
   nft: Nft;
@@ -34,7 +35,7 @@ export function NftDetailView({
   const gallery = nft.galleryUrls.length > 0 ? nft.galleryUrls : [nft.imageUrl];
 
   return (
-    <div className="container mx-auto max-w-300 px-4 pt-10 pb-24">
+    <div className="container mx-auto max-w-300 px-4 pt-10">
       <div className="mb-3 text-foreground text-[15px] font-bold">
         <Link to="/">Início /</Link>
         <Link to="/"> Mercado</Link>
@@ -167,6 +168,8 @@ export function NftDetailView({
           }
         />
       </div>
+
+      <NftRelatedSection nft={nft} />
     </div>
   );
 }
