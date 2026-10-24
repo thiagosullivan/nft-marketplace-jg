@@ -23,6 +23,7 @@ import {
 import { cn } from "@/shared/lib/utils";
 import { FiltersSidebar, type FiltersValue } from "./filters-sidebar.tsx";
 import NftTrending from "./nft-trending.tsx";
+import { PromoBanner, type Promo } from "./promo-banner.tsx";
 
 export type HomeSearch = {
   q?: string;
@@ -61,6 +62,23 @@ function defaultSortFor(
   if (tab === "trending") return "price-desc";
   return "recent";
 }
+
+const PROMOS: Promo[] = [
+  {
+    id: "promo-1",
+    image: "/nfts/prod-1.png",
+    title: "Lançamentos gênesis de edição limitada",
+    text: "Colecione edições escassas diretamente dos criadores antes da revelação pública.",
+    href: "/",
+  },
+  {
+    id: "promo-2",
+    image: "/nfts/prod-2.png",
+    title: "Arte digital selecionada e muito mais",
+    text: "Explore novos artistas, coleções verificadas e obras digitais que definem a cultura.",
+    href: "/",
+  },
+];
 
 export function HomePage({ search }: { search: HomeSearch }) {
   const navigate = useNavigate();
@@ -151,7 +169,7 @@ export function HomePage({ search }: { search: HomeSearch }) {
         <HeroCarousel />
       </div>
 
-      <div className="flex items-start gap-12 w-full">
+      <div className="flex items-start gap-12 w-full mb-23">
         <aside
           className="hidden lg:block max-w-[310px] w-full space-y-6"
           aria-label="Filtros"
@@ -289,6 +307,12 @@ export function HomePage({ search }: { search: HomeSearch }) {
           )}
         </section>
       </div>
+
+      <section className="flex gap-7 flex-col md:flex-row">
+        {PROMOS.map((p) => (
+          <PromoBanner key={p.id} promo={p} />
+        ))}
+      </section>
     </div>
   );
 }
