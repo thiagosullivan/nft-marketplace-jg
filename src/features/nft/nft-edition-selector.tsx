@@ -30,17 +30,17 @@ export function NftEditionSelector({ editions, selectedId, onChange }: Props) {
     <div
       role="radiogroup"
       aria-labelledby={`${groupId}-label`}
-      className="space-y-3"
+      className="space-y-3 mb-3.5"
     >
       <p
         id={`${groupId}-label`}
-        className="text-sm font-medium text-foreground"
+        className="text-[15px] font-bold text-foreground"
       >
-        Edições disponíveis
+        Edição:
       </p>
 
       <div
-        className="grid grid-cols-2 gap-2 sm:grid-cols-4"
+        className="flex items-center gap-1.5"
         onKeyDown={(e) => {
           if (e.key === "ArrowRight" || e.key === "ArrowDown") {
             e.preventDefault();
@@ -61,13 +61,13 @@ export function NftEditionSelector({ editions, selectedId, onChange }: Props) {
               key={edition.id}
               htmlFor={inputId}
               className={cn(
-                "relative flex cursor-pointer flex-col items-start gap-1 rounded-md border px-3 py-2 text-left text-sm transition-colors",
+                "relative flex cursor-pointer flex-col items-start gap-1 border px-3 py-2 text-left text-sm transition-colors rounded-[50%/50%]",
                 "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-background",
                 isDisabled
-                  ? "cursor-not-allowed border-border/60 text-muted-foreground/60"
+                  ? "cursor-not-allowed border-border text-secondary"
                   : isSelected
-                    ? "border-primary bg-surface-raised text-foreground"
-                    : "border-border bg-surface-card text-foreground hover:border-primary/60",
+                    ? "border-primary bg-transparent text-accent"
+                    : "border-border bg-transparent text-secondary hover:border-primary/60",
               )}
               aria-disabled={isDisabled || undefined}
             >
@@ -82,19 +82,19 @@ export function NftEditionSelector({ editions, selectedId, onChange }: Props) {
                 className="sr-only"
                 aria-label={`Edição ${edition.label}, ${edition.priceEth} ETH, ${availabilityLabel(edition)}`}
               />
-              <span className="font-semibold">{edition.label}</span>
-              <span className="text-xs text-muted-foreground">
-                {edition.priceEth} ETH
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {availabilityLabel(edition)}
-              </span>
+              <span className="font-semibold text-sm">{edition.label}</span>
             </label>
           );
         })}
       </div>
+      {/* <span className="text-xs text-muted-foreground">
+        {edition.priceEth} ETH
+      </span>
+      <span className="text-xs text-muted-foreground">
+        {availabilityLabel(edition)}
+      </span> */}
 
-      {selectedId && (
+      {/* {selectedId && (
         <p className="sr-only" aria-live="polite">
           {(() => {
             const selected = editions.find((e) => e.id === selectedId);
@@ -102,7 +102,7 @@ export function NftEditionSelector({ editions, selectedId, onChange }: Props) {
             return `Edição ${selected.label} selecionada. Preço ${selected.priceEth} ETH.`;
           })()}
         </p>
-      )}
+      )} */}
     </div>
   );
 }

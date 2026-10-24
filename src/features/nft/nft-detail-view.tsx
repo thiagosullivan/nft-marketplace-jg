@@ -2,6 +2,7 @@ import type { Nft, NftEdition } from "@/shared/api/types";
 import { NftGallery } from "./nft-gallery";
 import { NftInfoPanel } from "./nft-info-panel";
 import { NftTabs } from "./nft-tabs";
+import { Link } from "@tanstack/react-router";
 
 type Props = {
   nft: Nft;
@@ -33,57 +34,55 @@ export function NftDetailView({
   const gallery = nft.galleryUrls.length > 0 ? nft.galleryUrls : [nft.imageUrl];
 
   return (
-    <div className="container mx-auto max-w-6xl px-4 py-10">
-      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_360px]">
-        <NftGallery images={gallery} alt={nft.name} />
-        <NftInfoPanel
-          nft={nft}
-          edition={edition}
-          onEditionChange={onEditionChange}
-          quantity={quantity}
-          onQuantityChange={onQuantityChange}
-          onBuy={onBuy}
-          buyPending={buyPending}
-        />
+    <div className="container mx-auto max-w-300 px-4 pt-10 pb-24">
+      <div className="mb-3 text-foreground text-[15px] font-bold">
+        <Link to="/">Início /</Link>
+        <Link to="/"> Mercado</Link>
       </div>
-      <div className="mt-12">
+      <div className="flex gap-8 items-start mb-24">
+        <div className="max-w-[575px] w-full">
+          <NftGallery images={gallery} alt={nft.name} />
+        </div>
+        <div className="flex-1 max-w-[595px] w-full">
+          <NftInfoPanel
+            nft={nft}
+            edition={edition}
+            onEditionChange={onEditionChange}
+            quantity={quantity}
+            onQuantityChange={onQuantityChange}
+            onBuy={onBuy}
+            buyPending={buyPending}
+          />
+        </div>
+      </div>
+      <div className="">
         <NftTabs
           details={
             <div className="space-y-6">
-              <section aria-labelledby="details-title" className="space-y-2">
-                <h2
+              <section aria-labelledby="details-title" className="space-y-3">
+                {/* <h2
                   id="details-title"
                   className="text-lg font-semibold text-foreground"
                 >
                   Detalhes
-                </h2>
-                <p className="whitespace-pre-line text-sm text-muted-foreground">
+                </h2> */}
+                <p className="whitespace-pre-line text-sm text-secondary">
                   {nft.details}
                 </p>
-              </section>
-
-              <section aria-labelledby="about-title" className="space-y-2">
-                <h2
-                  id="about-title"
-                  className="text-lg font-semibold text-foreground"
-                >
-                  Sobre
-                </h2>
-                <p className="text-sm text-muted-foreground">{nft.about}</p>
               </section>
 
               <section aria-labelledby="network-title" className="space-y-2">
                 <h2
                   id="network-title"
-                  className="text-lg font-semibold text-foreground"
+                  className="text-sm font-bold text-foreground"
                 >
                   Rede
                 </h2>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-secondary">
                   {nft.networkDescription}
                 </p>
                 {nft.ipfsMetadataUri && (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-secondary">
                     Metadados:{" "}
                     <code className="break-all text-foreground">
                       {nft.ipfsMetadataUri}
@@ -95,14 +94,14 @@ export function NftDetailView({
               <section aria-labelledby="contract-title" className="space-y-2">
                 <h2
                   id="contract-title"
-                  className="text-lg font-semibold text-foreground"
+                  className="text-sm font-bold text-foreground"
                 >
                   Contrato
                 </h2>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-secondary">
                   {nft.contractDescription}
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-secondary">
                   Endereço:{" "}
                   <code className="break-all text-foreground">
                     <AddressInline address={nft.contractAddress} />
@@ -113,16 +112,16 @@ export function NftDetailView({
               <section aria-labelledby="royalty-title" className="space-y-2">
                 <h2
                   id="royalty-title"
-                  className="text-lg font-semibold text-foreground"
+                  className="text-sm font-bold text-foreground"
                 >
                   Direitos autorais
                 </h2>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-secondary">
                   {nft.royaltyDescription}
                 </p>
               </section>
 
-              <section aria-labelledby="facts-title" className="space-y-2">
+              {/* <section aria-labelledby="facts-title" className="space-y-2">
                 <h2
                   id="facts-title"
                   className="text-lg font-semibold text-foreground"
@@ -163,7 +162,7 @@ export function NftDetailView({
                     </dd>
                   </div>
                 </dl>
-              </section>
+              </section> */}
             </div>
           }
         />

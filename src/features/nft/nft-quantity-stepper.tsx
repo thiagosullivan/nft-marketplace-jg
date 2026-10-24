@@ -29,10 +29,10 @@ export function NftQuantityStepper({
 
   return (
     <div className="space-y-2">
-      <label htmlFor={inputId} className="text-sm font-medium text-foreground">
+      {/* <label htmlFor={inputId} className="text-sm font-medium text-foreground">
         Quantidade
-      </label>
-      <div className="flex items-center gap-2">
+      </label> */}
+      <div className="flex items-center gap-1">
         <Button
           type="button"
           variant="outline"
@@ -40,9 +40,9 @@ export function NftQuantityStepper({
           onClick={() => onChange(clamp(value - 1, min, max))}
           disabled={!canDec}
           aria-label="Diminuir quantidade"
-          className="size-10"
+          className="size-10 bg-primary! w-[33px] h-[50px] rounded-full!"
         >
-          <Minus className="size-4" aria-hidden="true" />
+          <Minus className="size-4 text-black" aria-hidden="true" />
         </Button>
         <Input
           id={inputId}
@@ -57,7 +57,7 @@ export function NftQuantityStepper({
             onChange(clamp(next, min, max));
           }}
           aria-describedby={`${inputId}-hint`}
-          className="h-10 w-20 text-center"
+          className="h-10 w-10 text-center bg-transparent! border-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />
         <Button
           type="button"
@@ -66,7 +66,7 @@ export function NftQuantityStepper({
           onClick={() => onChange(clamp(value + 1, min, max))}
           disabled={!canInc}
           aria-label="Aumentar quantidade"
-          className="size-10"
+          className="size-10 bg-primary! w-[33px] h-[50px] rounded-full!"
         >
           <Plus className="size-4" aria-hidden="true" />
         </Button>

@@ -18,7 +18,7 @@ export function NftRating({ average, count }: Props) {
 
   return (
     <div
-      className="flex items-center gap-2 text-sm text-muted-foreground"
+      className="flex items-center gap-1.5 text-[15px] font-normal text-foreground"
       role="img"
       aria-label={label}
     >
@@ -30,19 +30,20 @@ export function NftRating({ average, count }: Props) {
             <Star
               key={i}
               className={cn(
-                "size-4",
+                "size-3.5",
                 filled
                   ? "fill-primary text-primary"
                   : half
-                    ? "fill-primary/50 text-primary"
-                    : "text-border",
+                    ? "fill-secondary text-secondary"
+                    : "",
               )}
             />
           );
         })}
       </div>
       <span aria-hidden="true">
-        {count > 0 ? `${average.toFixed(1)} (${count})` : "Sem avaliações"}
+        {/* {count > 0 ? `${average.toFixed(1)} (${count})` : "Sem avaliações"} */}
+        {count > 0 ? `${count} avaliações de colecionadores` : "Sem avaliações"}
       </span>
     </div>
   );

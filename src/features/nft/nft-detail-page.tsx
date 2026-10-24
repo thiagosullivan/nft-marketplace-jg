@@ -36,7 +36,6 @@ export function NFTDetailPage({ id }: Props) {
     }
   }, [query.data]);
 
-  // Inicializa a edição selecionada quando o NFT carrega (ou muda de id).
   useEffect(() => {
     if (!query.data) return;
     const fallback = defaultEditionOf(query.data);
@@ -47,7 +46,6 @@ export function NFTDetailPage({ id }: Props) {
     });
   }, [query.data]);
 
-  // Se a edição selecionada ficar esgotada (por refetch), cai para a padrão.
   useEffect(() => {
     if (!query.data || !editionId) return;
     const current = findEdition(query.data, editionId);
@@ -64,7 +62,6 @@ export function NFTDetailPage({ id }: Props) {
     return findEdition(query.data, editionId);
   }, [query.data, editionId]);
 
-  // Ajusta a quantidade quando muda de edição.
   useEffect(() => {
     if (!edition) return;
     const max = edition.isOpen ? 9999 : Math.max(1, edition.available);
@@ -112,7 +109,6 @@ export function NFTDetailPage({ id }: Props) {
       onQuantityChange={setQuantity}
       onBuy={() => {
         void onBuy().catch((err) => {
-          // O useAddToCart já mostra toast; aqui só evitamos unhandled rejection.
           if (!isApiError(err)) console.error(err);
         });
       }}

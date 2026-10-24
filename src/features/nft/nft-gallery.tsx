@@ -12,19 +12,10 @@ export function NftGallery({ images, alt }: Props) {
   const active = safeImages[Math.min(activeIndex, safeImages.length - 1)];
 
   return (
-    <div className="space-y-3">
-      <div className="aspect-square w-full overflow-hidden rounded-lg bg-surface-raised">
-        <img
-          src={active}
-          alt={alt}
-          className="h-full w-full object-cover"
-          loading="eager"
-        />
-      </div>
-
+    <div className="flex items-start">
       {safeImages.length > 1 && (
         <ul
-          className="grid grid-cols-4 gap-3"
+          className="grid grid-row gap-4 mr-7"
           aria-label="Miniaturas da galeria"
         >
           {safeImages.map((src, index) => {
@@ -49,8 +40,8 @@ export function NftGallery({ images, alt }: Props) {
                   aria-pressed={selected}
                   data-active={selected}
                   className={cn(
-                    "block aspect-square w-full overflow-hidden rounded-md bg-surface-raised outline-none",
-                    "ring-2 ring-offset-2 ring-offset-background focus-visible:ring-primary",
+                    "block aspect-square overflow-hidden rounded-sm bg-surface-raised outline-none w-25 h-25",
+                    "ring-1 ring-offset-1 ring-offset-background focus-visible:ring-primary",
                     selected ? "ring-primary" : "ring-transparent",
                   )}
                 >
@@ -67,6 +58,15 @@ export function NftGallery({ images, alt }: Props) {
           })}
         </ul>
       )}
+
+      <div className="aspect-square max-w-[444px] w-full max-h-[444px] overflow-hidden rounded-md bg-surface-card flex items-center justify-center">
+        <img
+          src={active}
+          alt={alt}
+          className="max-w-[404px] max-h-[404px] h-full w-full object-cover rounded-xl"
+          loading="eager"
+        />
+      </div>
     </div>
   );
 }

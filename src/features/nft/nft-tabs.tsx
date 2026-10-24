@@ -26,8 +26,8 @@ export function NftTabs({ details }: Props) {
           className={cn(
             "pb-2 text-sm font-medium transition-colors",
             active === "details"
-              ? "text-primary border-b-2 border-primary"
-              : "text-muted-foreground hover:text-foreground",
+              ? "text-accent border-b-2 border-accent"
+              : "text-foreground hover:text-foreground",
           )}
         >
           Detalhes do NFT
@@ -42,7 +42,7 @@ export function NftTabs({ details }: Props) {
           onClick={() =>
             toast.info("Avaliações ainda não foram implementadas.")
           }
-          className="pb-2 text-sm font-medium text-muted-foreground/60 hover:text-muted-foreground"
+          className="pb-2 text-sm font-medium text-foreground hover:text-muted-foreground"
         >
           Avaliações
         </button>
@@ -52,7 +52,7 @@ export function NftTabs({ details }: Props) {
         role="tabpanel"
         id="nft-tabpanel-details"
         aria-labelledby="nft-tab-details"
-        className="pt-6"
+        className="pt-3"
       >
         {details}
       </div>
