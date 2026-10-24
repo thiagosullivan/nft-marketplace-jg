@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { cn } from "@/shared/lib/utils";
+import Filter from "./filter";
 
 export type HomeSearch = {
   q?: string;
@@ -113,17 +114,20 @@ export function HomePage({ search }: { search: HomeSearch }) {
         <HeroCarousel />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
-        <aside className="hidden lg:block" aria-label="Filtros">
-          {/* TODO 2.2b: FiltersSidebar */}
+      <div className="flex items-start gap-12 w-full">
+        <aside
+          className="hidden lg:block max-w-[310px] w-full"
+          aria-label="Filtros"
+        >
+          <Filter />
         </aside>
 
-        <section aria-busy={isLoading || isFetching}>
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <section aria-busy={isLoading || isFetching} className="w-full">
+          <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
             <div
               role="tablist"
               aria-label="Filtrar NFTs"
-              className="flex items-center gap-6"
+              className="flex items-center gap-5"
             >
               {TABS.map((t) => (
                 <button
@@ -133,17 +137,17 @@ export function HomePage({ search }: { search: HomeSearch }) {
                   aria-selected={tab === t.value}
                   onClick={() => setTab(t.value)}
                   className={cn(
-                    "relative pb-2 text-sm font-medium transition-colors",
+                    "relative pb-2 text-base font-medium transition-colors",
                     tab === t.value
-                      ? "text-primary"
-                      : "text-foreground hover:text-primary",
+                      ? "text-accent"
+                      : "text-foreground hover:text-accent",
                   )}
                 >
                   {t.label}
                   {tab === t.value && (
                     <span
                       aria-hidden="true"
-                      className="absolute inset-x-0 -bottom-px h-0.5 bg-primary"
+                      className="absolute inset-x-0 -bottom-px h-0.5 bg-primary w-11/12"
                     />
                   )}
                 </button>
@@ -151,7 +155,7 @@ export function HomePage({ search }: { search: HomeSearch }) {
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">
+              <span className="text-[15px] font-normal text-foreground">
                 Ordenar por:
               </span>
               <Select
@@ -160,10 +164,10 @@ export function HomePage({ search }: { search: HomeSearch }) {
                   setSort(v as NonNullable<HomeSearch["sort"]>)
                 }
               >
-                <SelectTrigger className="w-[220px]">
+                <SelectTrigger className="w-[200px] bg-transparent! border-none! p-0! h-min! outline-none! focus:outline-none! focus:ring-0! text-foreground! [&_svg]:text-foreground!">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-ink!">
                   {SORT_OPTIONS.map((o) => (
                     <SelectItem key={o.value} value={o.value}>
                       {o.label}
@@ -182,7 +186,7 @@ export function HomePage({ search }: { search: HomeSearch }) {
             <EmptyState />
           ) : (
             <>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-x-8.5 gap-y-18 sm:grid-cols-2 lg:grid-cols-3">
                 {data!.items.map((nft) => (
                   <NftCard key={nft.id} nft={nft} />
                 ))}
@@ -190,7 +194,7 @@ export function HomePage({ search }: { search: HomeSearch }) {
 
               {(data!.totalPages ?? 0) > 1 && (
                 <nav aria-label="Paginação" className="mt-8">
-                  <Pagination>
+                  <Pagination className="justify-end!">
                     <PaginationContent>
                       {page > 1 && (
                         <PaginationItem>
@@ -200,6 +204,7 @@ export function HomePage({ search }: { search: HomeSearch }) {
                               e.preventDefault();
                               goToPage(page - 1);
                             }}
+                            className="w-8.75 h-8.75 rounded-sm"
                           />
                         </PaginationItem>
                       )}
@@ -214,6 +219,7 @@ export function HomePage({ search }: { search: HomeSearch }) {
                                 e.preventDefault();
                                 goToPage(n);
                               }}
+                              className="w-8.75 h-8.75 rounded-sm"
                             >
                               {n}
                             </PaginationLink>
@@ -228,6 +234,7 @@ export function HomePage({ search }: { search: HomeSearch }) {
                               e.preventDefault();
                               goToPage(page + 1);
                             }}
+                            className="w-8.75 h-8.75 rounded-sm"
                           />
                         </PaginationItem>
                       )}

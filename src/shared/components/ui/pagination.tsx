@@ -1,12 +1,12 @@
-import * as React from "react"
-import { cn } from "cn"
+import * as React from "react";
+import { cn } from "cn";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
   MoreHorizontalIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { buttonVariants, type Button } from "@/shared/components/ui/button"
+import { buttonVariants, type Button } from "@/shared/components/ui/button";
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
@@ -17,7 +17,7 @@ function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
       className={cn("mx-auto flex w-full justify-center", className)}
       {...props}
     />
-  )
+  );
 }
 
 function PaginationContent({
@@ -27,20 +27,20 @@ function PaginationContent({
   return (
     <ul
       data-slot="pagination-content"
-      className={cn("flex flex-row items-center gap-1", className)}
+      className={cn("flex flex-row items-center gap-2", className)}
       {...props}
     />
-  )
+  );
 }
 
 function PaginationItem({ ...props }: React.ComponentProps<"li">) {
-  return <li data-slot="pagination-item" {...props} />
+  return <li data-slot="pagination-item" {...props} />;
 }
 
 type PaginationLinkProps = {
-  isActive?: boolean
+  isActive?: boolean;
 } & Pick<React.ComponentProps<typeof Button>, "size"> &
-  React.ComponentProps<"a">
+  React.ComponentProps<"a">;
 
 function PaginationLink({
   className,
@@ -58,11 +58,17 @@ function PaginationLink({
           variant: isActive ? "outline" : "ghost",
           size,
         }),
-        className
+        // Estilo quando NÃO está ativo
+        !isActive &&
+          "text-foreground! text-base! font-bold! bg-transparent! border border-border! hover:bg-muted!",
+        // Estilo quando ESTÁ ativo
+        isActive &&
+          " text-ink! text-base! font-bold! bg-primary! border-primary! hover:bg-primary/90!",
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
 function PaginationPrevious({
@@ -77,9 +83,9 @@ function PaginationPrevious({
       {...props}
     >
       <ChevronLeftIcon />
-      <span className="hidden sm:block">Previous</span>
+      {/* <span className="hidden sm:block">Previous</span> */}
     </PaginationLink>
-  )
+  );
 }
 
 function PaginationNext({
@@ -93,10 +99,10 @@ function PaginationNext({
       className={cn("gap-1 px-2.5 sm:pr-2.5", className)}
       {...props}
     >
-      <span className="hidden sm:block">Next</span>
+      {/* <span className="hidden sm:block">Next</span> */}
       <ChevronRightIcon />
     </PaginationLink>
-  )
+  );
 }
 
 function PaginationEllipsis({
@@ -113,7 +119,7 @@ function PaginationEllipsis({
       <MoreHorizontalIcon className="size-4" />
       <span className="sr-only">More pages</span>
     </span>
-  )
+  );
 }
 
 export {
@@ -124,4 +130,4 @@ export {
   PaginationPrevious,
   PaginationNext,
   PaginationEllipsis,
-}
+};
