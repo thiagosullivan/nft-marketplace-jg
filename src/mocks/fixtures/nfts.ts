@@ -7,8 +7,6 @@ import type {
   NftRating,
 } from "@/shared/api/types";
 
-// Tabelas de dados (determinísticas)
-
 export const COLLECTIONS = [
   "Arte digital",
   "Fotografia",
@@ -54,6 +52,11 @@ const CREATORS = [
     id: "creator-lyra",
     name: "Lyra Collective",
     avatarUrl: "https://i.pravatar.cc/150?img=35",
+  },
+  {
+    id: "creator-nova",
+    name: "Nova Sato",
+    avatarUrl: "https://i.pravatar.cc/150?img=45",
   },
 ] as const;
 
@@ -126,6 +129,24 @@ const ATTRIBUTE_POOL = [
   "Halo",
 ] as const;
 
+const THEMES = [
+  "identidade, movimento e luz",
+  "memória, território e ritmo",
+  "silêncio, matéria e símbolo",
+  "corpo, arquitetura e tempo",
+  "desejo, ruído e geometria",
+  "origem, rito e repetição",
+] as const;
+
+const DISPLAY_COLLECTIONS = [
+  "Kurio Editions",
+  "Kurio Apes",
+  "Kurio Frames",
+  "Kurio Rituals",
+  "Kurio Objects",
+  "Kurio Signals",
+] as const;
+
 // Helpers
 
 function pad3(n: number): string {
@@ -140,6 +161,25 @@ function eth(value: number): string {
   return value.toFixed(2);
 }
 
+function hash32(input: number): number {
+  let x = (input + 1) * 0x9e3779b1;
+  x = (x ^ (x >>> 16)) >>> 0;
+  x = Math.imul(x, 0x85ebca6b) >>> 0;
+  x = (x ^ (x >>> 13)) >>> 0;
+  return x >>> 0;
+}
+
+function productTokenId(index: number): string {
+  if (index === 0) return `#${pad4(42)}`;
+  const n = (hash32(index) % 9999) + 1;
+  return `#${pad4(n)}`;
+}
+
+function editionTokenId(productIndex: number, editionOrdinal: number): string {
+  const n = (hash32(productIndex * 31 + editionOrdinal) % 9999) + 1;
+  return `#${pad4(n)}`;
+}
+
 function dateFromIndex(index: number): IsoDate {
   const ts = Date.now() - (index + 1) * 24 * 60 * 60 * 1000;
   return new Date(ts).toISOString();
@@ -147,11 +187,9 @@ function dateFromIndex(index: number): IsoDate {
 
 function galleryAt(index: number): string[] {
   const cover = NFT_IMAGES[index % NFT_IMAGES.length];
-
   if (index % 2 === 1) {
     return [cover, cover, cover, cover];
   }
-
   const out: string[] = [];
   for (let i = 0; i < NFT_IMAGES.length; i++) {
     out.push(NFT_IMAGES[(index + i) % NFT_IMAGES.length]);
@@ -181,7 +219,7 @@ function editionsFor(
     total: 1,
     available: avail1,
     priceEth: eth(basePrice),
-    tokenId: `#${pad4(n * 10 + 1)}`,
+    tokenId: editionTokenId(nftIndex, 1),
   });
 
   if (count >= 2) {
@@ -193,7 +231,7 @@ function editionsFor(
       total: minted,
       available: 9999,
       priceEth: eth(basePrice * 1.15),
-      tokenId: `#${pad4(n * 10 + 2)}`,
+      tokenId: editionTokenId(nftIndex, 2),
     });
   }
 
@@ -205,7 +243,7 @@ function editionsFor(
       total: 50,
       available: nftIndex % 7 === 0 ? 0 : 50 - (nftIndex % 10),
       priceEth: eth(basePrice * 1.3),
-      tokenId: `#${pad4(n * 10 + 3)}`,
+      tokenId: editionTokenId(nftIndex, 3),
     });
   }
 
@@ -242,53 +280,177 @@ function royaltyFor(index: number): number {
   return 2.5 + (index % 8) * 1.0;
 }
 
+function displayPriceFrom(editions: NftEdition[]): string {
+  const firstAvailable = editions.find((e) => e.available > 0);
+  const chosen = firstAvailable ?? editions[0];
+  return chosen?.priceEth ?? "0.00";
+}
+
+function networkLabel(network: NftNetwork): string {
+  switch (network) {
+    case "ethereum":
+      return "Ethereum";
+    case "polygon":
+      return "Polygon";
+    case "solana":
+      return "Solana";
+  }
+}
+
 const PRICES: readonly number[] = [
   0.02, 0.05, 0.08, 0.12, 0.18, 0.25, 0.33, 0.42, 0.5, 0.65, 0.8, 0.95, 1.1,
   1.3, 1.55, 1.8, 2.1, 2.4, 2.75, 3.1, 3.5, 3.95, 4.4, 4.9, 5.45, 6.0, 6.6, 7.2,
   7.85, 8.5, 9.2, 9.95, 10.7, 11.2, 11.75, 12.3,
 ];
 
+function buildTexts(input: {
+  index: number;
+  name: string;
+  collection: string;
+  displayCollection: string;
+  network: NftNetwork;
+  creatorName: string;
+  royaltyPercent: number;
+  editionLabel: string;
+  attributes: string[];
+}): Pick<
+  Nft,
+  | "description"
+  | "details"
+  | "about"
+  | "networkDescription"
+  | "contractDescription"
+  | "royaltyDescription"
+  | "ipfsMetadataUri"
+> {
+  const {
+    index,
+    name,
+    // collection,
+    displayCollection,
+    network,
+    creatorName,
+    royaltyPercent,
+    editionLabel,
+    attributes,
+  } = input;
+  const networkName = networkLabel(network);
+  const theme = THEMES[index % THEMES.length];
+  const attrList = attributes.join(", ");
+
+  if (index === 0) {
+    return {
+      description:
+        "Emerald Ape #001 é uma obra digital 1/1 finalizada à mão da coleção Kurio Apes. " +
+        "Cada atributo fica armazenado nos metadados do token e verificado na Ethereum. " +
+        "A obra explora identidade, movimento e luz em um mundo digital sem fronteiras.",
+      details:
+        "Emerald Ape #001 é uma obra digital 1/1 finalizada à mão da coleção Kurio Apes. " +
+        "Cada atributo fica armazenado nos metadados do token e verificado na Ethereum. " +
+        "A obra explora identidade, movimento e luz em um mundo digital sem fronteiras. " +
+        `\n\nA propriedade inclui a arte em alta resolução, lançamentos exclusivos para ` +
+        `colecionadores e um registro permanente de procedência registrada na rede. ` +
+        `${creatorName} recebe ${royaltyPercent}% de direitos autorais nas vendas secundárias, ` +
+        "apoiando novos trabalhos e lançamentos da comunidade.",
+      about:
+        "Um colecionável digital finalizado à mão da coleção Kurio Apes, verificado na " +
+        "Ethereum, com arte desbloqueável e acesso para colecionadores.",
+      networkDescription:
+        "Cunhado na Ethereum com procedência imutável e metadados armazenados no IPFS.",
+      contractDescription:
+        "Contrato inteligente ERC-721 verificado. Direitos autorais do criador: " +
+        `${royaltyPercent}% nas vendas secundárias, pagos automaticamente pelos mercados compatíveis.`,
+      royaltyDescription:
+        `${creatorName} recebe ${royaltyPercent}% de direitos autorais nas vendas secundárias, ` +
+        "apoiando novos trabalhos e lançamentos da comunidade.",
+      ipfsMetadataUri: `ipfs://bafybeiemeraldape${pad3(index + 1)}`,
+    };
+  }
+
+  return {
+    description:
+      `${name} é uma obra digital ${editionLabel} finalizada à mão da coleção ${displayCollection}. ` +
+      `Cada atributo fica armazenado nos metadados do token e verificado na ${networkName}. ` +
+      `A obra explora ${theme} em um mundo digital sem fronteiras.`,
+    details:
+      `${name} é uma obra digital ${editionLabel} finalizada à mão da coleção ${displayCollection}. ` +
+      `Cada atributo fica armazenado nos metadados do token e verificado na ${networkName}. ` +
+      `A obra explora ${theme} em um mundo digital sem fronteiras. ` +
+      `\n\nA propriedade inclui a arte em alta resolução, lançamentos exclusivos para ` +
+      `colecionadores e um registro permanente de procedência registrada na rede. ` +
+      `${creatorName} recebe ${royaltyPercent}% de direitos autorais nas vendas secundárias, ` +
+      `apoiando novos trabalhos e lançamentos da comunidade. Atributos registrados: ${attrList}.`,
+    about:
+      `Um colecionável digital finalizado à mão da coleção ${displayCollection}, verificado ` +
+      `na ${networkName}, com arte desbloqueável e acesso para colecionadores.`,
+    networkDescription: `Cunhado na ${networkName} com procedência imutável e metadados armazenados no IPFS.`,
+    contractDescription:
+      `Contrato inteligente ERC-721 verificado. Direitos autorais do criador: ` +
+      `${royaltyPercent}% nas vendas secundárias, pagos automaticamente pelos mercados compatíveis.`,
+    royaltyDescription:
+      `${creatorName} recebe ${royaltyPercent}% de direitos autorais nas vendas secundárias, ` +
+      `apoiando novos trabalhos e lançamentos da comunidade.`,
+    ipfsMetadataUri: `ipfs://bafybei${pad4(index + 1)}${"kurioeditions"}`,
+  };
+}
+
 function buildNft(index: number): Nft {
   const n = index + 1;
   const id = `nft-${pad3(n)}`;
-  const price = PRICES[index];
+  const basePrice = PRICES[index];
   const collection = COLLECTIONS[index % COLLECTIONS.length];
+  const displayCollection =
+    DISPLAY_COLLECTIONS[index % DISPLAY_COLLECTIONS.length];
   const network = NETWORKS[index % NETWORKS.length];
   const creator = CREATORS[index % CREATORS.length];
   const owner = OWNERS[index % OWNERS.length];
   const adj = NAME_ADJ[index % NAME_ADJ.length];
   const noun = NAME_NOUN[index % NAME_NOUN.length];
 
-  const { editions, totalAvailable, totalAll } = editionsFor(index, price);
+  const { editions, totalAvailable, totalAll } = editionsFor(index, basePrice);
+  const productToken = productTokenId(index);
+  const displayPrice = displayPriceFrom(editions) as EthAmount;
+  const royaltyPercent = royaltyFor(index);
+  const attributes = attributesFor(index);
+  const defaultEdition = editions.find((e) => e.available > 0) ?? editions[0];
+  const defaultLabel = defaultEdition?.label ?? "1/1";
 
   const createdAt = dateFromIndex(index);
   const updatedAt = dateFromIndex(index + 1);
-
   const gallery = galleryAt(index);
+  const texts = buildTexts({
+    index,
+    name: `${adj} ${noun} #${pad3(n)}`,
+    collection,
+    displayCollection,
+    network,
+    creatorName: creator.name,
+    royaltyPercent,
+    editionLabel: defaultLabel,
+    attributes,
+  });
 
   return {
     id,
-    tokenId: `#${pad4(n)}`,
+    tokenId: productToken,
     name: `${adj} ${noun} #${pad3(n)}`,
-    description:
-      `Obra da coleção ${collection}, criada por ${creator.name}. ` +
-      `Edição limitada disponível na rede ${network}.`,
-    galleryUrls: gallery,
     imageUrl: gallery[0],
+    galleryUrls: gallery,
     collection,
     network,
     creator,
     owner,
-    priceEth: eth(price) as EthAmount,
+    priceEth: displayPrice,
     available: totalAvailable,
     total: totalAll,
     editions,
-    attributes: attributesFor(index),
+    attributes,
     contractAddress: contractFor(index),
-    royaltyPercent: royaltyFor(index),
+    royaltyPercent,
     rating: ratingFor(index),
     rarityLabel:
       index % 3 === 0 ? RARITY_LABELS[index % RARITY_LABELS.length] : null,
+    ...texts,
     createdAt,
     updatedAt,
     version: 1,

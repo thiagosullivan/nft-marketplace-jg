@@ -82,6 +82,11 @@ export type NftRating = {
 
 export type Nft = {
   id: string;
+  /**
+   * Token do produto. Fixo, exibido no card e no topo do detalhe.
+   * Não muda ao trocar de edição. O token da variante está em
+   * `editions[].tokenId` e é o que vai ao carrinho via `editionId`.
+   */
   tokenId: string;
   name: string;
   description: string;
@@ -91,6 +96,10 @@ export type Nft = {
   network: NftNetwork;
   creator: { id: string; name: string; avatarUrl: string | null };
   owner: { id: string; name: string; avatarUrl: string | null };
+  /**
+   * Preço de vitrine (edição padrão). Usado no card da home.
+   * No detalhe, o preço exibido é o da edição selecionada.
+   */
   priceEth: EthAmount;
   available: number;
   total: number;
@@ -99,8 +108,15 @@ export type Nft = {
   contractAddress: string;
   royaltyPercent: number;
   rating: NftRating;
-
   rarityLabel: string | null;
+
+  details: string;
+  about: string;
+  networkDescription: string;
+  contractDescription: string;
+  royaltyDescription: string;
+  ipfsMetadataUri: string | null;
+
   createdAt: IsoDate;
   updatedAt: IsoDate;
   version: number;
