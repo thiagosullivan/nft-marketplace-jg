@@ -92,7 +92,7 @@ export function NFTDetailPage({ id }: Props) {
       editionId: edition.id,
       quantity,
     });
-    if (result.kind === "added") {
+    if (result.kind === "added" || result.kind === "guest-added") {
       void navigate({ to: "/cart" });
     }
   };

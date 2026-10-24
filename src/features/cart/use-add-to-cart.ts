@@ -1,25 +1,20 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { http, isApiError } from "@/shared/api";
-import type { AddToCartInput, Cart } from "@/shared/api/types";
-import { cartKeys } from "@/shared/api/query-keys";
+import type { AddToCartInput, Cart, Nft } from "@/shared/api/types";
+import { cartKeys, nftKeys } from "@/shared/api/query-keys";
 import { useSession } from "@/features/auth/use-auth";
-import { useAuthModal } from "@/features/auth/auth-modal-provider";
-import { setPendingPurchase } from "./pending-purchase";
+import { addGuestItem } from "./guest-cart";
+import { notifyGuestCartChange } from "./use-cart";
 
 export type AddToCartResult =
-  { kind: "added"; cart: Cart } | { kind: "login-required"; redirect: string };
-
-type AddOptions = {
-  redirect?: string;
-};
-
-const DEFAULT_REDIRECT = "/cart";
+  | { kind: "added"; cart: Cart }
+  | { kind: "guest-added"; cart: Cart }
+  | { kind: "error"; message: string };
 
 export function useAddToCart() {
   const queryClient = useQueryClient();
   const { data: session } = useSession();
-  const { open } = useAuthModal();
 
   const mutation = useMutation<Cart, unknown, AddToCartInput>({
     mutationFn: async (input) => {
@@ -29,34 +24,39 @@ export function useAddToCart() {
     onSuccess: (cart) => {
       queryClient.setQueryData(cartKeys.current(), cart);
     },
-    onError: (err) => {
-      if (isApiError(err)) {
-        const fieldMessage = err.fields
-          ? Object.values(err.fields)[0]
-          : undefined;
-        toast.error(fieldMessage ?? err.message);
-        return;
-      }
-      toast.error("Não foi possível adicionar ao carrinho.");
-    },
   });
 
-  const add = async (
-    input: AddToCartInput,
-    options: AddOptions = {},
-  ): Promise<AddToCartResult> => {
+  const add = async (input: AddToCartInput): Promise<AddToCartResult> => {
     if (!session) {
-      const redirect = options.redirect ?? DEFAULT_REDIRECT;
-      setPendingPurchase(input, redirect);
-      open("login", redirect);
-      return { kind: "login-required", redirect };
+      const cached = queryClient.getQueryData<Nft>(nftKeys.detail(input.nftId));
+      if (!cached) {
+        return {
+          kind: "error",
+          message: "Não foi possível localizar o NFT para adicionar.",
+        };
+      }
+      const result = addGuestItem(input, (id) =>
+        id === cached.id ? cached : undefined,
+      );
+      if (result.error) {
+        toast.error(result.error);
+        return { kind: "error", message: result.error };
+      }
+      notifyGuestCartChange();
+      return { kind: "guest-added", cart: result.cart };
     }
-    const cart = await mutation.mutateAsync(input);
-    return { kind: "added", cart };
+
+    try {
+      const cart = await mutation.mutateAsync(input);
+      return { kind: "added", cart };
+    } catch (err) {
+      const message = isApiError(err)
+        ? ((err.fields && Object.values(err.fields)[0]) ?? err.message)
+        : "Não foi possível adicionar ao carrinho.";
+      toast.error(message);
+      return { kind: "error", message };
+    }
   };
 
-  return {
-    add,
-    isPending: mutation.isPending,
-  };
+  return { add, isPending: mutation.isPending };
 }
