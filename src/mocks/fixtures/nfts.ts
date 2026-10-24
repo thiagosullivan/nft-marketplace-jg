@@ -7,6 +7,8 @@ import type {
   NftRating,
 } from "@/shared/api/types";
 
+// Tabelas de dados (determinísticas)
+
 export const COLLECTIONS = [
   "Arte digital",
   "Fotografia",
@@ -129,6 +131,7 @@ const ATTRIBUTE_POOL = [
   "Halo",
 ] as const;
 
+/** Temas usados para gerar `details` de forma determinística. */
 const THEMES = [
   "identidade, movimento e luz",
   "memória, território e ritmo",
@@ -138,6 +141,7 @@ const THEMES = [
   "origem, rito e repetição",
 ] as const;
 
+/** Coleções "de vitrine" usadas nos textos editoriais. */
 const DISPLAY_COLLECTIONS = [
   "Kurio Editions",
   "Kurio Apes",
@@ -146,6 +150,70 @@ const DISPLAY_COLLECTIONS = [
   "Kurio Objects",
   "Kurio Signals",
 ] as const;
+
+/**
+ * Distribuição desigual intencional das 36 fixtures para exercitar o
+ * carousel "Mais desta coleção" em 1, 2 e 3 páginas de 5.
+ *
+ * Arte digital: 15 (3 páginas no detalhe)  ← a maior
+ * Fotografia:    8 (2 páginas)
+ * Música:        5 (1 página)
+ * Arte 3D:       4 (1 página)
+ * Colecionáveis: 2 (1 página)
+ * Generativa:    2 (1 página)
+ * Jogos:         0 (seção não renderiza)
+ * Assinaturas:   0 (seção não renderiza)
+ * Utilidade:     0 (seção não renderiza)
+ *
+ * Mantém nft-001/002/003 nas coleções originais para não surpreender
+ * testes existentes.
+ */
+export const COLLECTION_BY_INDEX: readonly (typeof COLLECTIONS)[number][] = [
+  // 0..2 — referências canônicas
+  "Arte digital", // nft-001
+  "Fotografia", // nft-002
+  "Música", // nft-003
+  // 3..14 — completa Arte digital (15 no total)
+  "Arte digital",
+  "Arte digital",
+  "Arte digital",
+  "Arte digital",
+  "Arte digital",
+  "Arte digital",
+  "Arte digital",
+  "Arte digital",
+  "Arte digital",
+  "Arte digital",
+  "Arte digital",
+  "Arte digital",
+  // 15..19 — completa Fotografia (8 no total)
+  "Fotografia",
+  "Fotografia",
+  "Fotografia",
+  "Fotografia",
+  "Fotografia",
+  // 20 — completa Música (5 no total)
+  "Música",
+  // 21..23 — Arte 3D (4 no total)
+  "Arte 3D",
+  "Arte 3D",
+  "Arte 3D",
+  // 24..25 — Colecionáveis (2)
+  "Colecionáveis",
+  "Colecionáveis",
+  // 26..27 — Generativa (2)
+  "Generativa",
+  "Generativa",
+  // 28..35 — coleções vazias de propósito
+  "Jogos",
+  "Jogos",
+  "Assinaturas",
+  "Assinaturas",
+  "Utilidade",
+  "Utilidade",
+  "Jogos",
+  "Assinaturas",
+];
 
 // Helpers
 
@@ -161,6 +229,7 @@ function eth(value: number): string {
   return value.toFixed(2);
 }
 
+/** Hash determinístico estável (FNV-1a simplificado). */
 function hash32(input: number): number {
   let x = (input + 1) * 0x9e3779b1;
   x = (x ^ (x >>> 16)) >>> 0;
@@ -262,7 +331,7 @@ function ratingFor(index: number): NftRating {
 }
 
 function attributesFor(index: number): string[] {
-  const count = 2 + (index % 2); // 2 ou 3
+  const count = 2 + (index % 2);
   const out: string[] = [];
   for (let i = 0; i < count; i++) {
     out.push(ATTRIBUTE_POOL[(index + i * 3) % ATTRIBUTE_POOL.length]);
@@ -341,11 +410,11 @@ function buildTexts(input: {
   if (index === 0) {
     return {
       description:
-        "Emerald Ape #001 é uma obra digital 1/1 finalizada à mão da coleção Kurio Apes. " +
+        "Emerald Ape #001 é uma obra digital 1/1 finalizada à mão da coleção Kurio Editions. " +
         "Cada atributo fica armazenado nos metadados do token e verificado na Ethereum. " +
         "A obra explora identidade, movimento e luz em um mundo digital sem fronteiras.",
       details:
-        "Emerald Ape #001 é uma obra digital 1/1 finalizada à mão da coleção Kurio Apes. " +
+        "Emerald Ape #001 é uma obra digital 1/1 finalizada à mão da coleção Kurio Editions. " +
         "Cada atributo fica armazenado nos metadados do token e verificado na Ethereum. " +
         "A obra explora identidade, movimento e luz em um mundo digital sem fronteiras. " +
         `\n\nA propriedade inclui a arte em alta resolução, lançamentos exclusivos para ` +
@@ -353,7 +422,7 @@ function buildTexts(input: {
         `${creatorName} recebe ${royaltyPercent}% de direitos autorais nas vendas secundárias, ` +
         "apoiando novos trabalhos e lançamentos da comunidade.",
       about:
-        "Um colecionável digital finalizado à mão da coleção Kurio Apes, verificado na " +
+        "Um colecionável digital finalizado à mão da coleção Kurio Editions, verificado na " +
         "Ethereum, com arte desbloqueável e acesso para colecionadores.",
       networkDescription:
         "Cunhado na Ethereum com procedência imutável e metadados armazenados no IPFS.",
@@ -398,7 +467,7 @@ function buildNft(index: number): Nft {
   const n = index + 1;
   const id = `nft-${pad3(n)}`;
   const basePrice = PRICES[index];
-  const collection = COLLECTIONS[index % COLLECTIONS.length];
+  const collection = COLLECTION_BY_INDEX[index];
   const displayCollection =
     DISPLAY_COLLECTIONS[index % DISPLAY_COLLECTIONS.length];
   const network = NETWORKS[index % NETWORKS.length];

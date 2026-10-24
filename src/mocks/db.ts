@@ -20,7 +20,7 @@ import {
 // mock persists on localStorage.
 
 const STORAGE_KEY = "nftmarketplace:db";
-const DB_VERSION = 5;
+const DB_VERSION = 6;
 
 export type DbWallet = Wallet & { ownerId: string };
 
