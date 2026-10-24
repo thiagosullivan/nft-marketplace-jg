@@ -1,5 +1,3 @@
-import NftOffer from "../../../public/nfts/prod-3.png";
-
 function NftTrending() {
   return (
     <section className="bg-surface-card pt-6">
@@ -11,7 +9,7 @@ function NftTrending() {
       </h3>
       <div className="relative w-full max-w-[310px] aspect-[310/368] overflow-hidden rounded-3xl">
         <img
-          src={NftOffer}
+          src="/nfts/prod-3.png"
           alt="NFT em destaque"
           className="size-full object-cover"
         />
