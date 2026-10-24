@@ -23,10 +23,34 @@ async function fillLogin(
   await dialog
     .getByRole("textbox", { name: "E-mail", exact: true })
     .fill(creds.email);
-  await dialog
-    .getByRole("textbox", { name: "Senha", exact: true })
-    .fill(creds.password);
-  await dialog.getByRole("button", { name: "Entrar", exact: true }).click();
+  const password = dialog.getByRole("textbox", {
+    name: "Senha",
+    exact: true,
+  });
+  await password.fill(creds.password);
+  // Submete pelo teclado: caminho real de um usuário de teclado e evita
+  // depender do hit-test do Chromium headless mobile sobre um botão com
+  // bounding-box grande (overlay scrollável + borda decorativa do painel).
+  await password.press("Enter");
+}
+
+async function dismissToasts(page: Page) {
+  // O toast de sucesso do sonner fica no canto superior direito e sobrepõe
+  // o botão "Sair" do header enquanto visível. Esperamos ele sair antes
+  // de interagir com o header — é o que um usuário faria.
+  const toasts = page.locator("[data-sonner-toast]");
+  const count = await toasts.count();
+  if (count === 0) return;
+  // Fecha ativamente (botão "Close toast") e aguarda remoção.
+  for (let i = 0; i < count; i++) {
+    const closeBtn = toasts
+      .nth(0)
+      .getByRole("button", { name: /close toast/i });
+    if (await closeBtn.isVisible().catch(() => false)) {
+      await closeBtn.click().catch(() => undefined);
+    }
+  }
+  await expect(toasts).toHaveCount(0, { timeout: 10_000 });
 }
 
 async function expectLoggedIn(page: Page) {
@@ -68,6 +92,7 @@ test.describe("Auth", () => {
     await openLoginModal(page);
     await fillLogin(page, MARIA);
     await expectLoggedIn(page);
+    await dismissToasts(page);
 
     await page.getByRole("button", { name: "Sair" }).click();
     await expectLoggedOut(page);
@@ -104,6 +129,7 @@ test.describe("Auth", () => {
       });
     });
 
+    await dismissToasts(page);
     await page.getByRole("button", { name: "Sair" }).click();
     await openLoginModal(page);
     await fillLogin(page, FERNANDO);
