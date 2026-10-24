@@ -18,7 +18,7 @@ const AuthModalHost = lazy(() =>
 function RootLayout() {
   return (
     <AuthModalProvider>
-      <div className="flex min-h-dvh flex-col bg-background text-foreground">
+      <div className="flex min-h-dvh flex-col bg-ink text-foreground">
         <Header />
         <main className="flex-1">
           <Outlet />

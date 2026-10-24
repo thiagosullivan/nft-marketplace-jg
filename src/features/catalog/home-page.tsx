@@ -22,6 +22,7 @@ import {
 } from "@/shared/components/ui/select";
 import { cn } from "@/shared/lib/utils";
 import { FiltersSidebar, type FiltersValue } from "./filters-sidebar.tsx";
+import NftTrending from "./nft-trending.tsx";
 
 export type HomeSearch = {
   q?: string;
@@ -161,7 +162,7 @@ export function HomePage({ search }: { search: HomeSearch }) {
             onChange={setFilters}
             onClear={clearFilters}
           />
-          <p>IMAGEM</p>
+          <NftTrending />
         </aside>
 
         <section aria-busy={isLoading || isFetching} className="w-full">
