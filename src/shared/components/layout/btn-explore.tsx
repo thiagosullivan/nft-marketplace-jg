@@ -6,7 +6,7 @@ interface IProps {
 
 function BtnExplore({ text }: IProps) {
   return (
-    <Button className="w-35 h-10 rounded-sm text-base font-bold mb-0!">
+    <Button className="w-35 h-10 rounded-sm text-base font-bold mb-0! cursor-pointer">
       {text}
     </Button>
   );
