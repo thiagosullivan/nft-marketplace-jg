@@ -1,17 +1,32 @@
-import { Link } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
 import { isApiError, isNotFound } from "@/shared/api";
 import { Button } from "@/shared/components/ui/button";
+import type { Nft, NftEdition } from "@/shared/api/types";
+import { useAddToCart } from "@/features/cart";
 import { NftDetailSkeleton } from "./nft-detail-skeleton";
+import { NftDetailView } from "./nft-detail-view";
 import { useNft } from "./use-nft";
-import type { Nft } from "@/shared/api/types";
 
 type Props = {
   id: string;
 };
 
+function defaultEditionOf(nft: Nft): NftEdition | undefined {
+  return nft.editions.find((e) => e.available > 0) ?? nft.editions[0];
+}
+
+function findEdition(nft: Nft, editionId: string): NftEdition | undefined {
+  return nft.editions.find((e) => e.id === editionId);
+}
+
 export function NFTDetailPage({ id }: Props) {
   const query = useNft(id);
+  const navigate = useNavigate();
+  const { add, isPending: buyPending } = useAddToCart();
+
+  const [editionId, setEditionId] = useState<string | null>(null);
+  const [quantity, setQuantity] = useState<number>(1);
 
   useEffect(() => {
     if (query.data) {
@@ -20,6 +35,41 @@ export function NFTDetailPage({ id }: Props) {
       document.title = "Detalhe do NFT · NFT Marketplace";
     }
   }, [query.data]);
+
+  // Inicializa a edição selecionada quando o NFT carrega (ou muda de id).
+  useEffect(() => {
+    if (!query.data) return;
+    const fallback = defaultEditionOf(query.data);
+    if (!fallback) return;
+    setEditionId((current) => {
+      if (current && findEdition(query.data!, current)) return current;
+      return fallback.id;
+    });
+  }, [query.data]);
+
+  // Se a edição selecionada ficar esgotada (por refetch), cai para a padrão.
+  useEffect(() => {
+    if (!query.data || !editionId) return;
+    const current = findEdition(query.data, editionId);
+    if (current && current.available > 0) return;
+    const fallback = defaultEditionOf(query.data);
+    if (fallback && fallback.id !== editionId) {
+      setEditionId(fallback.id);
+      setQuantity(1);
+    }
+  }, [query.data, editionId]);
+
+  const edition = useMemo(() => {
+    if (!query.data || !editionId) return undefined;
+    return findEdition(query.data, editionId);
+  }, [query.data, editionId]);
+
+  // Ajusta a quantidade quando muda de edição.
+  useEffect(() => {
+    if (!edition) return;
+    const max = edition.isOpen ? 9999 : Math.max(1, edition.available);
+    setQuantity((q) => Math.min(Math.max(1, q), max));
+  }, [edition]);
 
   if (query.isLoading) return <NftDetailSkeleton />;
 
@@ -35,22 +85,39 @@ export function NFTDetailPage({ id }: Props) {
     );
   }
 
-  if (!query.data) return <NotFoundState id={id} />;
+  if (!query.data || !edition) return <NotFoundState id={id} />;
 
-  return <NftDetailView nft={query.data} />;
-}
+  const nft = query.data;
 
-function NftDetailView({ nft }: { nft: Nft }) {
+  const onBuy = async () => {
+    const result = await add({
+      nftId: nft.id,
+      editionId: edition.id,
+      quantity,
+    });
+    if (result.kind === "added") {
+      void navigate({ to: "/cart" });
+    }
+  };
+
   return (
-    <div className="container mx-auto max-w-6xl px-4 py-12">
-      <h1 className="text-3xl font-bold text-primary">{nft.name}</h1>
-      <p className="mt-2 text-muted-foreground">
-        {nft.collection} · {nft.tokenId} · {nft.priceEth} ETH
-      </p>
-      <p className="mt-4 text-sm text-muted-foreground">
-        Layout e interações serão implementados no bloco 2.3.b.
-      </p>
-    </div>
+    <NftDetailView
+      nft={nft}
+      edition={edition}
+      onEditionChange={(nextId) => {
+        setEditionId(nextId);
+        setQuantity(1);
+      }}
+      quantity={quantity}
+      onQuantityChange={setQuantity}
+      onBuy={() => {
+        void onBuy().catch((err) => {
+          // O useAddToCart já mostra toast; aqui só evitamos unhandled rejection.
+          if (!isApiError(err)) console.error(err);
+        });
+      }}
+      buyPending={buyPending}
+    />
   );
 }
 

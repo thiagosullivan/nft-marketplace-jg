@@ -10,6 +10,12 @@ import { setPendingPurchase } from "./pending-purchase";
 export type AddToCartResult =
   { kind: "added"; cart: Cart } | { kind: "login-required"; redirect: string };
 
+type AddOptions = {
+  redirect?: string;
+};
+
+const DEFAULT_REDIRECT = "/cart";
+
 export function useAddToCart() {
   const queryClient = useQueryClient();
   const { data: session } = useSession();
@@ -35,9 +41,12 @@ export function useAddToCart() {
     },
   });
 
-  const add = async (input: AddToCartInput): Promise<AddToCartResult> => {
+  const add = async (
+    input: AddToCartInput,
+    options: AddOptions = {},
+  ): Promise<AddToCartResult> => {
     if (!session) {
-      const redirect = "/checkout";
+      const redirect = options.redirect ?? DEFAULT_REDIRECT;
       setPendingPurchase(input, redirect);
       open("login", redirect);
       return { kind: "login-required", redirect };
