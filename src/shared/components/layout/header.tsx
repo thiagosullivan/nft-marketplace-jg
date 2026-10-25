@@ -67,20 +67,22 @@ export function Header() {
 
           {isLoading ? null : session ? (
             <div className="flex items-center gap-3">
-              {session.user.avatarUrl ? (
-                <img
-                  src={session.user.avatarUrl}
-                  alt=""
-                  className="size-8 rounded-full"
-                />
-              ) : (
-                <div className="flex size-8 items-center justify-center rounded-full bg-surface-card text-xs">
-                  {session.user.displayName.slice(0, 1).toUpperCase()}
-                </div>
-              )}
-              <span className="hidden text-foreground sm:inline">
-                {session.user.displayName}
-              </span>
+              <Link to="/profile" className="flex items-center gap-x-2">
+                {session.user.avatarUrl ? (
+                  <img
+                    src={session.user.avatarUrl}
+                    alt=""
+                    className="size-8 rounded-full"
+                  />
+                ) : (
+                  <div className="flex size-8 items-center justify-center rounded-full bg-surface-card text-xs">
+                    {session.user.displayName.slice(0, 1).toUpperCase()}
+                  </div>
+                )}
+                <span className="hidden text-foreground sm:inline">
+                  {session.user.displayName}
+                </span>
+              </Link>
               <button
                 type="button"
                 onClick={() => logout.mutate()}
