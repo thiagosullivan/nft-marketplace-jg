@@ -47,49 +47,50 @@ export function CheckoutSummary({
   const total = quote.effective?.totalEth ?? computeSubtotal(cart);
 
   return (
-    <aside className="w-full rounded-md border border-border bg-surface-card p-6 lg:sticky lg:top-24">
-      <h2 className="text-xl font-bold text-foreground">Resumo</h2>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Revise os itens e confirme a compra.
-      </p>
-      <Separator className="my-4" />
+    <aside className="w-full lg:sticky lg:top-24">
+      <h2 className="text-[17px] font-bold text-foreground mb-3">Seus NFTs</h2>
+      <div className="flex justify-between text-foreground text-base font-bold">
+        <p>NFTs</p>
+        <p>Subtotal</p>
+      </div>
+      <Separator className="my-3" />
 
-      <ul className="space-y-3" aria-label="Itens da compra">
+      <ul className="space-y-3 mb-3" aria-label="Itens da compra">
         {cart.items.map((item) => (
           <li
             key={`${item.nftId}:${item.editionId ?? "none"}`}
-            className="flex items-center gap-3"
+            className="flex items-center gap-2 bg-surface-card pl-1 pr-2.5"
           >
             <img
               src={item.imageUrl}
               alt={item.name}
-              className="size-14 shrink-0 rounded-md object-cover"
+              className="size-17.5 shrink-0 rounded-md object-cover"
               loading="lazy"
             />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-foreground">
+            <div className="min-w-0">
+              <p className="truncate text-base font-bold text-foreground mb-1">
                 {item.name}
               </p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm font-normal text-secondary">
                 ID do token: {item.tokenId}
               </p>
             </div>
-            <div className="text-xs text-muted-foreground">
-              x{item.quantity}
+            <div className="text-sm text-secondary mr-2 flex-1">
+              (x{item.quantity})
             </div>
-            <div className="text-sm font-semibold text-foreground">
+            <div className="text-lg font-bold text-accent text-nowrap">
               {formatEth(lineTotalEth(item))} ETH
             </div>
           </li>
         ))}
       </ul>
 
-      <Separator className="my-4" />
+      {/* <Separator className="my-4" /> */}
 
       {!couponOpen ? (
         <button
           type="button"
-          className="text-sm font-medium text-accent hover:underline"
+          className="text-sm font-medium text-foreground hover:underline w-full text-center"
           onClick={() => setCouponOpen(true)}
         >
           Tem um código promocional? Aplique aqui
@@ -102,14 +103,18 @@ export function CheckoutSummary({
           }}
           className="space-y-2"
         >
-          <div className="flex gap-2">
+          <div className="flex">
             <Input
               value={couponInput}
               onChange={(e) => setCouponInput(e.target.value)}
               placeholder="Digite o cupom"
-              className="h-10"
+              className="h-10 border-border rounded-xs bg-transparent! bg-transparent! text-xs font-normal outline-none! focus:outline-none! focus-visible:outline-none! focus-visible:ring-0! focus-visible:ring-offset-0! focus-visible:border-primary!"
             />
-            <Button type="submit" variant="outline" className="h-10">
+            <Button
+              type="submit"
+              variant="outline"
+              className="py-3 px-5 h-10 border-border rounded-xs bg-primary! text-[15px] font-bold text-ink"
+            >
               Aplicar
             </Button>
           </div>
@@ -126,41 +131,45 @@ export function CheckoutSummary({
         </form>
       )}
 
-      <Separator className="my-4" />
+      {/* <Separator className="my-4" /> */}
 
-      <dl className="space-y-2 text-sm">
-        <div className="flex items-center justify-between">
-          <dt className="text-muted-foreground">Subtotal</dt>
-          <dd className="text-foreground">{formatEth(subtotal)} ETH</dd>
+      <dl className="text-sm mt-3">
+        <div className="space-y-2 mb-3">
+          <div className="flex items-center justify-between text-foreground">
+            <dt className="text-[15px] font-normal">Subtotal</dt>
+            <dd className="text-lg font-normal">{formatEth(subtotal)} ETH</dd>
+          </div>
+          <div className="flex items-center justify-between text-foreground">
+            <dt className="text-[15px] font-normal">Desconto do lançamento</dt>
+            <dd className="text-lg font-normal">
+              (−) {formatEth(discount ?? "0")}
+            </dd>
+          </div>
+          <div className="flex items-center justify-between text-foreground">
+            <dt className="text-[15px] font-normal">Taxa de rede</dt>
+            <dd className="text-lg font-normal">{formatEth(networkFee)} ETH</dd>
+          </div>
         </div>
-        <div className="flex items-center justify-between">
-          <dt className="text-muted-foreground">Desconto do lançamento</dt>
-          <dd className="text-foreground">(−) {formatEth(discount ?? "0")}</dd>
-        </div>
-        <div className="flex items-center justify-between">
-          <dt className="text-muted-foreground">Taxa de rede</dt>
-          <dd className="text-foreground">{formatEth(networkFee)} ETH</dd>
-        </div>
-        <p className="ml-auto text-xs text-accent">Taxa estimada</p>
+        <p className="w-full text-xs text-accent text-center">Taxa estimada</p>
         <Separator className="my-2" />
-        <div className="flex items-center justify-between text-base font-semibold">
-          <dt className="text-foreground">Total</dt>
-          <dd className="text-accent">{formatEth(total)} ETH</dd>
+        <div className="flex items-center justify-between font-bold">
+          <dt className="text-base text-foreground">Total</dt>
+          <dd className="text-accent text-lg">{formatEth(total)} ETH</dd>
         </div>
       </dl>
 
       <Separator className="my-4" />
 
       <fieldset>
-        <legend className="mb-2 text-sm font-bold text-foreground">
+        <legend className="mb-5 text-[17px] font-bold text-foreground text-center">
           Carteira e rede
         </legend>
-        <div role="radiogroup" className="space-y-2">
+        <div role="radiogroup" className="space-y-4">
           {wallets.map((w) => (
             <label
               key={w.id}
               className={cn(
-                "flex cursor-pointer items-center gap-3 rounded-md border px-3 py-2 text-sm",
+                "flex cursor-pointer items-center gap-3 rounded-xs border px-3 py-2 text-sm",
                 w.id === selectedWalletId
                   ? "border-primary text-foreground"
                   : "border-border text-muted-foreground hover:border-primary/60",
@@ -172,11 +181,17 @@ export function CheckoutSummary({
                 value={w.id}
                 checked={w.id === selectedWalletId}
                 onChange={() => onSelectWallet(w.id)}
-                className="sr-only"
+                className="peer sr-only"
                 aria-label={`${w.label} (${w.walletType})`}
               />
+              <span
+                aria-hidden="true"
+                className="flex size-4 items-center justify-center rounded-full border border-primary bg-transparent peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background peer-checked:[&>span]:block"
+              >
+                <span className="hidden size-2.5 rounded-full bg-primary" />
+              </span>
               <span className="font-semibold">{w.label}</span>
-              <span className="text-xs">{w.walletType}</span>
+              {/* <span className="text-xs">{w.walletType}</span> */}
               <span className="ml-auto text-xs capitalize">{w.network}</span>
             </label>
           ))}
