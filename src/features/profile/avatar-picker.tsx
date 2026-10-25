@@ -1,8 +1,7 @@
 import { useId, useRef, useState } from "react";
-import { ImagePlus, Trash2 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 
-const MAX_FILE_BYTES = 2 * 1024 * 1024; // 2 MB de entrada
+const MAX_FILE_BYTES = 2 * 1024 * 1024;
 const OUTPUT_SIZE = 256;
 const OUTPUT_QUALITY = 0.85;
 
@@ -37,7 +36,7 @@ type Props = {
   onChange: (next: string | null) => void;
 };
 
-export function AvatarPicker({ value, fallbackInitial, onChange }: Props) {
+export function AvatarPicker({ value, onChange }: Props) {
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
