@@ -1,8 +1,12 @@
 import { Link, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { Heart, Search } from "lucide-react";
 import { toast } from "sonner";
 import type { Nft } from "@/shared/api/types";
+import { nftKeys } from "@/shared/api/query-keys";
 import { Badge } from "@/shared/components/ui/badge";
+import { useAddToCart } from "@/features/cart";
+import { useNftAvailability } from "./use-nft-availability";
 import CartIcon from "../../../public/icons/cart-icon.png";
 
 type Props = {
@@ -12,7 +16,32 @@ type Props = {
 
 export function NftCard({ nft, onQuickView }: Props) {
   const navigate = useNavigate();
-  const isSoldOut = nft.available <= 0;
+  const queryClient = useQueryClient();
+  const { add } = useAddToCart();
+  const { edition, canAdd, isSoldOut, reachedMaxInCart } =
+    useNftAvailability(nft);
+
+  const showSoldOut = isSoldOut || reachedMaxInCart;
+
+  const onBuy = async () => {
+    if (!canAdd || !edition) return;
+
+    // Garante que o useAddToCart encontre o NFT no cache (visitante usa
+    // esse dado para montar o item local).
+    queryClient.setQueryData(nftKeys.detail(nft.id), nft);
+
+    try {
+      await add({
+        nftId: nft.id,
+        editionId: edition.id,
+        quantity: 1,
+      });
+    } catch {
+      toast.error("Não foi possível adicionar ao carrinho.");
+    } finally {
+      toast.success("Produto adicionado ao carrinho.");
+    }
+  };
 
   return (
     <div className="max-w-[260px] w-full group relative overflow-hidden">
@@ -32,11 +61,11 @@ export function NftCard({ nft, onQuickView }: Props) {
             />
           </div>
           {nft.rarityLabel && (
-            <Badge className="absolute left top-3.5 w-20 h-7.5] rounded-none text-ink text-base font-medium bg-primary">
+            <Badge className="absolute left top-3.5 w-20 h-7.5 rounded-none text-ink text-base font-medium bg-primary">
               {nft.rarityLabel}
             </Badge>
           )}
-          {isSoldOut && (
+          {showSoldOut && (
             <div className="absolute inset-0 flex items-center justify-center bg-ink/60">
               <span className="text-sm font-semibold text-foreground">
                 Esgotado
@@ -47,13 +76,15 @@ export function NftCard({ nft, onQuickView }: Props) {
             <button
               type="button"
               aria-label="Adicionar ao carrinho"
-              className="rounded-xs bg-surface-raised p-1.5 border-border hover:bg-primary hover:text-primary-foreground cursor-pointer"
+              disabled={!canAdd}
+              className="rounded-xs bg-surface-raised p-1.5 border-border hover:bg-primary hover:text-primary-foreground cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
               onClick={(e) => {
                 e.preventDefault();
-                toast.info("Em breve: adicionar ao carrinho.");
+                e.stopPropagation();
+                void onBuy();
               }}
             >
-              <img src={CartIcon} className="w-5 h-5" />
+              <img src={CartIcon} className="w-5 h-5" alt="" />
             </button>
             <button
               type="button"
@@ -61,6 +92,7 @@ export function NftCard({ nft, onQuickView }: Props) {
               className="rounded-xs bg-surface-raised p-1.5 border-border hover:bg-primary hover:text-primary-foreground cursor-pointer"
               onClick={(e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 toast.info("Em breve: favoritar.");
               }}
             >
@@ -72,6 +104,7 @@ export function NftCard({ nft, onQuickView }: Props) {
               className="rounded-xs bg-surface-raised p-1.5 border-border hover:bg-primary hover:text-primary-foreground cursor-pointer"
               onClick={(e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 if (onQuickView) onQuickView(nft);
                 else void navigate({ to: "/nft/$id", params: { id: nft.id } });
               }}
@@ -86,7 +119,6 @@ export function NftCard({ nft, onQuickView }: Props) {
         <p className="truncate text-base font-normal text-foreground">
           {nft.name}
         </p>
-        {/* <p className="text-xs text-muted-foreground">{nft.tokenId}</p> */}
         <p className="text-base font-bold text-accent">{nft.priceEth} ETH</p>
       </div>
     </div>
