@@ -19,5 +19,7 @@ export function useOrders() {
     },
     enabled: !!session,
     retry: 0,
+    staleTime: 15_000,
+    refetchOnWindowFocus: false,
   });
 }
