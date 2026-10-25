@@ -7,6 +7,7 @@ import { CartTable } from "./cart-table";
 import { CartSummary } from "./cart-summary";
 import { CartEmpty } from "./cart-empty";
 import { CartRelatedSection } from "./cart-related-section";
+import { Link } from "@tanstack/react-router";
 
 export function CartPage() {
   const { data: session } = useSession();
@@ -41,8 +42,11 @@ export function CartPage() {
   const hasItems = (cart?.items.length ?? 0) > 0;
 
   return (
-    <div className="container mx-auto max-w-6xl px-4 py-10">
-      <h1 className="mb-8 text-3xl font-bold text-foreground">Carrinho</h1>
+    <div className="container mx-auto max-w-300 pt-8 pb-24">
+      <div className="mb-3 text-foreground text-[15px] font-bold">
+        <Link to="/">Início /</Link>
+        <Link to="/"> Mercado</Link>
+      </div>
 
       {!hasItems || !cart ? (
         <CartEmpty />

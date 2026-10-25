@@ -28,32 +28,36 @@ export function CartRow({ item }: Props) {
   const lineTotal = multiplyEth(item.unitPriceEth, item.quantity);
 
   return (
-    <li className="grid grid-cols-1 gap-4 border-b border-border py-4 sm:grid-cols-[80px_minmax(0,1fr)_auto_auto_auto_auto] sm:items-center">
-      <div className="size-20 overflow-hidden rounded-md bg-surface-card">
-        <img
-          src={item.imageUrl}
-          alt={item.name}
-          className="size-full object-cover"
-          loading="lazy"
-        />
+    <li className="flex flex-col gap-4 bg-surface-card sm:flex-row sm:items-center sm:gap-[62px]">
+      {/* NFT: imagem + nome/id */}
+      <div className="flex w-full items-center sm:w-[250px] sm:flex-none">
+        <div className="mr-4 size-17.5 shrink-0 overflow-hidden rounded-md bg-surface-card">
+          <img
+            src={item.imageUrl}
+            alt={item.name}
+            className="size-full object-cover"
+            loading="lazy"
+          />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-base font-bold text-foreground">
+            {item.name}
+          </p>
+          <p className="truncate text-sm text-secondary">
+            ID do token: {item.tokenId}
+          </p>
+        </div>
       </div>
 
-      <div className="min-w-0">
-        <p className="truncate text-base font-medium text-foreground">
-          {item.name}
-        </p>
-        <p className="text-xs text-muted-foreground">
-          Token {item.tokenId}
-          {item.editionLabel ? ` · Edição ${item.editionLabel}` : ""}
-        </p>
+      {/* Preço */}
+      <div className="flex w-full items-center gap-x-2 text-base font-bold text-secondary sm:w-[80px] sm:flex-none">
+        <p className="text-base text-secondary sm:hidden">Preço</p>
+        <p>{item.unitPriceEth}</p>
+        <p>ETH</p>
       </div>
 
-      <div className="text-sm text-foreground sm:text-right">
-        <p className="text-xs text-muted-foreground sm:hidden">Preço</p>
-        {item.unitPriceEth} ETH
-      </div>
-
-      <div className="flex items-center gap-2">
+      {/* Edições / quantidade */}
+      <div className="flex w-full items-center gap-2 sm:w-[80px] sm:flex-none">
         <Button
           type="button"
           variant="outline"
@@ -67,9 +71,9 @@ export function CartRow({ item }: Props) {
               quantity: clamp(item.quantity - 1, 1, max),
             })
           }
-          className="size-9"
+          className="h-[30px] w-[20px] rounded-full! bg-primary!"
         >
-          <Minus className="size-4" aria-hidden="true" />
+          <Minus className="size-3 text-black" aria-hidden="true" />
         </Button>
         <Input
           type="number"
@@ -85,7 +89,7 @@ export function CartRow({ item }: Props) {
               quantity: clamp(Number(e.target.value), 1, max),
             })
           }
-          className="h-9 w-16 text-center"
+          className="h-10 w-5 border-none bg-transparent! p-0 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />
         <Button
           type="button"
@@ -100,18 +104,20 @@ export function CartRow({ item }: Props) {
               quantity: clamp(item.quantity + 1, 1, max),
             })
           }
-          className="size-9"
+          className="h-[30px] w-[20px] rounded-full! bg-primary!"
         >
-          <Plus className="size-4" aria-hidden="true" />
+          <Plus className="size-3 text-black" aria-hidden="true" />
         </Button>
       </div>
 
-      <div className="text-sm font-semibold text-foreground sm:text-right">
+      {/* Total */}
+      <div className="w-full text-base font-semibold text-accent sm:w-[80px] sm:flex-none sm:text-right">
         <p className="text-xs text-muted-foreground sm:hidden">Total</p>
         {lineTotal} ETH
       </div>
 
-      <div className="flex justify-end">
+      {/* Excluir */}
+      <div className="flex justify-end sm:w-10 sm:flex-none">
         <Button
           type="button"
           variant="ghost"
@@ -121,7 +127,7 @@ export function CartRow({ item }: Props) {
           onClick={() =>
             void remove({ nftId: item.nftId, editionId: item.editionId })
           }
-          className="text-muted-foreground hover:text-destructive"
+          className="text-muted-foreground"
         >
           <Trash2 className="size-4" aria-hidden="true" />
         </Button>
