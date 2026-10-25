@@ -21,12 +21,5 @@ export {
   removeGuestItem,
   toMergeInput,
 } from "./guest-cart";
-export {
-  PENDING_PURCHASE_KEY,
-  peekPendingPurchase,
-  consumePendingPurchase,
-  clearPendingPurchase,
-  setPendingPurchase,
-} from "./pending-purchase";
-export type { PendingPurchase } from "./pending-purchase";
+
 export { CartPage } from "./cart-page";
