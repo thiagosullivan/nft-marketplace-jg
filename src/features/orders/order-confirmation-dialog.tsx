@@ -123,7 +123,7 @@ export function OrderConfirmationDialog({ order, open, onOpenChange }: Props) {
           )}
         </div>
 
-        <div className="mt-5 flex flex-col gap-2 sm:justify-center">
+        <div className="mt-5 flex flex-col gap-2 sm:justify-center mx-auto pb-3">
           {isConfirmed && (
             <>
               <Button asChild variant="default">
@@ -176,10 +176,19 @@ export function OrderConfirmationDialog({ order, open, onOpenChange }: Props) {
 
           {isDeclined && (
             <>
-              <Button type="button" onClick={goToCheckout}>
+              <Button
+                type="button"
+                onClick={goToCheckout}
+                className="w-[185px] h-[40px]"
+              >
                 Tentar novamente
               </Button>
-              <Button type="button" variant="outline" onClick={goToCheckout}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={goToCheckout}
+                className="w-[185px] h-[40px]"
+              >
                 Fechar
               </Button>
             </>
