@@ -57,6 +57,7 @@ const CONFIRMED_ITEMS: OrderItem[] = [
 export const seedOrders: readonly Order[] = [
   {
     id: "order-seed-pending",
+    note: null,
     status: "pending",
     createdAt: "2026-07-29T14:20:00.000Z" as IsoDate,
     updatedAt: "2026-07-29T14:20:00.000Z" as IsoDate,
@@ -79,6 +80,7 @@ export const seedOrders: readonly Order[] = [
   },
   {
     id: "order-seed-confirmed",
+    note: null,
     status: "confirmed",
     createdAt: "2026-07-29T14:25:00.000Z" as IsoDate,
     updatedAt: "2026-07-29T14:26:00.000Z" as IsoDate,

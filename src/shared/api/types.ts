@@ -259,6 +259,7 @@ export type Order = {
   version: number;
   settleAt: IsoDate | null;
   settleStatus: "confirmed" | "declined" | null;
+  note: string | null;
 };
 
 export type CreateOrderInput = {
@@ -266,6 +267,7 @@ export type CreateOrderInput = {
   walletId: string;
   network: WalletNetwork;
   couponCode?: string;
+  note?: string;
   idempotencyKey: string;
 };
 
