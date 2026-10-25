@@ -10,7 +10,7 @@ import type { IsoDate, Wallet } from "@/shared/api/types";
 export const seedWallets: readonly Wallet[] = [
   {
     id: "wallet-maria-eth",
-    label: "MetaMask principal",
+    label: "MetaMask",
     address: "0xA91F4C2b8E7d3A1f5B6c9D0e2F3a4B5c6D7e8E82",
     network: "ethereum",
     ensName: "maria",
@@ -21,7 +21,7 @@ export const seedWallets: readonly Wallet[] = [
   },
   {
     id: "wallet-maria-polygon",
-    label: "Ledger backup",
+    label: "Ledger",
     address: "0xB72E5D3c9F8e4B2a6C7d0E1f3A4b5C6d7E8f9A03",
     network: "polygon",
     ensName: null,

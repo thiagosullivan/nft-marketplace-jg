@@ -69,7 +69,7 @@ export const seedOrders: readonly Order[] = [
     totalEth: "0.096" as EthAmount,
     couponCode: null,
     walletId: "wallet-maria-eth",
-    walletLabel: "MetaMask principal",
+    walletLabel: "MetaMask",
     walletAddress: "0xA91F4C2b8E7d3A1f5B6c9D0e2F3a4B5c6D7e8E82",
     network: "ethereum" as WalletNetwork,
     transactionRef: null,
@@ -92,7 +92,7 @@ export const seedOrders: readonly Order[] = [
     totalEth: "26.846" as EthAmount,
     couponCode: null,
     walletId: "wallet-maria-eth",
-    walletLabel: "MetaMask principal",
+    walletLabel: "MetaMask",
     walletAddress: "0xA91F4C2b8E7d3A1f5B6c9D0e2F3a4B5c6D7e8E82",
     network: "ethereum" as WalletNetwork,
     transactionRef:
