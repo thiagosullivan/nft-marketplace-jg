@@ -12,21 +12,64 @@ function cartSignature(cart: Cart | undefined): string {
     .join("|");
 }
 
-export function useQuote(input: QuoteInput & { cart?: Cart } = {}) {
+function requestQuote(couponCode?: string): Promise<Quote> {
+  return http.post<Quote>("/quote", { couponCode }).then((r) => r.data);
+}
+
+export type UseQuoteResult = {
+  base: Quote | undefined;
+  coupon: Quote | undefined;
+  effective: Quote | undefined;
+  isError: boolean;
+  isFetching: boolean;
+  couponError: boolean;
+  refetch: () => void;
+};
+
+export function useQuote(
+  input: QuoteInput & { cart?: Cart } = {},
+): UseQuoteResult {
   const { data: session } = useSession();
   const signature = cartSignature(input.cart);
+  const enabled = !!session && (input.cart?.items.length ?? 0) > 0;
 
-  return useQuery<Quote>({
-    queryKey: [...quoteKeys.current(input.couponCode), signature],
-    queryFn: async () => {
-      const { data } = await http.post<Quote>("/quote", {
-        couponCode: input.couponCode,
-      });
-      return data;
-    },
-    enabled: !!session && (input.cart?.items.length ?? 0) > 0,
+  const baseQuery = useQuery<Quote>({
+    queryKey: [...quoteKeys.current(), "base", signature],
+    queryFn: () => requestQuote(undefined),
+    enabled,
     staleTime: 0,
     retry: 0,
     placeholderData: keepPreviousData,
   });
+
+  const couponQuery = useQuery<Quote>({
+    queryKey: [...quoteKeys.current(input.couponCode), signature],
+    queryFn: () => requestQuote(input.couponCode),
+    enabled: enabled && !!input.couponCode,
+    staleTime: 0,
+    retry: 0,
+    placeholderData: keepPreviousData,
+  });
+
+  const couponApplied = !!input.couponCode;
+  const couponError = couponApplied && couponQuery.isError;
+
+  const effective = couponApplied
+    ? couponError
+      ? baseQuery.data
+      : couponQuery.data
+    : baseQuery.data;
+
+  return {
+    base: baseQuery.data,
+    coupon: couponQuery.data,
+    effective,
+    isError: couponError || (baseQuery.isError && !couponQuery.data),
+    isFetching: baseQuery.isFetching || couponQuery.isFetching,
+    couponError,
+    refetch: () => {
+      void baseQuery.refetch();
+      if (couponApplied) void couponQuery.refetch();
+    },
+  };
 }

@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Separator } from "@/shared/components/ui/separator";
-import type { Cart, Quote } from "@/shared/api/types";
+import type { Cart } from "@/shared/api/types";
 import { useSession } from "@/features/auth/use-auth";
 import { useAuthModal } from "@/features/auth/auth-modal-provider";
 import { useQuote } from "./use-quote";
@@ -33,23 +33,12 @@ export function CartSummary({ cart }: Props) {
 
   const quote = useQuote({ couponCode: appliedCoupon, cart });
 
-  // Última cotação bem-sucedida (state, atualizado em efeito — não no render).
-  // Evita que um cupom inválido zere o resumo.
-  const [lastValidQuote, setLastValidQuote] = useState<Quote | undefined>(
-    undefined,
-  );
-  useEffect(() => {
-    if (quote.data) setLastValidQuote(quote.data);
-  }, [quote.data]);
-
-  const effectiveQuote = quote.isError ? lastValidQuote : quote.data;
-
   const subtotal = session
-    ? effectiveQuote?.subtotalEth
+    ? quote.effective?.subtotalEth
     : computeSubtotal(cart);
-  const discount = effectiveQuote?.discountEth;
-  const networkFee = effectiveQuote?.networkFeeEth;
-  const total = session ? effectiveQuote?.totalEth : computeSubtotal(cart);
+  const discount = quote.effective?.discountEth;
+  const networkFee = quote.effective?.networkFeeEth;
+  const total = session ? quote.effective?.totalEth : computeSubtotal(cart);
 
   const onFinalize = () => {
     if (!session) {
@@ -99,17 +88,19 @@ export function CartSummary({ cart }: Props) {
             Aplicar
           </Button>
         </div>
-        {quote.isError && (
+        {quote.couponError && (
           <p className="text-xs text-destructive" role="alert">
             Cupom inválido ou expirado.
           </p>
         )}
-        {!quote.isError && quote.data?.coupon && (
+        {!quote.couponError && quote.coupon?.coupon && (
           <p className="text-xs text-success">
-            Cupom {quote.data.coupon.code} aplicado.
+            Cupom {quote.coupon.coupon.code} aplicado.
           </p>
         )}
       </form>
+
+      <Separator className="my-4" />
 
       <dl className="space-y-2 mb-6">
         <div className="flex items-center justify-between text-foreground">
