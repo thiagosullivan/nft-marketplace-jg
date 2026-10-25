@@ -16,9 +16,7 @@ import {
 } from "../utils";
 
 const SETTLE_DELAY_MS = 3_000;
-
 const DECLINE_THRESHOLD_ETH = 20;
-
 const QUOTE_TTL_MS = 5 * 60 * 1000;
 
 function fakeTxHash(orderId: string): string {
@@ -40,7 +38,7 @@ function settleIfDue(order: Order): Order {
   if (new Date(order.settleAt).getTime() > Date.now()) {
     return order;
   }
-  const updated: Order = {
+  return {
     ...order,
     status: order.settleStatus,
     updatedAt: nowIso(),
@@ -55,7 +53,6 @@ function settleIfDue(order: Order): Order {
     settleStatus: null,
     version: order.version + 1,
   };
-  return updated;
 }
 
 function normalizeNote(note: unknown): string | null {
@@ -66,7 +63,45 @@ function normalizeNote(note: unknown): string | null {
 }
 
 export const orderHandlers = [
-  // POST /api/orders
+  // GET /api/orders — lista todos os pedidos do usuário.
+  // IMPORTANTE: declarar ANTES de "/api/orders/:id" para que a rota
+  // genérica não capture o path da lista (id = "orders").
+  http.get("/api/orders", async ({ request }) => {
+    const err = await applyScenario();
+    if (err) return err;
+
+    const auth = requireAuth(request);
+    if (auth instanceof Response) return auth;
+
+    const db = auth.db;
+
+    const mine: Order[] = [];
+    for (const order of db.orders) {
+      const wallet = db.wallets.find((w) => w.id === order.walletId);
+      if (wallet && wallet.ownerId === auth.user.id) {
+        mine.push(settleIfDue(order));
+      }
+    }
+
+    let dirty = false;
+    for (const o of mine) {
+      const idx = db.orders.findIndex((x) => x.id === o.id);
+      if (idx !== -1 && db.orders[idx] !== o) {
+        db.orders[idx] = o;
+        dirty = true;
+      }
+    }
+    if (dirty) saveDb(db);
+
+    mine.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+
+    return json({ items: mine });
+  }),
+
+  // POST /api/orders — cria pedido idempotente + remoção seletiva
   http.post("/api/orders", async ({ request }) => {
     const err = await applyScenario();
     if (err) return err;
@@ -254,8 +289,15 @@ export const orderHandlers = [
     db.orders.push(order);
     db.idempotency[body.idempotencyKey!] = order.id;
 
+    // Remoção seletiva: remove do carrinho apenas (nftId, editionId) comprados.
+    const purchased = new Set(
+      items.map((i) => `${i.nftId}:${i.editionId ?? "none"}`),
+    );
+    const remaining = cart.items.filter(
+      (i) => !purchased.has(`${i.nftId}:${i.editionId ?? "none"}`),
+    );
     setCartFor(db, auth.user.id, {
-      items: [],
+      items: remaining,
       updatedAt: nowIso(),
     });
 
