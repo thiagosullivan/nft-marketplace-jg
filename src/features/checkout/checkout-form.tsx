@@ -12,6 +12,7 @@ import {
 } from "@/shared/components/ui/select";
 import type { Profile, Wallet, WalletType } from "@/shared/api/types";
 import { Checkbox } from "@/shared/components/ui/checkbox";
+import { CheckoutNewWalletFields } from "./checkout-new-wallet-fields";
 
 const NETWORKS = ["ethereum", "polygon", "solana"] as const;
 const WALLET_TYPES: WalletType[] = [
@@ -40,14 +41,6 @@ const schema = z.object({
   email: z.string().email("E-mail inválido."),
   ensName: z.string().optional(),
   useNewWallet: z.boolean(),
-  newWalletLabel: z.string().optional(),
-  newWalletAddress: z.string().optional(),
-  newWalletNetwork: z.enum(NETWORKS).optional(),
-  newWalletEns: z.string().optional(),
-  newWalletType: z
-    .enum(["metamask", "walletconnect", "coinbase", "ledger", "other"])
-    .optional(),
-  newWalletReferral: z.string().optional(),
   note: z.string().max(500).optional(),
 });
 
@@ -58,15 +51,23 @@ type Props = {
   wallets: Wallet[];
   selectedWalletId: string | null;
   onSelectedWalletChange: (id: string) => void;
+  onNewWalletSaved: (wallet: Wallet) => void;
   onSubmit: (values: CheckoutFormValues) => void;
   formId: string;
 };
+
+const inputClass =
+  "border border-border rounded-xs bg-transparent! text-secondary text-sm outline-none! focus:outline-none! focus-visible:outline-none! focus-visible:ring-0! focus-visible:ring-offset-0! focus-visible:border-primary!";
+const selectTriggerClass =
+  "w-full border border-border rounded-xs bg-transparent! text-secondary text-sm outline-none! focus:outline-none! focus-visible:outline-none! focus-visible:ring-0! focus-visible:ring-offset-0! focus-visible:border-primary!";
+const labelClass = "text-[15px] font-normal text-foreground";
 
 export function CheckoutForm({
   profile,
   wallets,
   selectedWalletId,
   onSelectedWalletChange,
+  onNewWalletSaved,
   onSubmit,
   formId,
 }: Props) {
@@ -84,12 +85,6 @@ export function CheckoutForm({
       email: profile.email,
       ensName: profile.ensName ?? "",
       useNewWallet: false,
-      newWalletLabel: "",
-      newWalletAddress: "",
-      newWalletNetwork: "ethereum",
-      newWalletEns: "",
-      newWalletType: "metamask",
-      newWalletReferral: "",
       note: "",
     },
   });
@@ -98,21 +93,10 @@ export function CheckoutForm({
     control: form.control,
     name: "useNewWallet",
   });
-  const watchedNetwork = useWatch({
-    control: form.control,
-    name: "network",
-  });
+  const watchedNetwork = useWatch({ control: form.control, name: "network" });
   const watchedWalletType = useWatch({
     control: form.control,
     name: "walletType",
-  });
-  const watchedNewWalletNetwork = useWatch({
-    control: form.control,
-    name: "newWalletNetwork",
-  });
-  const watchedNewWalletType = useWatch({
-    control: form.control,
-    name: "newWalletType",
   });
 
   const selectedWallet = wallets.find((w) => w.id === selectedWalletId);
@@ -126,38 +110,29 @@ export function CheckoutForm({
     >
       <div className="grid gap-6 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label
-            htmlFor="displayName"
-            className="text-[15px] font-normal text-foreground"
-          >
+          <Label htmlFor="displayName" className={labelClass}>
             Nome de exibição
           </Label>
           <Input
             id="displayName"
             {...form.register("displayName")}
-            className="border border-border rounded-xs bg-transparent! text-secondary text-sm outline-none! focus:outline-none! focus-visible:outline-none! focus-visible:ring-0! focus-visible:ring-offset-0! focus-visible:border-primary!"
+            className={inputClass}
           />
         </div>
         <div className="space-y-1.5">
-          <Label
-            htmlFor="username"
-            className="text-[15px] font-normal text-foreground"
-          >
+          <Label htmlFor="username" className={labelClass}>
             Nome de usuário
           </Label>
           <Input
             id="username"
             readOnly
             {...form.register("username")}
-            className="border border-border rounded-xs bg-transparent! text-secondary text-sm outline-none! focus:outline-none! focus-visible:outline-none! focus-visible:ring-0! focus-visible:ring-offset-0! focus-visible:border-primary!"
+            className={inputClass}
           />
         </div>
 
         <div className="space-y-1.5">
-          <Label
-            htmlFor="network"
-            className="text-[15px] font-normal text-foreground"
-          >
+          <Label htmlFor="network" className={labelClass}>
             Rede
           </Label>
           <Select
@@ -167,10 +142,7 @@ export function CheckoutForm({
             }
             disabled={!useNewWallet}
           >
-            <SelectTrigger
-              id="network"
-              className="w-full border border-border rounded-xs bg-transparent! text-secondary text-sm outline-none! focus:outline-none! focus-visible:outline-none! focus-visible:ring-0! focus-visible:ring-offset-0! focus-visible:border-primary!"
-            >
+            <SelectTrigger id="network" className={selectTriggerClass}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -183,25 +155,19 @@ export function CheckoutForm({
           </Select>
         </div>
         <div className="space-y-1.5">
-          <Label
-            htmlFor="profileName"
-            className="text-[15px] font-normal text-foreground"
-          >
+          <Label htmlFor="profileName" className={labelClass}>
             Nome do perfil
           </Label>
           <Input
             id="profileName"
             readOnly
             {...form.register("profileName")}
-            className="border border-border rounded-xs bg-transparent! text-secondary text-sm outline-none! focus:outline-none! focus-visible:outline-none! focus-visible:ring-0! focus-visible:ring-offset-0! focus-visible:border-primary!"
+            className={inputClass}
           />
         </div>
 
         <div className="space-y-1.5">
-          <Label
-            htmlFor="walletAddress"
-            className="text-[15px] font-normal text-foreground"
-          >
+          <Label htmlFor="walletAddress" className={labelClass}>
             Endereço da carteira
           </Label>
           <Select
@@ -209,10 +175,7 @@ export function CheckoutForm({
             onValueChange={(v) => onSelectedWalletChange(v)}
             disabled={useNewWallet}
           >
-            <SelectTrigger
-              id="walletAddress"
-              className="w-full border border-border rounded-xs bg-transparent! text-secondary text-sm outline-none! focus:outline-none! focus-visible:outline-none! focus-visible:ring-0! focus-visible:ring-offset-0! focus-visible:border-primary!"
-            >
+            <SelectTrigger id="walletAddress" className={selectTriggerClass}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -225,25 +188,19 @@ export function CheckoutForm({
           </Select>
         </div>
         <div className="space-y-1.5">
-          <Label
-            htmlFor="ensOrSecondary"
-            className="text-[15px] font-normal text-foreground h-5.5"
-          >
+          <Label htmlFor="ensOrSecondary" className={`${labelClass} h-5.5`}>
             {" "}
           </Label>
           <Input
             id="ensOrSecondary"
             {...form.register("ensOrSecondary")}
             placeholder="ENS ou carteira secundária (opcional)"
-            className="border border-border rounded-xs bg-transparent! text-secondary text-sm outline-none! focus:outline-none! focus-visible:outline-none! focus-visible:ring-0! focus-visible:ring-offset-0! focus-visible:border-primary!"
+            className={inputClass}
           />
         </div>
 
         <div className="space-y-1.5">
-          <Label
-            htmlFor="walletType"
-            className="text-[15px] font-normal text-foreground"
-          >
+          <Label htmlFor="walletType" className={labelClass}>
             Tipo de carteira
           </Label>
           <Select
@@ -253,10 +210,7 @@ export function CheckoutForm({
             }
             disabled={!useNewWallet}
           >
-            <SelectTrigger
-              id="walletType"
-              className="w-full border border-border rounded-xs bg-transparent! text-secondary text-sm outline-none! focus:outline-none! focus-visible:outline-none! focus-visible:ring-0! focus-visible:ring-offset-0! focus-visible:border-primary!"
-            >
+            <SelectTrigger id="walletType" className={selectTriggerClass}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -269,45 +223,36 @@ export function CheckoutForm({
           </Select>
         </div>
         <div className="space-y-1.5">
-          <Label
-            htmlFor="referralCode"
-            className="text-[15px] font-normal text-foreground"
-          >
+          <Label htmlFor="referralCode" className={labelClass}>
             Código de indicação
           </Label>
           <Input
             id="referralCode"
             readOnly={!useNewWallet}
             {...form.register("referralCode")}
-            className="border border-border rounded-xs bg-transparent! text-secondary text-sm outline-none! focus:outline-none! focus-visible:outline-none! focus-visible:ring-0! focus-visible:ring-offset-0! focus-visible:border-primary!"
+            className={inputClass}
           />
         </div>
 
         <div className="space-y-1.5">
-          <Label
-            htmlFor="email"
-            className="text-[15px] font-normal text-foreground"
-          >
+          <Label htmlFor="email" className={labelClass}>
             E-mail
           </Label>
           <Input
             id="email"
             type="email"
             {...form.register("email")}
-            className="border border-border rounded-xs bg-transparent! text-secondary text-sm outline-none! focus:outline-none! focus-visible:outline-none! focus-visible:ring-0! focus-visible:ring-offset-0! focus-visible:border-primary!"
+            className={inputClass}
           />
         </div>
         <div className="space-y-1.5">
-          <Label
-            htmlFor="ensName"
-            className="text-[15px] font-normal text-foreground"
-          >
+          <Label htmlFor="ensName" className={labelClass}>
             Nome ENS
           </Label>
           <Input
             id="ensName"
             {...form.register("ensName")}
-            className="border border-border rounded-xs bg-transparent! text-secondary text-sm outline-none! focus:outline-none! focus-visible:outline-none! focus-visible:ring-0! focus-visible:ring-offset-0! focus-visible:border-primary!"
+            className={inputClass}
           />
         </div>
       </div>
@@ -329,129 +274,16 @@ export function CheckoutForm({
       </div>
 
       {useNewWallet && (
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label
-              htmlFor="newWalletLabel"
-              className="text-[15px] font-normal text-foreground"
-            >
-              Rótulo da nova carteira
-            </Label>
-            <Input
-              id="newWalletLabel"
-              {...form.register("newWalletLabel")}
-              className="border border-border rounded-xs bg-transparent! text-secondary text-sm outline-none! focus:outline-none! focus-visible:outline-none! focus-visible:ring-0! focus-visible:ring-offset-0! focus-visible:border-primary!"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label
-              htmlFor="newWalletAddress"
-              className="text-[15px] font-normal text-foreground"
-            >
-              Endereço da nova carteira
-            </Label>
-            <Input
-              id="newWalletAddress"
-              {...form.register("newWalletAddress")}
-              className="border border-border rounded-xs bg-transparent! text-secondary text-sm outline-none! focus:outline-none! focus-visible:outline-none! focus-visible:ring-0! focus-visible:ring-offset-0! focus-visible:border-primary!"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label
-              htmlFor="newWalletNetwork"
-              className="text-[15px] font-normal text-foreground"
-            >
-              Rede
-            </Label>
-            <Select
-              value={watchedNewWalletNetwork ?? "ethereum"}
-              onValueChange={(v) =>
-                form.setValue(
-                  "newWalletNetwork",
-                  v as CheckoutFormValues["newWalletNetwork"],
-                )
-              }
-            >
-              <SelectTrigger
-                id="newWalletNetwork"
-                className="w-full border border-border rounded-xs bg-transparent! text-secondary text-sm outline-none! focus:outline-none! focus-visible:outline-none! focus-visible:ring-0! focus-visible:ring-offset-0! focus-visible:border-primary!"
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {NETWORKS.map((n) => (
-                  <SelectItem key={n} value={n}>
-                    {n}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5">
-            <Label
-              htmlFor="newWalletType"
-              className="text-[15px] font-normal text-foreground"
-            >
-              Tipo
-            </Label>
-            <Select
-              value={watchedNewWalletType ?? "metamask"}
-              onValueChange={(v) =>
-                form.setValue(
-                  "newWalletType",
-                  v as CheckoutFormValues["newWalletType"],
-                )
-              }
-            >
-              <SelectTrigger
-                id="newWalletType"
-                className="w-full border border-border rounded-xs bg-transparent! text-secondary text-sm outline-none! focus:outline-none! focus-visible:outline-none! focus-visible:ring-0! focus-visible:ring-offset-0! focus-visible:border-primary!"
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {WALLET_TYPES.map((t) => (
-                  <SelectItem key={t} value={t}>
-                    {t}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5">
-            <Label
-              htmlFor="newWalletEns"
-              className="text-[15px] font-normal text-foreground"
-            >
-              Nome ENS
-            </Label>
-            <Input
-              id="newWalletEns"
-              {...form.register("newWalletEns")}
-              className="border border-border rounded-xs bg-transparent! text-secondary text-sm outline-none! focus:outline-none! focus-visible:outline-none! focus-visible:ring-0! focus-visible:ring-offset-0! focus-visible:border-primary!"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label
-              htmlFor="newWalletReferral"
-              className="text-[15px] font-normal text-foreground"
-            >
-              Código de indicação
-            </Label>
-            <Input
-              id="newWalletReferral"
-              {...form.register("newWalletReferral")}
-              className="border border-border rounded-xs bg-transparent! text-secondary text-sm outline-none! focus:outline-none! focus-visible:outline-none! focus-visible:ring-0! focus-visible:ring-offset-0! focus-visible:border-primary!"
-            />
-          </div>
-        </div>
+        <CheckoutNewWalletFields
+          onSaved={(wallet) => {
+            form.setValue("useNewWallet", false, { shouldDirty: true });
+            onNewWalletSaved(wallet);
+          }}
+        />
       )}
 
       <div className="space-y-1.5">
-        <Label
-          htmlFor="note"
-          className="text-[15px] font-normal text-foreground"
-        >
+        <Label htmlFor="note" className={labelClass}>
           Observação do colecionador (opcional)
         </Label>
         <textarea

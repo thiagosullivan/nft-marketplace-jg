@@ -85,7 +85,7 @@ export function CheckoutPage() {
           Seu carrinho está vazio
         </h1>
         <Button asChild className="mt-6">
-          <a href="/">Explorar NFTs</a>
+          <Link to="/">Explorar NFTs</Link>
         </Button>
       </div>
     );
@@ -104,6 +104,10 @@ export function CheckoutPage() {
   const profile = profileQuery.data;
 
   const onSubmit = (values: CheckoutFormValues) => {
+    if (values.useNewWallet) {
+      toast.error("Salve a nova carteira antes de confirmar.");
+      return;
+    }
     const wallet = effectiveWallets.find((w) => w.id === selectedWalletId);
     if (!wallet) {
       toast.error("Selecione uma carteira.");
@@ -169,6 +173,7 @@ export function CheckoutPage() {
             wallets={effectiveWallets}
             selectedWalletId={selectedWalletId}
             onSelectedWalletChange={setSelectedWalletId}
+            onNewWalletSaved={(wallet) => setSelectedWalletId(wallet.id)}
             onSubmit={onSubmit}
             formId={FORM_ID}
           />
