@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { http, isApiError, isIdempotencyConflict } from "@/shared/api";
 import type { CreateOrderInput, Order } from "@/shared/api/types";
@@ -11,6 +12,7 @@ export type CreateOrderResult =
 
 export function useCreateOrder() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const mutation = useMutation<Order, unknown, CreateOrderInput>({
     mutationFn: async (input) => {
@@ -19,9 +21,10 @@ export function useCreateOrder() {
     },
     onSuccess: (order) => {
       queryClient.setQueryData(orderKeys.detail(order.id), order);
-      void queryClient.invalidateQueries({ queryKey: orderKeys.all });
+      void queryClient.invalidateQueries({ queryKey: orderKeys.list() });
       void queryClient.invalidateQueries({ queryKey: cartKeys.all });
       void queryClient.invalidateQueries({ queryKey: quoteKeys.all });
+      navigate({ to: "/order/$id", params: { id: order.id } });
     },
   });
 
