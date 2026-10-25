@@ -120,7 +120,8 @@ export const authHandlers = [
 
     const db = loadDb();
     const user = findUserByEmail(db, body.email!);
-    const expectedHash = seedCredentials[body.email!.toLowerCase()];
+    const emailKey = body.email!.toLowerCase();
+    const expectedHash = db.credentials[emailKey] ?? seedCredentials[emailKey];
 
     if (!user || !expectedHash) {
       return errorResponse(401, "UNAUTHORIZED", "E-mail ou senha incorretos.");
