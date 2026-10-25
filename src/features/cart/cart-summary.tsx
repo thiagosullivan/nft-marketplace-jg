@@ -7,17 +7,19 @@ import type { Cart } from "@/shared/api/types";
 import { useSession } from "@/features/auth/use-auth";
 import { useAuthModal } from "@/features/auth/auth-modal-provider";
 import { useQuote } from "./use-quote";
+import { formatEth, isPositiveEth, sumEth } from "./format-eth";
 
 type Props = {
   cart: Cart;
 };
 
+function lineTotalEth(item: Cart["items"][number]): string {
+  const cents = Math.round(Number(item.unitPriceEth) * 100);
+  return ((cents * item.quantity) / 100).toFixed(2);
+}
+
 function computeSubtotal(cart: Cart): string {
-  const cents = cart.items.reduce((acc, item) => {
-    const unit = Math.round(Number(item.unitPriceEth) * 100);
-    return acc + unit * item.quantity;
-  }, 0);
-  return (cents / 100).toFixed(2);
+  return sumEth(cart.items.map(lineTotalEth));
 }
 
 export function CartSummary({ cart }: Props) {
@@ -29,7 +31,8 @@ export function CartSummary({ cart }: Props) {
     undefined,
   );
 
-  const quote = useQuote({ couponCode: appliedCoupon });
+  // Passa o carrinho para que a queryKey reflita quantidade/itens.
+  const quote = useQuote({ couponCode: appliedCoupon, cart });
 
   const subtotal = session ? quote.data?.subtotalEth : computeSubtotal(cart);
   const discount = quote.data?.discountEth;
@@ -97,26 +100,26 @@ export function CartSummary({ cart }: Props) {
       <dl className="space-y-2 text-sm">
         <div className="flex items-center justify-between">
           <dt className="text-muted-foreground">Subtotal</dt>
-          <dd className="text-foreground">{subtotal ?? "—"} ETH</dd>
+          <dd className="text-foreground">{formatEth(subtotal)} ETH</dd>
         </div>
 
-        {discount && (
+        {isPositiveEth(discount) && (
           <div className="flex items-center justify-between">
             <dt className="text-muted-foreground">Desconto do lançamento</dt>
-            <dd className="text-success">−{discount} ETH</dd>
+            <dd className="text-success">−{formatEth(discount)} ETH</dd>
           </div>
         )}
 
         <div className="flex items-center justify-between">
           <dt className="text-muted-foreground">Taxa de rede</dt>
-          <dd className="text-foreground">{networkFee ?? "—"} ETH</dd>
+          <dd className="text-foreground">{formatEth(networkFee)} ETH</dd>
         </div>
 
         <Separator className="my-2" />
 
         <div className="flex items-center justify-between text-base font-semibold">
           <dt className="text-foreground">Total</dt>
-          <dd className="text-foreground">{total ?? "—"} ETH</dd>
+          <dd className="text-foreground">{formatEth(total)} ETH</dd>
         </div>
       </dl>
 

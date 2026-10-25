@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { http } from "@/shared/api";
 import type { Cart } from "@/shared/api/types";
-import { cartKeys } from "@/shared/api/query-keys";
+import { cartKeys, quoteKeys } from "@/shared/api/query-keys";
 import { useSession } from "@/features/auth/use-auth";
 import { removeGuestItem } from "./guest-cart";
 import { notifyGuestCartChange } from "./use-cart";
@@ -25,6 +25,7 @@ export function useRemoveCartItem() {
     },
     onSuccess: (cart) => {
       queryClient.setQueryData(cartKeys.current(), cart);
+      void queryClient.invalidateQueries({ queryKey: quoteKeys.all });
       toast.success("Removido do carrinho.");
     },
   });

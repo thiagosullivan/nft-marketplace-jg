@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { http, isApiError } from "@/shared/api";
 import type { Cart, UpdateCartItemInput } from "@/shared/api/types";
-import { cartKeys } from "@/shared/api/query-keys";
+import { cartKeys, quoteKeys } from "@/shared/api/query-keys";
 import { useSession } from "@/features/auth/use-auth";
 import { updateGuestItem } from "./guest-cart";
 import { notifyGuestCartChange } from "./use-cart";
@@ -18,6 +18,7 @@ export function useUpdateCartItem() {
     },
     onSuccess: (cart) => {
       queryClient.setQueryData(cartKeys.current(), cart);
+      void queryClient.invalidateQueries({ queryKey: quoteKeys.all });
     },
   });
 

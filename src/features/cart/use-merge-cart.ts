@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { http } from "@/shared/api";
 import type { AddToCartInput, Cart } from "@/shared/api/types";
-import { cartKeys } from "@/shared/api/query-keys";
+import { cartKeys, quoteKeys } from "@/shared/api/query-keys";
 import {
   clearGuestCart,
   hasGuestCartItems,
@@ -23,6 +23,7 @@ export function useMergeCart() {
       notifyGuestCartChange();
       queryClient.setQueryData(cartKeys.current(), cart);
       void queryClient.invalidateQueries({ queryKey: cartKeys.all });
+      void queryClient.invalidateQueries({ queryKey: quoteKeys.all });
     },
   });
 

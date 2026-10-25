@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { http, isApiError } from "@/shared/api";
 import type { AddToCartInput, Cart, Nft } from "@/shared/api/types";
-import { cartKeys, nftKeys } from "@/shared/api/query-keys";
+import { cartKeys, nftKeys, quoteKeys } from "@/shared/api/query-keys";
 import { useSession } from "@/features/auth/use-auth";
 import { addGuestItem } from "./guest-cart";
 import { notifyGuestCartChange } from "./use-cart";
@@ -23,6 +23,7 @@ export function useAddToCart() {
     },
     onSuccess: (cart) => {
       queryClient.setQueryData(cartKeys.current(), cart);
+      void queryClient.invalidateQueries({ queryKey: quoteKeys.all });
     },
   });
 

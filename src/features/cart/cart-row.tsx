@@ -4,6 +4,7 @@ import { Input } from "@/shared/components/ui/input";
 import type { CartItem } from "@/shared/api/types";
 import { useRemoveCartItem } from "./use-remove-cart-item";
 import { useUpdateCartItem } from "./use-update-cart-item";
+import { formatEth } from "./format-eth";
 
 type Props = {
   item: CartItem;
@@ -52,7 +53,7 @@ export function CartRow({ item }: Props) {
       {/* Preço */}
       <div className="flex w-full items-center gap-x-2 text-base font-bold text-secondary sm:w-[80px] sm:flex-none">
         <p className="text-base text-secondary sm:hidden">Preço</p>
-        <p>{item.unitPriceEth}</p>
+        <p>{formatEth(item.unitPriceEth)}</p>
         <p>ETH</p>
       </div>
 
@@ -113,7 +114,7 @@ export function CartRow({ item }: Props) {
       {/* Total */}
       <div className="w-full text-base font-semibold text-accent sm:w-[80px] sm:flex-none sm:text-right">
         <p className="text-xs text-muted-foreground sm:hidden">Total</p>
-        {lineTotal} ETH
+        {formatEth(lineTotal)} ETH
       </div>
 
       {/* Excluir */}
