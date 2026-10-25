@@ -82,3 +82,49 @@ export function useUpdateWallet() {
     },
   );
 }
+
+export function useDeleteWallet() {
+  const queryClient = useQueryClient();
+
+  return useMutation<{ ok: true }, unknown, string>({
+    mutationFn: async (id) => {
+      const { data } = await http.delete<{ ok: true }>(`/wallets/${id}`);
+      return data;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: walletKeys.all });
+      toast.success("Carteira removida.");
+    },
+    onError: (error) => {
+      toast.error(
+        isApiError(error)
+          ? error.message
+          : "Não foi possível remover a carteira.",
+      );
+    },
+  });
+}
+
+export function useSetPrimaryWallet() {
+  const queryClient = useQueryClient();
+
+  return useMutation<Wallet, unknown, string>({
+    mutationFn: async (id) => {
+      const { data } = await http.patch<Wallet>(`/wallets/${id}`, {
+        isPrimary: true,
+      });
+      return data;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: walletKeys.all });
+      toast.success("Carteira definida como principal.");
+    },
+    onError: (error) => {
+      toast.error(
+        isApiError(error)
+          ? error.message
+          : "Não foi possível definir como principal.",
+      );
+    },
+  });
+}
