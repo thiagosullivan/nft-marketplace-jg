@@ -1,12 +1,5 @@
 import type { IsoDate, Wallet } from "@/shared/api/types";
 
-/**
- * wallets seed per user.
- *
- * - maria: 1 (Ethereum) + 1 (Polygon).
- * - fernando: 1 (Solana).
- * - thais: 1 (Ethereum)
- */
 export const seedWallets: readonly Wallet[] = [
   {
     id: "wallet-maria-eth",
