@@ -63,21 +63,25 @@ export function AvatarPicker({ value, fallbackInitial, onChange }: Props) {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm font-bold text-foreground">Foto de perfil</p>
+      <p className="text-[15px] font-normal">Avatar</p>
 
       <div className="flex items-center gap-4">
         {value ? (
           <img
             src={value}
             alt="Pré-visualização do avatar"
-            className="size-16 rounded-full object-cover"
+            className="size-12.5 rounded-full object-cover"
           />
         ) : (
           <div
             aria-hidden
-            className="flex size-16 items-center justify-center rounded-full bg-surface-card text-lg font-bold text-primary"
+            className="flex size-12.5 items-center justify-center rounded-full bg-surface-raised border border-border text-lg font-bold text-primary"
           >
-            {fallbackInitial}
+            <img
+              src="/icons/svg/image-icon.svg"
+              alt="Pré-visualização do avatar"
+              className="size-6 rounded-full object-cover"
+            />
           </div>
         )}
 
@@ -97,8 +101,8 @@ export function AvatarPicker({ value, fallbackInitial, onChange }: Props) {
             type="button"
             variant="outline"
             onClick={() => inputRef.current?.click()}
+            className="h-10 rounded-xs border-none bg-primary! px-5 text-ink text-sm font-bold cursor-pointer hover:bg-primary/80!"
           >
-            <ImagePlus className="mr-2 size-4" aria-hidden />
             Alterar
           </Button>
           <Button
@@ -109,8 +113,9 @@ export function AvatarPicker({ value, fallbackInitial, onChange }: Props) {
               onChange(null);
             }}
             disabled={!value}
+            className="h-10 px-5 rounded-xs cursor-pointer text-sm font-bold"
           >
-            <Trash2 className="mr-2 size-4" aria-hidden />
+            {/* <Trash2 className="mr-2 size-4" aria-hidden /> */}
             Remover
           </Button>
         </div>

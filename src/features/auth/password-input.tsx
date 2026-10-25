@@ -14,7 +14,10 @@ export const PasswordInput = forwardRef<HTMLInputElement, Props>(
         <Input
           ref={ref}
           type={visible ? "text" : "password"}
-          className={cn("pr-10", className)}
+          className={cn(
+            "pr-10 h-10 border border-border rounded-xs bg-transparent! focus:outline-none! focus:ring-0!",
+            className,
+          )}
           {...props}
         />
         <button

@@ -176,15 +176,23 @@ export function ProfileForm({ profile }: Props) {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col gap-6"
+      className="flex flex-col"
       noValidate
     >
-      <h1 className="text-2xl font-bold text-primary">Dados do perfil</h1>
+      <h1 className="text-base font-bold text-foreground mb-8">
+        Perfil do colecionador
+      </h1>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="displayName">Nome de exibição</Label>
-          <Input id="displayName" {...register("displayName")} />
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 mb-8">
+        <div className="flex flex-col gap-4">
+          <Label htmlFor="displayName" className="text-[15px] font-normal">
+            Nome de exibição
+          </Label>
+          <Input
+            id="displayName"
+            {...register("displayName")}
+            className="h-10 border border-border rounded-xs bg-transparent! focus:outline-none! focus:ring-0!"
+          />
           {errors.displayName && (
             <p className="text-xs text-destructive" role="alert">
               {errors.displayName.message}
@@ -192,9 +200,15 @@ export function ProfileForm({ profile }: Props) {
           )}
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="username">Nome de usuário</Label>
-          <Input id="username" {...register("username")} />
+        <div className="flex flex-col gap-4">
+          <Label htmlFor="username" className="text-[15px] font-normal">
+            Nome de usuário
+          </Label>
+          <Input
+            id="username"
+            {...register("username")}
+            className="h-10 border border-border rounded-xs bg-transparent! focus:outline-none! focus:ring-0!"
+          />
           {errors.username && (
             <p className="text-xs text-destructive" role="alert">
               {errors.username.message}
@@ -202,9 +216,16 @@ export function ProfileForm({ profile }: Props) {
           )}
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="email">E-mail</Label>
-          <Input id="email" type="email" {...register("email")} />
+        <div className="flex flex-col gap-4">
+          <Label htmlFor="email" className="text-[15px] font-normal">
+            E-mail
+          </Label>
+          <Input
+            id="email"
+            type="email"
+            {...register("email")}
+            className="h-10 border border-border rounded-xs bg-transparent! focus:outline-none! focus:ring-0!"
+          />
           {errors.email && (
             <p className="text-xs text-destructive" role="alert">
               {errors.email.message}
@@ -212,15 +233,11 @@ export function ProfileForm({ profile }: Props) {
           )}
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="ensLocalPart">Nome ENS</Label>
+        <div className="flex flex-col gap-4">
+          <Label htmlFor="ensLocalPart" className="text-[15px] font-normal">
+            Nome ENS
+          </Label>
           <div className="flex">
-            <Input
-              id="ensLocalPart"
-              className="rounded-r-none"
-              placeholder="seunome"
-              {...register("ensLocalPart")}
-            />
             <Controller
               control={control}
               name="ensSuffix"
@@ -228,19 +245,25 @@ export function ProfileForm({ profile }: Props) {
                 <Select value={field.value} onValueChange={field.onChange}>
                   <SelectTrigger
                     aria-label="Sufixo do nome ENS"
-                    className="w-[100px] rounded-l-none border-l-0"
+                    className="h-10! border border-border rounded-xs bg-transparent! mr-2.5"
                   >
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="border border-border rounded-xs bg-ink mr-2.5">
                     {ENS_SUFFIXES.map((s) => (
-                      <SelectItem key={s} value={s}>
+                      <SelectItem key={s} value={s} className="rounded-xs!">
                         {s}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               )}
+            />
+            <Input
+              id="ensLocalPart"
+              className="h-10 border border-border rounded-xs bg-transparent! focus:outline-none! focus:ring-0!"
+              placeholder="seunome"
+              {...register("ensLocalPart")}
             />
           </div>
           {errors.ensLocalPart && (
@@ -250,16 +273,19 @@ export function ProfileForm({ profile }: Props) {
           )}
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="walletNickname">Apelido da carteira</Label>
+        <div className="flex flex-col gap-4">
+          <Label htmlFor="walletNickname" className="text-[15px] font-normal">
+            Apelido da carteira
+          </Label>
           <Input
             id="walletNickname"
             placeholder="ex.: carteira principal"
             {...register("walletNickname")}
+            className="h-10 border border-border rounded-xs bg-transparent! focus:outline-none! focus:ring-0!"
           />
-          <p className="text-xs text-muted-foreground">
+          {/* <p className="text-xs text-muted-foreground">
             Este campo é só informativo neste formulário.
-          </p>
+          </p> */}
         </div>
 
         <AvatarPicker
@@ -269,16 +295,23 @@ export function ProfileForm({ profile }: Props) {
         />
       </div>
 
-      <Separator />
+      {/* <Separator /> */}
 
-      <h2 className="text-xl font-bold text-primary">Alterar senha</h2>
-      <p className="-mt-4 text-sm text-muted-foreground">
+      <h2 className="text-base font-medium text-foreground mb-6">
+        Alterar senha
+      </h2>
+      {/* <p className="-mt-4 text-sm text-muted-foreground">
         Preencha apenas se quiser trocar a senha.
-      </p>
+      </p> */}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-1.5 sm:col-span-2">
-          <Label htmlFor="currentPassword">Senha atual</Label>
+      <div className="grid grid-cols-1 gap-6 max-w-[415px] mb-11">
+        <div className="flex flex-col gap-3 sm:col-span-2">
+          <Label
+            htmlFor="currentPassword"
+            className="text-[15px] font-normal text-foreground"
+          >
+            Senha atual
+          </Label>
           <PasswordInput
             id="currentPassword"
             autoComplete="current-password"
@@ -291,8 +324,10 @@ export function ProfileForm({ profile }: Props) {
           )}
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="newPassword">Nova senha</Label>
+        <div className="flex flex-col gap-3 sm:col-span-2">
+          <Label htmlFor="newPassword" className="text-[15px] font-normal">
+            Nova senha
+          </Label>
           <PasswordInput
             id="newPassword"
             autoComplete="new-password"
@@ -305,8 +340,10 @@ export function ProfileForm({ profile }: Props) {
           )}
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="confirmPassword">Confirmar nova senha</Label>
+        <div className="flex flex-col gap-3 sm:col-span-2">
+          <Label htmlFor="confirmPassword" className="text-[15px] font-normal">
+            Confirmar nova senha
+          </Label>
           <PasswordInput
             id="confirmPassword"
             autoComplete="new-password"
@@ -320,8 +357,12 @@ export function ProfileForm({ profile }: Props) {
         </div>
       </div>
 
-      <div className="flex justify-end">
-        <Button type="submit" disabled={isSaving}>
+      <div className="flex justify-start">
+        <Button
+          type="submit"
+          disabled={isSaving}
+          className="h-10 px-10 rounded-xs text-ink text-sm font-bold"
+        >
           {isSaving ? "Salvando…" : "Salvar"}
         </Button>
       </div>
