@@ -10,7 +10,7 @@ export function CartTable({ cart }: Props) {
     <div className="w-full">
       <div
         aria-hidden="true"
-        className="hidden gap-[62px] border-b border-border pb-3 text-xs uppercase tracking-wide text-muted-foreground sm:flex sm:items-center"
+        className="hidden gap-[62px] border-b border-border pb-3 text-base font-bold tracking-wide text-foreground sm:flex sm:items-center"
       >
         <span className="w-[250px] flex-none text-left">NFTs</span>
         <span className="w-[80px] flex-none text-left">Preço</span>

@@ -1,13 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Separator } from "@/shared/components/ui/separator";
-import type { Cart } from "@/shared/api/types";
+import type { Cart, Quote } from "@/shared/api/types";
 import { useSession } from "@/features/auth/use-auth";
 import { useAuthModal } from "@/features/auth/auth-modal-provider";
 import { useQuote } from "./use-quote";
-import { formatEth, isPositiveEth, sumEth } from "./format-eth";
+import { formatEth, sumEth } from "./format-eth";
 
 type Props = {
   cart: Cart;
@@ -31,13 +31,25 @@ export function CartSummary({ cart }: Props) {
     undefined,
   );
 
-  // Passa o carrinho para que a queryKey reflita quantidade/itens.
   const quote = useQuote({ couponCode: appliedCoupon, cart });
 
-  const subtotal = session ? quote.data?.subtotalEth : computeSubtotal(cart);
-  const discount = quote.data?.discountEth;
-  const networkFee = quote.data?.networkFeeEth;
-  const total = session ? quote.data?.totalEth : computeSubtotal(cart);
+  // Última cotação bem-sucedida (state, atualizado em efeito — não no render).
+  // Evita que um cupom inválido zere o resumo.
+  const [lastValidQuote, setLastValidQuote] = useState<Quote | undefined>(
+    undefined,
+  );
+  useEffect(() => {
+    if (quote.data) setLastValidQuote(quote.data);
+  }, [quote.data]);
+
+  const effectiveQuote = quote.isError ? lastValidQuote : quote.data;
+
+  const subtotal = session
+    ? effectiveQuote?.subtotalEth
+    : computeSubtotal(cart);
+  const discount = effectiveQuote?.discountEth;
+  const networkFee = effectiveQuote?.networkFeeEth;
+  const total = session ? effectiveQuote?.totalEth : computeSubtotal(cart);
 
   const onFinalize = () => {
     if (!session) {
@@ -50,36 +62,40 @@ export function CartSummary({ cart }: Props) {
   return (
     <aside
       aria-labelledby="cart-summary-title"
-      className="w-full rounded-md border border-border bg-surface-card p-6 lg:sticky lg:top-24"
+      className="w-full rounded-md lg:sticky lg:top-24"
     >
-      <h2 id="cart-summary-title" className="text-xl font-bold text-foreground">
+      <h2 id="cart-summary-title" className="text-lg font-bold text-foreground">
         Resumo da compra
       </h2>
-      <Separator className="my-4" />
+      <Separator className="mt-3 mb-6" />
 
       <form
         onSubmit={(e) => {
           e.preventDefault();
           setAppliedCoupon(couponInput.trim() || undefined);
         }}
-        className="space-y-2"
+        className="space-y-2 mb-6"
       >
         <label
           htmlFor="cart-coupon"
-          className="text-sm font-medium text-foreground"
+          className="text-sm font-bold text-foreground mb-2 block"
         >
           Código promocional
         </label>
-        <div className="flex gap-2">
+        <div className="flex">
           <Input
             id="cart-coupon"
             type="text"
             value={couponInput}
             onChange={(e) => setCouponInput(e.target.value)}
-            placeholder="Digite o cupom"
-            className="h-10"
+            placeholder="Digite o cupom promocional..."
+            className="h-10 rounded-none border-primary! bg-transparent! text-xs font-normal outline-none! focus:outline-none! focus-visible:outline-none! focus-visible:ring-0! focus-visible:ring-offset-0! focus-visible:border-primary!"
           />
-          <Button type="submit" variant="outline" className="h-10">
+          <Button
+            type="submit"
+            variant="outline"
+            className="py-3 px-5 h-10 rounded-none border border-primary! bg-primary! text-[15px] font-bold text-ink"
+          >
             Aplicar
           </Button>
         </div>
@@ -88,38 +104,41 @@ export function CartSummary({ cart }: Props) {
             Cupom inválido ou expirado.
           </p>
         )}
-        {quote.data?.coupon && (
+        {!quote.isError && quote.data?.coupon && (
           <p className="text-xs text-success">
             Cupom {quote.data.coupon.code} aplicado.
           </p>
         )}
       </form>
 
-      <Separator className="my-4" />
-
-      <dl className="space-y-2 text-sm">
-        <div className="flex items-center justify-between">
-          <dt className="text-muted-foreground">Subtotal</dt>
-          <dd className="text-foreground">{formatEth(subtotal)} ETH</dd>
+      <dl className="space-y-2 mb-6">
+        <div className="flex items-center justify-between text-foreground">
+          <dt className="text-[15px] font-normal">Subtotal</dt>
+          <dd className="text-lg font-normal">{formatEth(subtotal)} ETH</dd>
         </div>
 
-        {isPositiveEth(discount) && (
-          <div className="flex items-center justify-between">
-            <dt className="text-muted-foreground">Desconto do lançamento</dt>
-            <dd className="text-success">−{formatEth(discount)} ETH</dd>
+        <div className="flex items-center justify-between text-foreground">
+          <dt className="text-[15px] font-normal">Desconto do lançamento</dt>
+          <dd className="text-base font-normal">
+            (−) {formatEth(discount ?? "0")}
+          </dd>
+        </div>
+
+        <div className="flex flex-col gap-y-3 mb-6">
+          <div className="flex items-center justify-between text-foreground">
+            <dt className="text-[15px] font-normal">Taxa de rede</dt>
+            <dd className="text-lg font-normal">{formatEth(networkFee)} ETH</dd>
           </div>
-        )}
-
-        <div className="flex items-center justify-between">
-          <dt className="text-muted-foreground">Taxa de rede</dt>
-          <dd className="text-foreground">{formatEth(networkFee)} ETH</dd>
+          <p className="text-accent text-xs font-normal ml-auto">
+            Taxa estimada
+          </p>
         </div>
-
-        <Separator className="my-2" />
 
         <div className="flex items-center justify-between text-base font-semibold">
-          <dt className="text-foreground">Total</dt>
-          <dd className="text-foreground">{formatEth(total)} ETH</dd>
+          <dt className="text-foreground text-base font-bold">Total</dt>
+          <dd className="text-accent text-lg font-bold">
+            {formatEth(total)} ETH
+          </dd>
         </div>
       </dl>
 
@@ -127,12 +146,12 @@ export function CartSummary({ cart }: Props) {
         <Button
           type="button"
           onClick={onFinalize}
-          className="min-h-11 w-full"
+          className="min-h-10 w-full rounded-xs text-ink font-bold text-[15px]"
           disabled={cart.items.length === 0}
         >
           {session ? "Finalizar" : "Conectar e finalizar"}
         </Button>
-        <Button asChild variant="outline" className="min-h-11 w-full">
+        <Button asChild variant="link" className="min-h-10 w-full">
           <Link to="/">Continuar explorando</Link>
         </Button>
       </div>
