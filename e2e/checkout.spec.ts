@@ -61,8 +61,6 @@ async function addItemAndGoToCheckout(page: Page) {
 
 async function clickConfirmPurchase(page: Page) {
   const button = page.getByRole("button", { name: /confirmar compra/i });
-  // Hit-test instável no mobile (header sticky cobre a área no scroll do
-  // Playwright). Teclado é o caminho real de um usuário e não depende disso.
   await button.focus();
   await button.press("Enter");
 }
@@ -83,7 +81,7 @@ test.describe("Checkout", () => {
     await addItemAndGoToCheckout(page);
 
     await expect(
-      page.getByRole("heading", { name: /finalizar compra/i }),
+      page.getByRole("heading", { name: /perfil do colecionador/i }),
     ).toBeVisible();
 
     await clickConfirmPurchase(page);
