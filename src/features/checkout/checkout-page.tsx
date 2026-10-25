@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { http } from "@/shared/api";
@@ -152,20 +152,27 @@ export function CheckoutPage() {
   };
 
   return (
-    <div className="container mx-auto max-w-6xl px-4 py-10">
-      <h1 className="mb-8 text-3xl font-bold text-foreground">
-        Finalizar compra
-      </h1>
+    <div className="container mx-auto max-w-300 pt-10 pb-24">
+      <div className="mb-8 text-foreground text-[15px] font-bold">
+        <Link to="/">Início /</Link>
+        <Link to="/"> Mercado /</Link>
+        <Link to="/"> Pagamento</Link>
+      </div>
 
-      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_400px]">
-        <CheckoutForm
-          profile={profile}
-          wallets={effectiveWallets}
-          selectedWalletId={selectedWalletId}
-          onSelectedWalletChange={setSelectedWalletId}
-          onSubmit={onSubmit}
-          formId={FORM_ID}
-        />
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_405px]">
+        <div>
+          <h3 className="text-foreground text-[17px] font-bold mb-3">
+            Perfil do colecionador
+          </h3>
+          <CheckoutForm
+            profile={profile}
+            wallets={effectiveWallets}
+            selectedWalletId={selectedWalletId}
+            onSelectedWalletChange={setSelectedWalletId}
+            onSubmit={onSubmit}
+            formId={FORM_ID}
+          />
+        </div>
 
         <CheckoutSummary
           cart={cart}
