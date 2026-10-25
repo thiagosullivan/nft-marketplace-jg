@@ -19,6 +19,8 @@ const SETTLE_DELAY_MS = 3_000;
 
 const DECLINE_THRESHOLD_ETH = 20;
 
+const QUOTE_TTL_MS = 5 * 60 * 1000;
+
 function fakeTxHash(orderId: string): string {
   const seed = orderId.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
   return (
@@ -54,6 +56,13 @@ function settleIfDue(order: Order): Order {
     version: order.version + 1,
   };
   return updated;
+}
+
+function normalizeNote(note: unknown): string | null {
+  if (typeof note !== "string") return null;
+  const trimmed = note.trim();
+  if (trimmed.length === 0) return null;
+  return trimmed.slice(0, 500);
 }
 
 export const orderHandlers = [
@@ -98,12 +107,24 @@ export const orderHandlers = [
       }
     }
 
+    const issuedAt = new Date(body.quoteIssuedAt).getTime();
+    if (!Number.isFinite(issuedAt) || Date.now() - issuedAt > QUOTE_TTL_MS) {
+      return errorResponse(
+        409,
+        "CONFLICT",
+        "Cotação expirada. Revalide o carrinho.",
+        { quoteIssuedAt: "Cotação expirada." },
+      );
+    }
+
     const cart = getCartFor(db, auth.user.id);
     if (cart.items.length === 0) {
       return errorResponse(400, "VALIDATION_ERROR", "Carrinho vazio.");
     }
 
-    const wallet = db.wallets.find((w) => w.id === body.walletId);
+    const wallet = db.wallets.find(
+      (w) => w.id === body.walletId && w.ownerId === auth.user.id,
+    );
     if (!wallet) {
       return errorResponse(404, "NOT_FOUND", "Carteira não encontrada.");
     }
@@ -227,6 +248,7 @@ export const orderHandlers = [
       version: 1,
       settleAt,
       settleStatus,
+      note: normalizeNote(body.note),
     };
 
     db.orders.push(order);
@@ -255,6 +277,11 @@ export const orderHandlers = [
     const order = db.orders.find((o) => o.id === id);
     if (!order) {
       return errorResponse(404, "NOT_FOUND", "Pedido não encontrado.");
+    }
+
+    const wallet = db.wallets.find((w) => w.id === order.walletId);
+    if (!wallet || wallet.ownerId !== auth.user.id) {
+      return errorResponse(403, "FORBIDDEN", "Acesso negado a este pedido.");
     }
 
     const settled = settleIfDue(order);
