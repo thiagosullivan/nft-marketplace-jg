@@ -33,7 +33,7 @@ const footerData = {
 
 export function Footer() {
   return (
-    <footer className="bg-ink mt-24 mb-6">
+    <footer className="bg-ink mb-6">
       <div className="max-w-300 w-full mx-auto">
         <div className="bg-surface-card px-8 pt-8 pb-4">
           <div className="flex justify-around">
