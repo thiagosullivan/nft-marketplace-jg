@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   User,
   Wallet,
@@ -13,116 +13,128 @@ import { toast } from "sonner";
 import { cn } from "@/shared/lib/utils";
 import { useLogout } from "@/features/auth/use-auth";
 
-export type AccountSection = "profile" | "wallets";
-
-type Props = {
-  activeSection: AccountSection;
-  onSectionChange: (section: AccountSection) => void;
-};
-
 const DISABLED_HINT = "Disponível em breve.";
 
-function showDisabledHint() {
-  toast.info(DISABLED_HINT);
-}
+const baseClass =
+  "flex w-full items-center gap-3 border-r-2 border-transparent px-3 py-2 text-left text-sm transition-colors";
 
-export function AccountSidebar({ activeSection, onSectionChange }: Props) {
+export function AccountSidebar() {
   const navigate = useNavigate();
   const logout = useLogout();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  const isProfile = pathname === "/profile";
+  const isWallets = pathname.startsWith("/profile/wallets");
+  const isOrders = pathname.startsWith("/profile/orders");
 
   return (
-    <aside className="w-full md:w-[260px] shrink-0">
+    <aside className="w-full shrink-0 md:w-[260px]">
       <h2 className="mb-6 text-lg font-bold text-foreground">Perfil</h2>
 
       <nav aria-label="Navegação da conta">
         <ul className="flex flex-col gap-1">
-          <SideItem
+          <SideLink
+            to="/profile"
             label="Dados do perfil"
             icon={<User className="size-4" aria-hidden />}
-            active={activeSection === "profile"}
-            onClick={() => onSectionChange("profile")}
+            active={isProfile}
           />
-          <SideItem
+          <SideLink
+            to="/profile/wallets"
             label="Carteiras"
             icon={<Wallet className="size-4" aria-hidden />}
-            active={activeSection === "wallets"}
-            onClick={() => onSectionChange("wallets")}
+            active={isWallets}
           />
-          <SideItem
+          <SideLink
+            to="/profile/orders"
             label="Atividade"
             icon={<Activity className="size-4" aria-hidden />}
-            onClick={() => navigate({ to: "/orders" })}
+            active={isOrders}
           />
-          <SideItem
+
+          <SideDisabledButton
             label="Lista de interesse"
             icon={<Heart className="size-4" aria-hidden />}
-            disabled
-            onClick={showDisabledHint}
           />
-          <SideItem
+          <SideDisabledButton
             label="Ofertas"
             icon={<Tag className="size-4" aria-hidden />}
-            disabled
-            onClick={showDisabledHint}
           />
-          <SideItem
+          <SideDisabledButton
             label="Arquivos baixados"
             icon={<Download className="size-4" aria-hidden />}
-            disabled
-            onClick={showDisabledHint}
           />
-          <SideItem
+          <SideDisabledButton
             label="Suporte"
             icon={<HelpCircle className="size-4" aria-hidden />}
-            disabled
-            onClick={showDisabledHint}
           />
 
           <li aria-hidden className="my-3 h-px w-full bg-border" />
 
-          <SideItem
-            label="Sair"
-            icon={<LogOut className="size-4" aria-hidden />}
-            onClick={() => {
-              logout.mutate();
-              navigate({ to: "/" });
-            }}
-          />
+          <li>
+            <button
+              type="button"
+              onClick={() => {
+                logout.mutate();
+                navigate({ to: "/" });
+              }}
+              className={cn(baseClass, "text-foreground hover:text-primary")}
+            >
+              <LogOut className="size-4" aria-hidden />
+              <span>Sair</span>
+            </button>
+          </li>
         </ul>
       </nav>
-
-      {/* Link "Atividade" também acessível pelo header, mas o item fica aqui
-          para bater com o Figma. "Carteiras" alterna o painel em /profile. */}
-      <noscript>
-        <Link to="/orders">Atividade</Link>
-      </noscript>
     </aside>
   );
 }
 
-type SideItemProps = {
+function SideLink({
+  to,
+  label,
+  icon,
+  active,
+}: {
+  to: "/profile" | "/profile/wallets" | "/profile/orders";
   label: string;
   icon: React.ReactNode;
-  active?: boolean;
-  disabled?: boolean;
-  onClick: () => void;
-};
+  active: boolean;
+}) {
+  return (
+    <li>
+      <Link
+        to={to}
+        aria-current={active ? "page" : undefined}
+        className={cn(
+          baseClass,
+          active && "border-primary font-bold text-primary",
+          !active && "text-foreground hover:text-primary",
+        )}
+      >
+        {icon}
+        <span>{label}</span>
+      </Link>
+    </li>
+  );
+}
 
-function SideItem({ label, icon, active, disabled, onClick }: SideItemProps) {
+function SideDisabledButton({
+  label,
+  icon,
+}: {
+  label: string;
+  icon: React.ReactNode;
+}) {
   return (
     <li>
       <button
         type="button"
-        onClick={onClick}
-        disabled={disabled}
-        aria-current={active ? "page" : undefined}
-        aria-disabled={disabled || undefined}
+        onClick={() => toast.info(DISABLED_HINT)}
+        aria-disabled="true"
         className={cn(
-          "flex w-full items-center gap-3 px-3 py-2 text-left text-sm transition-colors",
-          "border-r-2 border-transparent",
-          active && "border-primary text-primary font-bold",
-          !active && !disabled && "text-foreground hover:text-primary",
-          disabled && "cursor-not-allowed text-muted-foreground opacity-60",
+          baseClass,
+          "cursor-not-allowed text-muted-foreground opacity-60",
         )}
       >
         {icon}

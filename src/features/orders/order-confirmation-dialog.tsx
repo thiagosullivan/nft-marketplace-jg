@@ -31,7 +31,7 @@ export function OrderConfirmationDialog({ order, open, onOpenChange }: Props) {
   const isDeclined = order.status === "declined";
 
   const goToCheckout = () => navigate({ to: "/checkout" });
-  const goToOrders = () => navigate({ to: "/orders" });
+  const goToOrders = () => navigate({ to: "/profile/orders" });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
