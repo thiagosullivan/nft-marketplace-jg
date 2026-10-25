@@ -1,6 +1,16 @@
 import { useState } from "react";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Button } from "@/shared/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/shared/components/ui/alert-dialog";
 import type { Wallet } from "@/shared/api/types";
 import {
   useDeleteWallet,
@@ -16,6 +26,7 @@ export function WalletList() {
   const remove = useDeleteWallet();
   const [editing, setEditing] = useState<Wallet | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleting, setDeleting] = useState<Wallet | null>(null);
 
   if (wallets.isLoading) {
     return (
@@ -68,14 +79,7 @@ export function WalletList() {
               setDialogOpen(true);
             }}
             onDelete={(wallet) => {
-              if (
-                !window.confirm(
-                  `Remover a carteira "${wallet.label}"? Essa ação não pode ser desfeita.`,
-                )
-              ) {
-                return;
-              }
-              void remove.mutateAsync(wallet.id);
+              setDeleting(wallet);
             }}
             onSetPrimary={(wallet) => {
               void setPrimary.mutateAsync(wallet.id);
@@ -92,6 +96,44 @@ export function WalletList() {
           if (!open) setEditing(null);
         }}
       />
+
+      <AlertDialog
+        open={!!deleting}
+        onOpenChange={(open) => {
+          if (!open) setDeleting(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir carteira?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleting
+                ? `Tem certeza que deseja excluir a carteira "${deleting.label}"? Essa ação não pode ser desfeita.`
+                : ""}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={remove.isPending}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              disabled={remove.isPending}
+              onClick={async (event) => {
+                event.preventDefault();
+                if (!deleting) return;
+                try {
+                  await remove.mutateAsync(deleting.id);
+                } finally {
+                  setDeleting(null);
+                }
+              }}
+            >
+              {remove.isPending ? "Excluindo…" : "Excluir"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
