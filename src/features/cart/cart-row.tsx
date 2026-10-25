@@ -29,7 +29,7 @@ export function CartRow({ item }: Props) {
   const lineTotal = multiplyEth(item.unitPriceEth, item.quantity);
 
   return (
-    <li className="flex flex-col gap-4 bg-surface-card sm:flex-row sm:items-center sm:gap-[62px]">
+    <li className="flex flex-col gap-3 bg-surface-card sm:flex-row sm:items-center sm:gap-[62px]">
       {/* NFT: imagem + nome/id */}
       <div className="flex w-full items-center sm:w-[250px] sm:flex-none">
         <div className="mr-4 size-17.5 shrink-0 overflow-hidden rounded-md bg-surface-card">
@@ -112,7 +112,7 @@ export function CartRow({ item }: Props) {
       </div>
 
       {/* Total */}
-      <div className="w-full text-base font-semibold text-accent sm:w-[80px] sm:flex-none sm:text-right">
+      <div className="w-full text-base font-semibold text-accent sm:w-[95px] sm:flex-none sm:text-left">
         <p className="text-xs text-muted-foreground sm:hidden">Total</p>
         {formatEth(lineTotal)} ETH
       </div>
