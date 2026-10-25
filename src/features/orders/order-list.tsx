@@ -33,13 +33,13 @@ function Line({ order }: { order: Order }) {
       <Link
         to="/order/$id"
         params={{ id: order.id }}
-        className="flex items-center gap-4 rounded-lg bg-surface-card p-4 transition hover:bg-surface-raised focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="flex items-center gap-4 rounded-xs bg-surface-card p-2 transition hover:bg-surface-raised focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
       >
         {image ? (
           <img
             src={image}
             alt=""
-            className="size-16 shrink-0 rounded-md object-cover"
+            className="size-20 shrink-0 rounded-md object-cover"
             loading="lazy"
           />
         ) : (

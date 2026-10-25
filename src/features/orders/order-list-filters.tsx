@@ -18,9 +18,9 @@ const OPTIONS: { value: OrderListFilter; label: string }[] = [
 export function OrderListFilters({ value, onChange }: Props) {
   return (
     <Tabs value={value} onValueChange={(v) => onChange(v as OrderListFilter)}>
-      <TabsList className="bg-surface-card">
+      <TabsList className="bg-surface-card rounded-xs">
         {OPTIONS.map((opt) => (
-          <TabsTrigger key={opt.value} value={opt.value}>
+          <TabsTrigger key={opt.value} value={opt.value} className="rounded-xs">
             {opt.label}
           </TabsTrigger>
         ))}
