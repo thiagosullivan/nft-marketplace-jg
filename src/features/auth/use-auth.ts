@@ -84,6 +84,8 @@ export function useLogout() {
     },
     onSettled: () => {
       clearAuth();
+      // Notifica subscribers ativos (header) ANTES de remover as queries.
+      queryClient.setQueryData<Session | null>(sessionKeys.current(), null);
       queryClient.removeQueries({ queryKey: sessionKeys.all });
       queryClient.removeQueries({ queryKey: profileKeys.all });
       queryClient.removeQueries({ queryKey: cartKeys.all });
