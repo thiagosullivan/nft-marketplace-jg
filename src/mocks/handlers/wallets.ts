@@ -44,7 +44,7 @@ export const walletHandlers = [
     return json(mine.map(toPublic));
   }),
 
-  // POST /api/wallets
+  // POST /api/wallets — toda nova carteira vira principal.
   http.post("/api/wallets", async ({ request }) => {
     const err = await applyScenario();
     if (err) return err;
@@ -71,7 +71,6 @@ export const walletHandlers = [
     }
 
     const db = auth.db;
-    const mine = db.wallets.filter((w) => w.ownerId === auth.user.id);
     const wallet: DbWallet = {
       id: `wallet-${Date.now()}`,
       label: body.label!.trim(),
@@ -80,14 +79,12 @@ export const walletHandlers = [
       ensName: body.ensName ?? null,
       walletType: body.walletType!,
       referralCode: body.referralCode ?? null,
-      isPrimary: body.isPrimary ?? mine.length === 0,
+      isPrimary: true,
       createdAt: nowIso(),
       ownerId: auth.user.id,
     };
     db.wallets.push(wallet);
-    if (wallet.isPrimary) {
-      enforceSinglePrimary(db.wallets, auth.user.id, wallet.id);
-    }
+    enforceSinglePrimary(db.wallets, auth.user.id, wallet.id);
     saveDb(db);
     return json(toPublic(wallet), 201);
   }),
@@ -137,5 +134,34 @@ export const walletHandlers = [
     }
     saveDb(db);
     return json(toPublic(updated));
+  }),
+
+  // DELETE /api/wallets/:id — recusa excluir a principal.
+  http.delete("/api/wallets/:id", async ({ params, request }) => {
+    const err = await applyScenario();
+    if (err) return err;
+
+    const auth = requireAuth(request);
+    if (auth instanceof Response) return auth;
+
+    const db = auth.db;
+    const id = String(params.id);
+    const idx = db.wallets.findIndex(
+      (w) => w.id === id && w.ownerId === auth.user.id,
+    );
+    if (idx === -1) {
+      return errorResponse(404, "NOT_FOUND", "Carteira não encontrada.");
+    }
+    if (db.wallets[idx].isPrimary) {
+      return errorResponse(
+        409,
+        "CONFLICT",
+        "Defina outra carteira como principal antes de excluir.",
+        { id: "Defina outra carteira como principal antes de excluir." },
+      );
+    }
+    db.wallets.splice(idx, 1);
+    saveDb(db);
+    return json({ ok: true });
   }),
 ];
