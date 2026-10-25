@@ -1,4 +1,4 @@
-import type { NftListQuery } from "./types";
+import type { NftListQuery, OrderStatus } from "./types";
 
 export const sessionKeys = {
   all: ["session"] as const,
@@ -28,7 +28,9 @@ export const quoteKeys = {
 
 export const orderKeys = {
   all: ["orders"] as const,
-  detail: (id: string) => ["orders", "detail", id] as const,
+  list: (status?: OrderStatus) =>
+    [...orderKeys.all, "list", status ?? "all"] as const,
+  detail: (id: string) => [...orderKeys.all, "detail", id] as const,
 };
 
 export const profileKeys = {
