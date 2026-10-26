@@ -3,7 +3,11 @@ import { http } from "@/shared/api";
 import type { NftListQuery, NftListResponse } from "@/shared/api/types";
 import { nftKeys } from "@/shared/api/query-keys";
 
-export function useNftList(query: NftListQuery) {
+type Options = {
+  enabled?: boolean;
+};
+
+export function useNftList(query: NftListQuery, options: Options = {}) {
   return useQuery<NftListResponse>({
     queryKey: nftKeys.list(query),
     queryFn: async () => {
@@ -25,5 +29,6 @@ export function useNftList(query: NftListQuery) {
     },
     staleTime: 30_000,
     placeholderData: keepPreviousData,
+    enabled: options.enabled ?? true,
   });
 }
