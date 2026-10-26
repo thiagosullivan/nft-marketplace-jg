@@ -16,5 +16,9 @@ export async function enableMocking(): Promise<void> {
     },
   });
 
+  // Avisa o SocketProvider que o worker está pronto. O socket.io-client
+  // precisa ser importado DEPOIS do worker.start() [citation:6].
+  window.dispatchEvent(new Event("msw:ready"));
+
   console.info("[MSW] Mocking enabled");
 }
