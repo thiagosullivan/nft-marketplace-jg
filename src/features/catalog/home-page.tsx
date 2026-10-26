@@ -355,7 +355,7 @@ export function HomePage({ search }: { search: HomeSearch }) {
         </section>
       </div>
 
-      <section className="flex gap-7 flex-col md:flex-row mb-23">
+      <section className="flex gap-7 flex-col items-center md:flex-row mb-23">
         {PROMOS.map((p) => (
           <PromoBanner key={p.id} promo={p} />
         ))}
