@@ -6,6 +6,7 @@ import { cartHandlers } from "./cart";
 import { quoteHandlers } from "./quote";
 import { orderHandlers } from "./orders";
 import { walletHandlers } from "./wallets";
+import { devHandlers } from "./dev";
 
 export const handlers = [
   ...authHandlers,
@@ -16,4 +17,5 @@ export const handlers = [
   ...quoteHandlers,
   ...orderHandlers,
   ...walletHandlers,
+  ...devHandlers,
 ];
