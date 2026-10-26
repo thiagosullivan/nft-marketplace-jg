@@ -25,6 +25,7 @@ import { FiltersSidebar, type FiltersValue } from "./filters-sidebar.tsx";
 import NftTrending from "./nft-trending.tsx";
 import { PromoBanner, type Promo } from "./promo-banner.tsx";
 import { BlogCard, type BlogPost } from "./blog-card.tsx";
+import { useNftUpdated } from "../realtime/use-nft-updated.ts";
 
 export type HomeSearch = {
   q?: string;
@@ -121,6 +122,7 @@ const POSTS: BlogPost[] = [
 ];
 
 export function HomePage({ search }: { search: HomeSearch }) {
+  useNftUpdated();
   const navigate = useNavigate();
 
   const page = search.page ?? 1;

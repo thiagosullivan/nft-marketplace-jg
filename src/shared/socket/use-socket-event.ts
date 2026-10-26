@@ -1,22 +1,15 @@
 import { useEffect, useRef } from "react";
-import { useSocketContext } from "./socket-provider";
+import { useSocketContext } from "@/shared/socket/socket-provider";
 
-type SocketEvent<T> = {
+export type SocketEventEnvelope<T> = {
   id: string;
   version: number;
   payload: T;
 };
 
-/**
- * Assina um evento Socket.IO, tolerando duplicatas e eventos antigos.
- *
- * Deduplica por `id` (identidade estável do recurso) + `version`.
- * Se chegar um `version` <= ao último visto para o mesmo `id`, ignora
- * (evento antigo ou duplicata) [enunciado §7].
- */
 export function useSocketEvent<T>(
   event: string,
-  handler: (payload: T) => void,
+  handler: (envelope: SocketEventEnvelope<T>) => void,
 ): void {
   const { socket } = useSocketContext();
   const handlerRef = useRef(handler);
@@ -29,19 +22,15 @@ export function useSocketEvent<T>(
   useEffect(() => {
     if (!socket) return;
 
-    const listener = (data: SocketEvent<T>) => {
+    const listener = (data: SocketEventEnvelope<T>) => {
       if (!data || typeof data !== "object") return;
-
-      const { id, version, payload } = data;
+      const { id, version } = data;
       if (!id || typeof version !== "number") return;
 
       const lastSeen = seenRef.current.get(id);
-      if (lastSeen !== undefined && version <= lastSeen) {
-        // Evento antigo ou duplicata: ignora.
-        return;
-      }
+      if (lastSeen !== undefined && version <= lastSeen) return;
       seenRef.current.set(id, version);
-      handlerRef.current(payload);
+      handlerRef.current(data);
     };
 
     socket.on(event, listener);

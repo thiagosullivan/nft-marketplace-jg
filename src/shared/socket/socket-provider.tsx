@@ -7,9 +7,8 @@ import {
   type ReactNode,
 } from "react";
 import type { Socket } from "socket.io-client";
-import { useSession } from "@/features/auth/use-auth";
-import { getToken } from "@/shared/lib/auth-store";
 import { env } from "@/shared/lib/env";
+import { getToken } from "@/shared/lib/auth-store";
 import { connectSocket } from "./socket-client";
 
 type SocketContextValue = {
@@ -29,14 +28,11 @@ function isMswReady(): boolean {
 }
 
 export function SocketProvider({ children }: { children: ReactNode }) {
-  const { data: session } = useSession();
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef<Socket | null>(null);
   const [mswReady, setMswReady] = useState(isMswReady);
 
-  // Espera o worker do MSW subir (só quando mocks estão ligados e o
-  // provider montou antes do evento `msw:ready`).
   useEffect(() => {
     if (mswReady) return;
     const handler = () => setMswReady(true);
@@ -47,21 +43,8 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!mswReady) return;
 
-    // Sem sessão: desconecta e limpa.
-    if (!session) {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-        socketRef.current = null;
-      }
-      setSocket(null);
-      setIsConnected(false);
-      return;
-    }
-
-    const token = getToken();
-    if (!token) return;
-
     let cancelled = false;
+    const token = getToken() ?? "";
 
     connectSocket({
       token,
@@ -94,7 +77,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       setSocket(null);
       setIsConnected(false);
     };
-  }, [session, mswReady]);
+  }, [mswReady]);
 
   return (
     <SocketContext.Provider value={{ socket, isConnected }}>

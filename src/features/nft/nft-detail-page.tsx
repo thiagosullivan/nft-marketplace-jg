@@ -7,6 +7,7 @@ import { useAddToCart } from "@/features/cart";
 import { NftDetailSkeleton } from "./nft-detail-skeleton";
 import { NftDetailView } from "./nft-detail-view";
 import { useNft } from "./use-nft";
+import { useNftUpdated } from "../realtime/use-nft-updated";
 
 type Props = {
   id: string;
@@ -21,6 +22,7 @@ function findEdition(nft: Nft, editionId: string): NftEdition | undefined {
 }
 
 export function NFTDetailPage({ id }: Props) {
+  useNftUpdated();
   const query = useNft(id);
   const navigate = useNavigate();
   const { add, isPending: buyPending } = useAddToCart();

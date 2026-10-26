@@ -8,8 +8,10 @@ import { CartSummary } from "./cart-summary";
 import { CartEmpty } from "./cart-empty";
 import { CartRelatedSection } from "./cart-related-section";
 import { Link } from "@tanstack/react-router";
+import { useNftUpdated } from "../realtime/use-nft-updated";
 
 export function CartPage() {
+  useNftUpdated();
   const { data: session } = useSession();
   const { data: cart, isLoading } = useCart();
   const { mergeIfNeeded } = useMergeCart();
