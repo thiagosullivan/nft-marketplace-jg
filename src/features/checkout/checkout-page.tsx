@@ -14,6 +14,8 @@ import { CheckoutWalletModal } from "./checkout-wallet-modal";
 import { useCreateOrder } from "./use-create-order";
 import { useCheckoutWallets } from "./use-checkout-wallets";
 import { useCheckoutRevalidation } from "./use-checkout-revalidation";
+import { CheckoutWalletMobiles } from "./checkout-wallets-mobile";
+import { RiArrowLeftSLine } from "react-icons/ri";
 
 const FORM_ID = "checkout-form";
 
@@ -158,54 +160,81 @@ export function CheckoutPage() {
 
   return (
     <div className="container mx-auto max-w-300 pt-10 pb-24">
-      <div className="mb-8 text-foreground text-[15px] font-bold">
+      <div className="mb-8 text-foreground text-[15px] font-bold hidden md:block">
         <Link to="/">Início /</Link>
         <Link to="/"> Mercado /</Link>
         <Link to="/"> Pagamento</Link>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_405px]">
-        <div>
-          <h3 className="text-foreground text-[17px] font-bold mb-3">
-            Perfil do colecionador
-          </h3>
-          <CheckoutForm
-            profile={profile}
+      <div className="flex items-center md:hidden ml-4">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => void navigate({ to: "/" })}
+          className="mr-3 rounded-full w-[35px] h-[35px] text-sm font-medium border border-border! text-accent bg-surface-raised! hover:text-accent cursor-pointer md:hidden"
+        >
+          <RiArrowLeftSLine />
+        </Button>
+
+        <h2 className="text-xl font-bold text-foreground">
+          Pagamento com carteira
+        </h2>
+      </div>
+
+      <div className="hidden md:block">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_405px]">
+          <div>
+            <h3 className="text-foreground text-[17px] font-bold mb-3">
+              Perfil do colecionador
+            </h3>
+            <CheckoutForm
+              profile={profile}
+              wallets={effectiveWallets}
+              selectedWalletId={selectedWalletId}
+              onSelectedWalletChange={setSelectedWalletId}
+              onNewWalletSaved={(wallet) => setSelectedWalletId(wallet.id)}
+              onSubmit={onSubmit}
+              formId={FORM_ID}
+            />
+          </div>
+
+          <CheckoutSummary
+            cart={cart}
+            appliedCoupon={appliedCoupon}
+            onApplyCoupon={setAppliedCoupon}
             wallets={effectiveWallets}
             selectedWalletId={selectedWalletId}
-            onSelectedWalletChange={setSelectedWalletId}
-            onNewWalletSaved={(wallet) => setSelectedWalletId(wallet.id)}
-            onSubmit={onSubmit}
-            formId={FORM_ID}
+            onSelectWallet={setSelectedWalletId}
+            onConfirm={() => {
+              const form = document.getElementById(
+                FORM_ID,
+              ) as HTMLFormElement | null;
+              form?.requestSubmit();
+            }}
+            confirming={creatingOrder}
           />
         </div>
 
-        <CheckoutSummary
-          cart={cart}
-          appliedCoupon={appliedCoupon}
-          onApplyCoupon={setAppliedCoupon}
-          wallets={effectiveWallets}
-          selectedWalletId={selectedWalletId}
-          onSelectWallet={setSelectedWalletId}
-          onConfirm={() => {
-            const form = document.getElementById(
-              FORM_ID,
-            ) as HTMLFormElement | null;
-            form?.requestSubmit();
+        <CheckoutWalletModal
+          open={modalOpen}
+          wallet={pendingWallet}
+          onCancel={() => {
+            setModalOpen(false);
+            setPendingValues(null);
+            setPendingWallet(null);
           }}
-          confirming={creatingOrder}
+          onConnected={onModalConnected}
         />
       </div>
 
-      <CheckoutWalletModal
-        open={modalOpen}
-        wallet={pendingWallet}
-        onCancel={() => {
-          setModalOpen(false);
-          setPendingValues(null);
-          setPendingWallet(null);
-        }}
-        onConnected={onModalConnected}
+      <CheckoutWalletMobiles
+        cart={cart}
+        appliedCoupon={appliedCoupon}
+        onApplyCoupon={setAppliedCoupon}
+        wallets={effectiveWallets}
+        selectedWalletId={selectedWalletId}
+        onSelectWallet={setSelectedWalletId}
+        confirming={creatingOrder}
       />
     </div>
   );
