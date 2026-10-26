@@ -57,16 +57,20 @@ export function LoginPage() {
 
   return (
     <AuthModalShell activeTab="login" onTabChange={switchMode} onClose={close}>
-      <p className="text-[13px] text-center text-foreground mb-6 px-12">
+      <h1 className="uppercase block md:hidden w-full text-center text-foreground text-[32px] font-bold mb-18!">
+        Kurio
+      </h1>
+      <p className="text-[13px] text-center text-foreground mb-6 px-12 hidden md:block">
         Entre para gerenciar sua carteira, coleção e perfil de criador.
       </p>
+      <p className="text-center mb-10 text-xl font-bold">Entrar</p>
       <form
         onSubmit={onSubmit}
-        className="flex flex-col items-center mx-auto gap-y-3 w-full"
+        className="flex flex-col items-center mx-auto gap-y-10 md:gap-y-3 w-full"
         noValidate
       >
-        <div className="space-y-2 max-w-85 w-full">
-          <div className="space-y-2 w-full">
+        <div className="space-y-3 md:space-y-2 md:max-w-85 w-full px-7 md:p-0">
+          <div className="space-y-2 w-full hidden md:block">
             <Input
               id="login-email"
               type="email"
@@ -84,8 +88,26 @@ export function LoginPage() {
               </p>
             )}
           </div>
+          <div className="space-y-2 md:hidden block">
+            <Input
+              id="login-email"
+              type="email"
+              autoComplete="email"
+              aria-label="E-mail"
+              aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? "login-email-error" : undefined}
+              placeholder="contato@email.com"
+              {...register("email")}
+              className="rounded-sm min-h-12.5 border-border bg-transparent! focus:outline-none! focus:ring-0!"
+            />
+            {errors.email && (
+              <p id="login-email-error" className="text-sm text-destructive">
+                {errors.email.message}
+              </p>
+            )}
+          </div>
 
-          <div className="space-y-2 w-full">
+          <div className="space-y-2 w-full hidden md:block">
             <PasswordInput
               id="login-password"
               autoComplete="current-password"
@@ -96,7 +118,27 @@ export function LoginPage() {
               }
               placeholder="senha"
               {...register("password")}
-              className="rounded-sm min-h-10 border-border bg-transparent! focus:outline-none! focus:ring-0!"
+              className="rounded-sm md:min-h-10 border-border bg-transparent! focus:outline-none! focus:ring-0!"
+            />
+            {errors.password && (
+              <p id="login-password-error" className="text-sm text-destructive">
+                {errors.password.message}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2 md:hidden block mb-4">
+            <PasswordInput
+              id="login-password"
+              autoComplete="current-password"
+              aria-label="Senha"
+              aria-invalid={!!errors.password}
+              aria-describedby={
+                errors.password ? "login-password-error" : undefined
+              }
+              placeholder="senha"
+              {...register("password")}
+              className="rounded-sm min-h-12.5 border-border bg-transparent! focus:outline-none! focus:ring-0!"
             />
             {errors.password && (
               <p id="login-password-error" className="text-sm text-destructive">
@@ -107,7 +149,7 @@ export function LoginPage() {
 
           <Link
             to="/"
-            className="flex justify-end text-sm text-accent font-normal mb-6"
+            className="flex justify-end text-sm text-accent font-normal mb-10"
           >
             Esqueceu a senha?
           </Link>
@@ -115,7 +157,7 @@ export function LoginPage() {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-sm text-ink font-bold text-base min-h-[45px]"
+            className="w-full rounded-sm text-ink font-bold text-base min-h-15 md:min-h-11.25"
           >
             {isSubmitting ? "Entrando..." : "Entrar"}
           </Button>
@@ -123,14 +165,14 @@ export function LoginPage() {
 
         <div className="space-y-2 pt-2 w-full">
           <div className="flex items-center mb-3">
-            <div className="w-full h-px mt-1 bg-border mr-3" />
+            <div className="w-full h-px mt-1 bg-border mr-3 ml-7 md:ml-0" />
             <p className="text-center text-xs text-foreground text-nowrap">
               Ou continue com
             </p>
-            <div className="w-full h-px mt-1 bg-border ml-3" />
+            <div className=" w-full h-px mt-1 bg-border ml-3 mr-7 md:mr-0" />
           </div>
 
-          <div className="flex flex-col gap-y-3 px-12 mb-[93px]">
+          <div className="flex flex-col gap-y-4 md:gap-y-3 px-7 md:px-12 mb-10 md:mb-[93px]">
             <Button
               type="button"
               variant="outline"

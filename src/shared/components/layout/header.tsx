@@ -321,16 +321,6 @@ export function Header() {
 
         {/* Mobile: hamburger + logo. Desktop: logo apenas. */}
         <div className="md:hidden flex min-w-0 items-center gap-2 ml-auto w-full">
-          {/* <div className="block md:hidden w-full relative">
-            <input
-              className="w-full border-boder h-10 bg-surface-card rounded-md pl-11 text-secondary placeholder:text-secondary text-sm font-bold focus:outline-none! focus:ring-0!"
-              placeholder="Explorar coleções"
-            />
-            <CiSearch
-              className="absolute top-1/2 -translate-y-1/2 left-3 text-secondary"
-              size="22"
-            />
-          </div> */}
           <div
             ref={mobileWrapperRef}
             className="relative block w-full md:hidden"
@@ -430,7 +420,6 @@ export function Header() {
                 aria-label="Abrir menu"
                 className="md:hidden bg-primary"
               >
-                {/* <Menu className="size-5" aria-hidden="true" /> */}
                 <img src="/icons/svg/mobile-icon.svg" />
               </Button>
             </SheetTrigger>
@@ -496,7 +485,7 @@ export function Header() {
                         logout.mutate();
                       }}
                       disabled={logout.isPending}
-                      className="rounded-md px-3 py-3 text-left text-muted-foreground hover:bg-surface-card hover:text-primary"
+                      className="rounded-md px-6 py-3 text-left bg-accent hover:bg-surface-card hover:text-primary ml-auto"
                     >
                       Sair
                     </button>

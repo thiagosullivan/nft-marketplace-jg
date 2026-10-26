@@ -19,7 +19,7 @@ export function AuthModalShell({
 }: Props) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink/80 px-4 py-6 sm:items-center sm:py-12"
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink/80 md:px-4 md:py-6 sm:items-center "
       role="presentation"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
@@ -29,7 +29,7 @@ export function AuthModalShell({
         role="dialog"
         aria-modal="true"
         aria-labelledby="auth-modal-tab-login"
-        className="relative z-10 my-auto w-full max-w-md bg-surface-card py-12 shadow-xl border-b-10 border-b-primary"
+        className="relative z-10 my-auto w-full h-full md:h-auto md:max-w-md bg-ink md:bg-surface-card pt-20 md:py-12 shadow-xl md:border-b-10 border-b-primary"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -44,7 +44,7 @@ export function AuthModalShell({
         <div
           role="tablist"
           aria-label="Autenticação"
-          className="mb-10 flex items-center justify-center gap-2"
+          className="mb-10 items-center justify-center gap-2 hidden md:flex"
         >
           <button
             type="button"
@@ -93,6 +93,39 @@ export function AuthModalShell({
           }
         >
           {children}
+        </div>
+
+        <div
+          role="tablist"
+          aria-label="Autenticação"
+          className="mb-10 items-center justify-center gap-2 md:hidden flex"
+        >
+          <p
+            role="tab"
+            id="auth-modal-tab-register"
+            aria-selected={activeTab === "register"}
+            aria-controls="auth-modal-panel"
+            onClick={() => onTabChange("register")}
+            className={cn(
+              "text-[15px] font-normal text-secondary",
+              activeTab === "register" ? "hidden" : "block",
+            )}
+          >
+            Novo na Kurio? Crie uma conta
+          </p>
+          <p
+            role="tab"
+            id="auth-modal-tab-login"
+            aria-selected={activeTab === "login"}
+            aria-controls="auth-modal-panel"
+            onClick={() => onTabChange("login")}
+            className={cn(
+              "text-[15px] font-normal text-secondary",
+              activeTab === "login" ? "hidden" : "block",
+            )}
+          >
+            Já tem uma conta? Entre
+          </p>
         </div>
       </div>
     </div>
