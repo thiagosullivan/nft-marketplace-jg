@@ -20,6 +20,11 @@ interceptor.on("connection", (connection) => {
   };
   activeConnections.add(wrapper);
 
+  // Remove do Set quando a conexão fechar.
+  connection.client.addEventListener("close", () => {
+    activeConnections.delete(wrapper);
+  });
+
   if (import.meta.env.DEV) {
     console.info("[MSW] Socket.IO client connected");
   }
