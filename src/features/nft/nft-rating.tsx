@@ -22,7 +22,7 @@ export function NftRating({ average, count }: Props) {
       role="img"
       aria-label={label}
     >
-      <div className="flex items-center gap-0.5" aria-hidden="true">
+      <div className="md:flex items-center gap-0.5 hidden" aria-hidden="true">
         {Array.from({ length: 5 }).map((_, i) => {
           const filled = i + 1 <= rounded;
           const half = !filled && i + 0.5 <= rounded;
@@ -41,9 +41,16 @@ export function NftRating({ average, count }: Props) {
           );
         })}
       </div>
+      <Star className="size-3.5 fill-primary text-primary" />
       <span aria-hidden="true">
-        {/* {count > 0 ? `${average.toFixed(1)} (${count})` : "Sem avaliações"} */}
-        {count > 0 ? `${count} avaliações de colecionadores` : "Sem avaliações"}
+        <span className="block md:hidden">
+          {count > 0 ? `${average.toFixed(1)} (${count})` : "Sem avaliações"}
+        </span>
+        <span className="hidden md:block">
+          {count > 0
+            ? `${count} avaliações de colecionadores`
+            : "Sem avaliações"}
+        </span>
       </span>
     </div>
   );

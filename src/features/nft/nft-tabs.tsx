@@ -10,7 +10,7 @@ export function NftTabs({ details }: Props) {
   const [active, setActive] = useState<"details">("details");
 
   return (
-    <section className="w-full">
+    <section className="w-full px-4 md:px-0">
       <div
         role="tablist"
         aria-label="Informações do NFT"

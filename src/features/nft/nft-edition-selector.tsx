@@ -87,22 +87,6 @@ export function NftEditionSelector({ editions, selectedId, onChange }: Props) {
           );
         })}
       </div>
-      {/* <span className="text-xs text-muted-foreground">
-        {edition.priceEth} ETH
-      </span>
-      <span className="text-xs text-muted-foreground">
-        {availabilityLabel(edition)}
-      </span> */}
-
-      {/* {selectedId && (
-        <p className="sr-only" aria-live="polite">
-          {(() => {
-            const selected = editions.find((e) => e.id === selectedId);
-            if (!selected) return "";
-            return `Edição ${selected.label} selecionada. Preço ${selected.priceEth} ETH.`;
-          })()}
-        </p>
-      )} */}
     </div>
   );
 }

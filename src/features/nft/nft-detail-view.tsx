@@ -2,8 +2,14 @@ import type { Nft, NftEdition } from "@/shared/api/types";
 import { NftGallery } from "./nft-gallery";
 import { NftInfoPanel } from "./nft-info-panel";
 import { NftTabs } from "./nft-tabs";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { NftRelatedSection } from "./nft-related-section";
+import { Button } from "@/shared/components/ui/button";
+import { useToggleFavorite } from "../favorites";
+import { toast } from "sonner";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { RiArrowLeftSLine } from "react-icons/ri";
+import { NftInfoPanelMobile } from "./nft-info-panel-mobile";
 
 type Props = {
   nft: Nft;
@@ -33,19 +39,109 @@ export function NftDetailView({
   buyPending,
 }: Props) {
   const gallery = nft.galleryUrls.length > 0 ? nft.galleryUrls : [nft.imageUrl];
+  const navigate = useNavigate();
+
+  const {
+    toggle,
+    isPending: favoritePending,
+    isFavorite,
+  } = useToggleFavorite();
+  const isFav = isFavorite(nft.id);
+
+  const onToggleFavorite = async () => {
+    const wasFavorite = isFav;
+    try {
+      await toggle(nft);
+      toast.success(
+        wasFavorite ? "Removido dos favoritos." : "Adicionado aos favoritos.",
+      );
+    } catch {
+      toast.error(
+        wasFavorite
+          ? "Não foi possível remover dos favoritos."
+          : "Não foi possível adicionar aos favoritos.",
+      );
+    }
+  };
 
   return (
-    <div className="container mx-auto max-w-300 px-4 pt-10">
-      <div className="mb-3 text-foreground text-[15px] font-bold">
+    <div className="container mx-auto max-w-300 pt-6 md:pt-10 bg-surface-raised md:bg-transparent">
+      <div className="px-4 hidden md:block mb-3 text-foreground text-[15px] font-bold">
         <Link to="/">Início /</Link>
         <Link to="/"> Mercado</Link>
       </div>
-      <div className="flex gap-8 items-start mb-24">
-        <div className="max-w-[575px] w-full">
+      <div className="hidden md:flex flex-col md:flex-row md:gap-8 items-start mb-24">
+        <div className="max-w-[575px] w-full mx-auto">
           <NftGallery images={gallery} alt={nft.name} />
         </div>
-        <div className="flex-1 max-w-[595px] w-full">
+        <div className="flex-1 max-w-[595px] w-full hidden md:block">
           <NftInfoPanel
+            nft={nft}
+            edition={edition}
+            onEditionChange={onEditionChange}
+            quantity={quantity}
+            onQuantityChange={onQuantityChange}
+            onBuy={onBuy}
+            buyPending={buyPending}
+          />
+        </div>
+        <div className="flex-1 w-full block md:hidden bg-surface-card pt-8 rounded-t-4xl">
+          <NftInfoPanelMobile
+            nft={nft}
+            edition={edition}
+            onEditionChange={onEditionChange}
+            quantity={quantity}
+            onQuantityChange={onQuantityChange}
+            onBuy={onBuy}
+            buyPending={buyPending}
+          />
+        </div>
+      </div>
+      <div className="flex flex-col md:flex-row md:gap-8 items-start mb-24 md:hidden">
+        <div className="flex justify-between items-center w-full px-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => void navigate({ to: "/" })}
+            disabled={favoritePending}
+            aria-pressed={isFav}
+            aria-label={
+              isFav ? "Remover dos favoritos" : "Adicionar aos favoritos"
+            }
+            className="mb-3 rounded-full w-[35px] h-[35px] text-sm font-medium border border-border! text-accent bg-surface-raised! hover:text-accent cursor-pointer md:hidden"
+          >
+            <RiArrowLeftSLine />
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => void onToggleFavorite()}
+            disabled={favoritePending}
+            aria-pressed={isFav}
+            aria-label={
+              isFav ? "Remover dos favoritos" : "Adicionar aos favoritos"
+            }
+            className="ml-auto mb-3 rounded-full w-[35px] h-[35px] text-sm font-medium border border-border! text-accent bg-surface-raised! hover:text-accent cursor-pointer md:hidden"
+          >
+            {isFav ? <FaHeart /> : <FaRegHeart />}
+          </Button>
+        </div>
+        <div className="max-w-[575px] w-full mx-auto">
+          <NftGallery images={gallery} alt={nft.name} />
+        </div>
+        <div className="flex-1 max-w-[595px] w-full hidden md:block">
+          <NftInfoPanel
+            nft={nft}
+            edition={edition}
+            onEditionChange={onEditionChange}
+            quantity={quantity}
+            onQuantityChange={onQuantityChange}
+            onBuy={onBuy}
+            buyPending={buyPending}
+          />
+        </div>
+        <div className="flex-1 w-full block md:hidden bg-surface-card pt-8 rounded-t-4xl">
+          <NftInfoPanelMobile
             nft={nft}
             edition={edition}
             onEditionChange={onEditionChange}
@@ -61,12 +157,6 @@ export function NftDetailView({
           details={
             <div className="space-y-6">
               <section aria-labelledby="details-title" className="space-y-3">
-                {/* <h2
-                  id="details-title"
-                  className="text-lg font-semibold text-foreground"
-                >
-                  Detalhes
-                </h2> */}
                 <p className="whitespace-pre-line text-sm text-secondary">
                   {nft.details}
                 </p>
@@ -121,49 +211,6 @@ export function NftDetailView({
                   {nft.royaltyDescription}
                 </p>
               </section>
-
-              {/* <section aria-labelledby="facts-title" className="space-y-2">
-                <h2
-                  id="facts-title"
-                  className="text-lg font-semibold text-foreground"
-                >
-                  Ficha técnica
-                </h2>
-                <dl className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
-                  <div>
-                    <dt className="text-muted-foreground">ID do token</dt>
-                    <dd className="text-foreground">{nft.tokenId}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">Coleção</dt>
-                    <dd className="text-foreground">{nft.collection}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">Rede</dt>
-                    <dd className="capitalize text-foreground">
-                      {nft.network}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">Criador</dt>
-                    <dd className="text-foreground">{nft.creator.name}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">Proprietário</dt>
-                    <dd className="text-foreground">{nft.owner.name}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">Royalties</dt>
-                    <dd className="text-foreground">{nft.royaltyPercent}%</dd>
-                  </div>
-                  <div className="sm:col-span-2">
-                    <dt className="text-muted-foreground">Atributos</dt>
-                    <dd className="text-foreground">
-                      {nft.attributes.join(", ")}
-                    </dd>
-                  </div>
-                </dl>
-              </section> */}
             </div>
           }
         />
