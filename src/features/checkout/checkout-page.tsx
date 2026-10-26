@@ -3,7 +3,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { http } from "@/shared/api";
-import type { Profile, Wallet } from "@/shared/api/types";
+import type { Profile, Quote, Wallet } from "@/shared/api/types";
 import { profileKeys } from "@/shared/api/query-keys";
 import { Button } from "@/shared/components/ui/button";
 import { useCart, useQuote } from "@/features/cart";
@@ -50,6 +50,7 @@ export function CheckoutPage() {
     null,
   );
   const [pendingWallet, setPendingWallet] = useState<Wallet | null>(null);
+  const [pendingQuote, setPendingQuote] = useState<Quote | undefined>();
   const [modalOpen, setModalOpen] = useState(false);
 
   const effectiveWallets = useMemo(
@@ -59,10 +60,13 @@ export function CheckoutPage() {
 
   const quote = useQuote({ couponCode: appliedCoupon, cart });
 
+  // Compara contra o snapshot do clique, NÃO contra o quote atual.
+  // Se o socket mudar o preço entre o clique e a revalidação, os valores
+  // do revalidate diferem do snapshot → `changed` → exige nova confirmação.
   const revalidation = useCheckoutRevalidation({
     cart: cart ?? { items: [], updatedAt: new Date().toISOString() },
     couponCode: appliedCoupon,
-    currentQuote: quote.effective,
+    currentQuote: pendingQuote,
   });
 
   useEffect(() => {
@@ -116,6 +120,9 @@ export function CheckoutPage() {
       toast.error("Selecione uma carteira.");
       return;
     }
+    // Snapshot do quote no momento do clique. Usado pelo revalidate para
+    // detectar mudanças entre o clique e a confirmação.
+    setPendingQuote(quote.effective);
     setPendingValues(values);
     setPendingWallet(wallet);
     setModalOpen(true);
@@ -123,13 +130,18 @@ export function CheckoutPage() {
 
   const confirmOrder = async (values: CheckoutFormValues, wallet: Wallet) => {
     const check = await revalidation.revalidate();
-
     if (check.status === "error") {
       toast.error(check.message);
       return;
     }
     if (check.status === "changed") {
       toast.error(`${check.reason} Revise e confirme novamente.`);
+      // Atualiza o snapshot para o novo quote (nova confirmação vai
+      // comparar contra esse novo snapshot).
+      setPendingQuote(check.quote);
+      setPendingValues(null);
+      setPendingWallet(null);
+      setModalOpen(false);
       return;
     }
 
@@ -182,7 +194,6 @@ export function CheckoutPage() {
         </h2>
       </div>
 
-      {/* Desktop: form + resumo (grid de 2 colunas). Sem o modal aqui. */}
       <div className="hidden md:block">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_405px]">
           <div>
@@ -218,9 +229,6 @@ export function CheckoutPage() {
         </div>
       </div>
 
-      {/* Modal: fora do hidden md:block → aparece no mobile e no desktop.
-          A abertura é controlada por modalOpen, então só monta quando
-          o usuário clica em "Confirmar compra". */}
       <CheckoutWalletModal
         open={modalOpen}
         wallet={pendingWallet}
@@ -228,11 +236,11 @@ export function CheckoutPage() {
           setModalOpen(false);
           setPendingValues(null);
           setPendingWallet(null);
+          setPendingQuote(undefined);
         }}
         onConnected={onModalConnected}
       />
 
-      {/* Mobile: só carteiras + botão confirmar. Esconde no desktop. */}
       <div className="md:hidden">
         <CheckoutWalletMobiles
           cart={cart}

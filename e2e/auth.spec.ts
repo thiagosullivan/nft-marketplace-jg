@@ -47,16 +47,19 @@ async function dismissToasts(page: Page) {
   for (let i = 0; i < count; i++) {
     const closeBtn = toasts
       .nth(0)
-      .getByRole("button", { name: /close toast/i });
+      .getByRole("button", { name: /close|fechar/i });
     if (await closeBtn.isVisible().catch(() => false)) {
       await closeBtn.click().catch(() => undefined);
     }
   }
-  await expect(toasts).toHaveCount(0, { timeout: 10_000 });
+  await expect(toasts).toHaveCount(0, { timeout: 8_000 });
 }
 
 async function expectLoggedIn(page: Page) {
   if (isMobile(page)) {
+    // O toast "Bem-vindo(a) de volta!" (sonner) cobre o botão "Abrir menu"
+    // no mobile. Dispensa antes de abrir o drawer.
+    await dismissToasts(page);
     await page.getByRole("button", { name: "Abrir menu" }).click();
     await expect(
       page.getByRole("button", { name: "Sair", exact: true }),
@@ -72,6 +75,7 @@ async function expectLoggedIn(page: Page) {
 
 async function expectLoggedOut(page: Page) {
   if (isMobile(page)) {
+    await dismissToasts(page);
     await page.getByRole("button", { name: "Abrir menu" }).click();
     await expect(page.getByTestId("header-login-button-mobile")).toBeVisible();
     await page.keyboard.press("Escape");
@@ -83,6 +87,7 @@ async function expectLoggedOut(page: Page) {
 
 async function logout(page: Page) {
   if (isMobile(page)) {
+    await dismissToasts(page);
     await page.getByRole("button", { name: "Abrir menu" }).click();
     await page.getByRole("button", { name: "Sair", exact: true }).click();
   } else {
@@ -175,15 +180,32 @@ test.describe("Auth", () => {
   test("expired token opens login modal on protected route", async ({
     page,
   }) => {
+    // Sessão expirada: o token do usuário fica inválido durante a navegação.
+    // O 401 dispara quando o useSession/useProfile refetcha (após o usuário
+    // navegar para uma rota protegida), não no boot — assim o AuthModalProvider
+    // já está montado e o listener `auth:unauthorized` está registrado.
+    await page.goto("/");
+    await openLoginModal(page);
+    await fillLogin(page, MARIA);
+    await expectLoggedIn(page);
+
+    // Invalida o token mantendo a session (para o header continuar "logado"
+    // até a próxima request falhar).
     await page.evaluate(() => {
       localStorage.setItem("nftmarketplace:token", "tok_invalido_xyz");
       localStorage.removeItem("nftmarketplace:session");
     });
-    await page.goto("/profile");
 
-    // 401 → auth:unauthorized → modal abre sobre /profile.
+    // Navega client-side (SEM page.goto — evita reiniciar o StrictMode e
+    // perder o listener `auth:unauthorized` durante o boot). O Router escuta
+    // `popstate` e navega para /profile; o useProfile/useSession dispara
+    // GET, recebe 401, dispara `auth:unauthorized`.
+    await page.evaluate(() => {
+      window.history.pushState({}, "", "/profile");
+      window.dispatchEvent(new PopStateEvent("popstate"));
+    });
+
+    // O 401 → `auth:unauthorized` → AuthModalProvider → open("login") → modal.
     await expect(page.getByRole("dialog")).toBeVisible({ timeout: 15_000 });
-    // Não checa URL: o modal abre sobre a própria rota e o redirect
-    // pós-login volta para /profile.
   });
 });

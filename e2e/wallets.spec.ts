@@ -3,7 +3,7 @@ import { login, resetAppState, MARIA } from "./helpers/login";
 
 async function clickSafe(locator: Locator) {
   await locator.scrollIntoViewIfNeeded();
-  await locator.click({ force: true });
+  await locator.click();
 }
 
 async function clickSelectOption(
@@ -11,12 +11,14 @@ async function clickSelectOption(
   triggerLabel: string,
   optionName: string,
 ) {
-  const trigger = page.getByLabel(triggerLabel);
+  const trigger = page.getByLabel(triggerLabel).filter({ visible: true });
   await trigger.scrollIntoViewIfNeeded();
-  await trigger.click({ force: true });
-  const option = page.getByRole("option", { name: optionName });
+  await trigger.click();
+  const option = page
+    .getByRole("option", { name: optionName })
+    .filter({ visible: true });
   await option.scrollIntoViewIfNeeded();
-  await option.click({ force: true });
+  await option.click();
 }
 
 test.describe("Carteiras", () => {
@@ -54,7 +56,9 @@ test.describe("Carteiras", () => {
 
     await clickSafe(page.getByRole("button", { name: "Salvar carteira" }));
 
-    await expect(page.getByText("Nova carteira")).toBeVisible();
+    await expect(
+      page.getByText("Nova carteira").filter({ visible: true }),
+    ).toBeVisible();
     await expect(page.locator("section ul > li")).toHaveCount(3);
   });
 
@@ -76,7 +80,9 @@ test.describe("Carteiras", () => {
     await page.getByLabel("Apelido", { exact: true }).fill("Carteira editada");
     await clickSafe(page.getByRole("button", { name: "Salvar" }));
 
-    await expect(page.getByText("Carteira editada")).toBeVisible();
+    await expect(
+      page.getByText("Carteira editada").filter({ visible: true }),
+    ).toBeVisible();
   });
 
   test("torna uma carteira principal e move o badge", async ({ page }) => {

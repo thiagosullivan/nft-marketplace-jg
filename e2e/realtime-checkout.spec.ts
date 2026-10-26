@@ -31,9 +31,12 @@ test.describe("Realtime — checkout bloqueia cotação antiga", () => {
     await expect(page).toHaveURL(/\/checkout/);
     await waitForSocket(page);
 
-    await expect(page.getByText(/0\.05 ETH/).first()).toBeVisible({
-      timeout: 10_000,
-    });
+    await expect(
+      page
+        .getByText(/0\.05 ETH/)
+        .filter({ visible: true })
+        .first(),
+    ).toBeVisible({ timeout: 10_000 });
     await page.waitForTimeout(500);
 
     // Clica em "Confirmar compra" (abre o modal de carteira).

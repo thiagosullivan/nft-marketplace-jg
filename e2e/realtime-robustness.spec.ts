@@ -1,11 +1,32 @@
-import { test, expect } from "@playwright/test";
-import { login, resetAppState, MARIA } from "./helpers/login";
+import { test, expect, type Page } from "@playwright/test";
+import { isMobile, login, resetAppState, MARIA } from "./helpers/login";
 
-async function waitForSocket(page: import("@playwright/test").Page) {
+async function waitForSocket(page: Page) {
   await page.waitForSelector('body[data-socket-connected="true"]', {
     state: "attached",
     timeout: 10_000,
   });
+}
+
+async function logout(page: Page) {
+  if (isMobile(page)) {
+    await page.getByRole("button", { name: "Abrir menu" }).click();
+    await page.getByRole("button", { name: /sair/i }).click();
+    await expect(page.getByRole("dialog", { name: "Menu" })).toBeHidden();
+  } else {
+    await page.getByRole("button", { name: /sair/i }).click();
+  }
+}
+
+async function expectLoggedOut(page: Page) {
+  if (isMobile(page)) {
+    await page.getByRole("button", { name: "Abrir menu" }).click();
+    await expect(page.getByTestId("header-login-button-mobile")).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("dialog", { name: "Menu" })).toBeHidden();
+  } else {
+    await expect(page.getByTestId("header-login-button")).toBeVisible();
+  }
 }
 
 test.describe("Realtime — robustez", () => {
@@ -64,9 +85,10 @@ test.describe("Realtime — robustez", () => {
       .first();
     await expect(card.getByText("9.99 ETH")).toBeVisible({ timeout: 5_000 });
 
-    // Logout + login para forçar reconexão.
-    await page.getByRole("button", { name: /sair/i }).click();
-    await expect(page.getByTestId("header-login-button")).toBeVisible();
+    // Logout + login para forçar reconexão. Mobile precisa abrir o drawer
+    // para acessar o botão "Sair" — daí o helper `logout`.
+    await logout(page);
+    await expectLoggedOut(page);
     await login(page, MARIA.email);
     await waitForSocket(page);
 

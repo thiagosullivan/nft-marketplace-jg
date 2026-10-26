@@ -22,9 +22,6 @@ function fakeTxHash(orderId: string): string {
 }
 
 export const devHandlers = [
-  // Fecha todas as conexões Socket.IO ativas. O socket.io-client
-  // reconecta sozinho (reconnection: true), e o SocketProvider invalida
-  // os caches no onConnect da reconexão.
   http.post("/api/dev/disconnect-socket", async () => {
     if (!env.VITE_ENABLE_MOCKS) {
       return errorResponse(404, "NOT_FOUND", "Endpoint indisponível.");
@@ -62,6 +59,7 @@ export const devHandlers = [
     if (body.event === "nft.updated") {
       const payload = body.payload as {
         nftId?: string;
+        editionId?: string;
         priceEth?: string;
         available?: number;
       } | null;
@@ -80,6 +78,21 @@ export const devHandlers = [
 
       if (payload.priceEth !== undefined) nft.priceEth = payload.priceEth;
       if (payload.available !== undefined) nft.available = payload.available;
+
+      // Atualiza as edições também — `/quote` e `/orders` usam
+      // `edition.priceEth`, não `nft.priceEth`. Sem isso, o checkout
+      // revalida contra o preço antigo (da edição) e considera "ok".
+      if (payload.priceEth !== undefined) {
+        if (payload.editionId) {
+          const edition = nft.editions.find((e) => e.id === payload.editionId);
+          if (edition) edition.priceEth = payload.priceEth;
+        } else {
+          for (const edition of nft.editions) {
+            edition.priceEth = payload.priceEth;
+          }
+        }
+      }
+
       nft.version = nft.version + 1;
       nft.updatedAt = new Date().toISOString();
       saveDb(db);

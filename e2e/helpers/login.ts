@@ -19,36 +19,18 @@ export async function resetAppState(page: Page): Promise<void> {
   await page.waitForLoadState("networkidle");
 }
 
-/**
- * Dispensa toasts do sonner. Tenta o botão "Close toast" (se existir)
- * e, se não, espera o toast sumir sozinho (default: 4s no sonner).
- * Se o toast persistir após `timeoutMs`, faz dismiss programático via
- * `window.__sonnerDismiss` (registrado pelo Toaster — ver instruções).
- */
-async function dismissToasts(page: Page, timeoutMs = 6_000): Promise<void> {
+async function dismissToasts(page: Page, timeoutMs = 8_000): Promise<void> {
   const toasts = page.locator("[data-sonner-toast]");
   if ((await toasts.count()) === 0) return;
 
-  // Tenta fechar pelo botão "Close toast" (existe se `<Toaster closeButton />`).
-  const closeBtn = toasts.first().getByRole("button", { name: /close toast/i });
+  const closeBtn = toasts
+    .first()
+    .getByRole("button", { name: /close|fechar/i });
   if (await closeBtn.isVisible().catch(() => false)) {
     await closeBtn.click().catch(() => undefined);
   }
 
-  // Espera sumir. Se o toast for `duration: Infinity`, o timeout vai
-  // estourar e o teste expõe o problema. Se for 4s, resolve.
-  try {
-    await expect(toasts).toHaveCount(0, { timeout: timeoutMs });
-  } catch {
-    // Fallback: dispensa via API global do sonner (se registrada).
-    await page.evaluate(() => {
-      const w = window as unknown as {
-        __sonnerDismiss?: () => void;
-      };
-      w.__sonnerDismiss?.();
-    });
-    await expect(toasts).toHaveCount(0, { timeout: 3_000 });
-  }
+  await expect(toasts).toHaveCount(0, { timeout: timeoutMs });
 }
 
 export async function login(page: Page, email: string): Promise<void> {
@@ -76,18 +58,11 @@ export async function login(page: Page, email: string): Promise<void> {
   await passwordInput.fill("password123");
   await passwordInput.press("Enter");
 
-  // Só o mobile precisa dispensar o toast: ele cobre o botão "Abrir menu".
-  // No desktop, o header mostra "Sair" direto e o toast não atrapalha.
+  await expect(dialog).toBeHidden({ timeout: 10_000 });
+
+  // Dispensa o toast "Bem-vindo(a)" (mobile) para não interceptar cliques
+  // no header. No desktop, o toast não bloqueia nada.
   if (isMobile(page)) {
     await dismissToasts(page);
-    await page.getByRole("button", { name: "Abrir menu" }).click();
-    await expect(
-      page.getByRole("button", { name: /sair/i, exact: true }),
-    ).toBeVisible({ timeout: 10_000 });
-    await page.keyboard.press("Escape");
-  } else {
-    await expect(
-      page.getByRole("button", { name: /sair/i, exact: true }),
-    ).toBeVisible({ timeout: 10_000 });
   }
 }

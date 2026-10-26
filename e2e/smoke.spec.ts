@@ -1,4 +1,8 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+
+function isMobile(page: Page) {
+  return (page.viewportSize()?.width ?? 1440) < 768;
+}
 
 test.describe("smoke", () => {
   test("home loads with header and catalog", async ({ page }) => {
@@ -6,7 +10,21 @@ test.describe("smoke", () => {
     await expect(
       page.getByRole("link", { name: "Kurio", exact: true }).first(),
     ).toBeVisible();
-    await expect(page.getByTestId("header-login-button")).toBeVisible();
+
+    // Header mobile não tem "Entrar" fora do drawer: o `header-login-button`
+    // está dentro de `hidden md:flex`. No mobile, o botão equivalente é
+    // `header-login-button-mobile`, dentro do `Sheet` do menu.
+    if (isMobile(page)) {
+      await page.getByRole("button", { name: "Abrir menu" }).click();
+      await expect(
+        page.getByTestId("header-login-button-mobile"),
+      ).toBeVisible();
+      await page.keyboard.press("Escape");
+      await expect(page.getByRole("dialog", { name: "Menu" })).toBeHidden();
+    } else {
+      await expect(page.getByTestId("header-login-button")).toBeVisible();
+    }
+
     await expect(
       page.getByRole("link", { name: /ver emerald ape #001/i }),
     ).toBeVisible();
