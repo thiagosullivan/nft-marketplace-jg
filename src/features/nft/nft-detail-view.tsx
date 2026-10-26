@@ -103,11 +103,6 @@ export function NftDetailView({
             type="button"
             variant="outline"
             onClick={() => void navigate({ to: "/" })}
-            disabled={favoritePending}
-            aria-pressed={isFav}
-            aria-label={
-              isFav ? "Remover dos favoritos" : "Adicionar aos favoritos"
-            }
             className="mb-3 rounded-full w-[35px] h-[35px] text-sm font-medium border border-border! text-accent bg-surface-raised! hover:text-accent cursor-pointer md:hidden"
           >
             <RiArrowLeftSLine />

@@ -7,8 +7,12 @@ import { CartTable } from "./cart-table";
 import { CartSummary } from "./cart-summary";
 import { CartEmpty } from "./cart-empty";
 import { CartRelatedSection } from "./cart-related-section";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useNftUpdated } from "../realtime/use-nft-updated";
+import { Button } from "@/shared/components/ui/button";
+import { RiArrowLeftSLine } from "react-icons/ri";
+import { CartTableMobile } from "./cart-table-mobile";
+import { CartSummaryMobile } from "./cart-summary-mobile";
 
 export function CartPage() {
   useNftUpdated();
@@ -16,6 +20,7 @@ export function CartPage() {
   const { data: cart, isLoading } = useCart();
   const { mergeIfNeeded } = useMergeCart();
   const mergedRef = useRef(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!session) {
@@ -45,21 +50,40 @@ export function CartPage() {
 
   return (
     <div className="container mx-auto max-w-300 pt-8 pb-24">
-      <div className="mb-3 text-foreground text-[15px] font-bold">
+      <div className="mb-3 text-foreground text-[15px] font-bold md:block hidden">
         <Link to="/">Início /</Link>
         <Link to="/"> Mercado</Link>
+      </div>
+
+      <div className="block md:hidden ml-4">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => void navigate({ to: "/" })}
+          className="mb-3 rounded-full w-[35px] h-[35px] text-sm font-medium border border-border! text-accent bg-surface-raised! hover:text-accent cursor-pointer md:hidden"
+        >
+          <RiArrowLeftSLine />
+        </Button>
       </div>
 
       {!hasItems || !cart ? (
         <CartEmpty />
       ) : (
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <CartTable cart={cart} />
-          <CartSummary cart={cart} />
-        </div>
+        <>
+          <div className="md:grid gap-10 lg:grid-cols-[minmax(0,1fr)_360px] hidden">
+            <CartTable cart={cart} />
+            <CartSummary cart={cart} />
+          </div>
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_360px] md:hidden">
+            <CartTableMobile cart={cart} />
+            <CartSummaryMobile cart={cart} />
+          </div>
+        </>
       )}
 
-      {cart && <CartRelatedSection cart={cart} />}
+      <div className="hidden md:block">
+        {cart && <CartRelatedSection cart={cart} />}
+      </div>
     </div>
   );
 }
