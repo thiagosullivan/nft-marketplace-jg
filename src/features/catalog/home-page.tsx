@@ -245,7 +245,7 @@ export function HomePage({ search }: { search: HomeSearch }) {
                   aria-selected={tab === t.value}
                   onClick={() => setTab(t.value)}
                   className={cn(
-                    "relative pb-2 text-base font-medium transition-colors",
+                    "relative pb-2 text-sm md:text-base font-medium transition-colors",
                     tab === t.value
                       ? "text-accent"
                       : "text-foreground hover:text-accent",
@@ -294,7 +294,7 @@ export function HomePage({ search }: { search: HomeSearch }) {
             <EmptyState />
           ) : (
             <>
-              <div className="grid grid-cols-1 gap-x-8.5 gap-y-18 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-2 gap-x-8.5 gap-y-18 sm:grid-cols-2 lg:grid-cols-3">
                 {data!.items.map((nft) => (
                   <NftCard key={nft.id} nft={nft} />
                 ))}
@@ -302,7 +302,7 @@ export function HomePage({ search }: { search: HomeSearch }) {
 
               {(data!.totalPages ?? 0) > 1 && (
                 <nav aria-label="Paginação" className="mt-8">
-                  <Pagination className="justify-end!">
+                  <Pagination className="justify-center md:justify-end!">
                     <PaginationContent>
                       {page > 1 && (
                         <PaginationItem>

@@ -51,8 +51,8 @@ export function NftCard({ nft, onQuickView }: Props) {
         className="block"
         aria-label={`Ver ${nft.name}`}
       >
-        <div className="relative max-w-[250px] overflow-hidden">
-          <div className="flex bg-surface-card px-1 pt-7.5 pb-5 mb-3">
+        <div className="relative max-w-[200px] md:max-w-[250px] overflow-hidden">
+          <div className="flex bg-surface-card px-1 pt-3 md:pt-7.5 pb-5 mb-2 md:mb-3 rounded-lg md:rounded-none">
             <img
               src={nft.imageUrl}
               alt={nft.name}
@@ -72,7 +72,7 @@ export function NftCard({ nft, onQuickView }: Props) {
               </span>
             </div>
           )}
-          <div className="pointer-events-none absolute bottom-0 -translate-y-1/2 left-1/2 -translate-x-1/2 flex gap-x-2.5 opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100 focus-within:pointer-events-auto focus-within:opacity-100">
+          <div className=" pointer-events-none absolute bottom-0 -translate-y-1/2 left-1/2 -translate-x-1/2 hidden md:flex gap-x-2.5 opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100 focus-within:pointer-events-auto focus-within:opacity-100">
             <button
               type="button"
               aria-label="Adicionar ao carrinho"
@@ -115,7 +115,7 @@ export function NftCard({ nft, onQuickView }: Props) {
         </div>
       </Link>
 
-      <div className="flex flex-col gap-y-3">
+      <div className="flex flex-col gap-y-px md:gap-y-3">
         <p className="truncate text-base font-normal text-foreground">
           {nft.name}
         </p>
