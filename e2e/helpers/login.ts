@@ -19,11 +19,42 @@ export async function resetAppState(page: Page): Promise<void> {
   await page.waitForLoadState("networkidle");
 }
 
+/**
+ * Dispensa toasts do sonner. Tenta o botão "Close toast" (se existir)
+ * e, se não, espera o toast sumir sozinho (default: 4s no sonner).
+ * Se o toast persistir após `timeoutMs`, faz dismiss programático via
+ * `window.__sonnerDismiss` (registrado pelo Toaster — ver instruções).
+ */
+async function dismissToasts(page: Page, timeoutMs = 6_000): Promise<void> {
+  const toasts = page.locator("[data-sonner-toast]");
+  if ((await toasts.count()) === 0) return;
+
+  // Tenta fechar pelo botão "Close toast" (existe se `<Toaster closeButton />`).
+  const closeBtn = toasts.first().getByRole("button", { name: /close toast/i });
+  if (await closeBtn.isVisible().catch(() => false)) {
+    await closeBtn.click().catch(() => undefined);
+  }
+
+  // Espera sumir. Se o toast for `duration: Infinity`, o timeout vai
+  // estourar e o teste expõe o problema. Se for 4s, resolve.
+  try {
+    await expect(toasts).toHaveCount(0, { timeout: timeoutMs });
+  } catch {
+    // Fallback: dispensa via API global do sonner (se registrada).
+    await page.evaluate(() => {
+      const w = window as unknown as {
+        __sonnerDismiss?: () => void;
+      };
+      w.__sonnerDismiss?.();
+    });
+    await expect(toasts).toHaveCount(0, { timeout: 3_000 });
+  }
+}
+
 export async function login(page: Page, email: string): Promise<void> {
   await page.waitForLoadState("networkidle");
 
   if (isMobile(page)) {
-    // No mobile, o "Entrar" do header está dentro do drawer.
     await page.getByRole("button", { name: "Abrir menu" }).click();
     await page.getByTestId("header-login-button-mobile").click();
     await expect(page.getByRole("dialog", { name: "Menu" })).toBeHidden({
@@ -43,13 +74,12 @@ export async function login(page: Page, email: string): Promise<void> {
 
   const passwordInput = dialog.getByLabel(/^senha$/i).filter({ visible: true });
   await passwordInput.fill("password123");
-
-  // Submete via Enter: não depende do botão estar clicável
-  // (o overlay do AuthModalShell intercepta pointer events no mobile).
   await passwordInput.press("Enter");
 
+  // Só o mobile precisa dispensar o toast: ele cobre o botão "Abrir menu".
+  // No desktop, o header mostra "Sair" direto e o toast não atrapalha.
   if (isMobile(page)) {
-    // No mobile, "Sair" está dentro do drawer.
+    await dismissToasts(page);
     await page.getByRole("button", { name: "Abrir menu" }).click();
     await expect(
       page.getByRole("button", { name: /sair/i, exact: true }),

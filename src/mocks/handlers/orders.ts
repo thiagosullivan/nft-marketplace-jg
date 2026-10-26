@@ -93,6 +93,9 @@ export const orderHandlers = [
     for (const order of db.orders) {
       const wallet = db.wallets.find((w) => w.id === order.walletId);
       if (wallet && wallet.ownerId === auth.user.id) {
+        // `order-seed-settling` existe apenas para o teste E2E de
+        // transição pending → confirmed. Não deve aparecer em /orders.
+        if (order.id === "order-seed-settling") continue;
         const { order: settled, changed } = settleIfDue(order);
         if (changed) emitOrderUpdated(settled);
         mine.push(settled);
