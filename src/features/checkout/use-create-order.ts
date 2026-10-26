@@ -33,6 +33,7 @@ export function useCreateOrder() {
   ): Promise<CreateOrderResult> => {
     try {
       const order = await mutation.mutateAsync(input);
+
       return { kind: "created", order };
     } catch (err) {
       if (isIdempotencyConflict(err)) {

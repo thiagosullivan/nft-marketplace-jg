@@ -123,6 +123,7 @@ export function CheckoutPage() {
 
   const confirmOrder = async (values: CheckoutFormValues, wallet: Wallet) => {
     const check = await revalidation.revalidate();
+
     if (check.status === "error") {
       toast.error(check.message);
       return;
@@ -181,6 +182,7 @@ export function CheckoutPage() {
         </h2>
       </div>
 
+      {/* Desktop: form + resumo (grid de 2 colunas). Sem o modal aqui. */}
       <div className="hidden md:block">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_405px]">
           <div>
@@ -214,28 +216,34 @@ export function CheckoutPage() {
             confirming={creatingOrder}
           />
         </div>
-
-        <CheckoutWalletModal
-          open={modalOpen}
-          wallet={pendingWallet}
-          onCancel={() => {
-            setModalOpen(false);
-            setPendingValues(null);
-            setPendingWallet(null);
-          }}
-          onConnected={onModalConnected}
-        />
       </div>
 
-      <CheckoutWalletMobiles
-        cart={cart}
-        appliedCoupon={appliedCoupon}
-        onApplyCoupon={setAppliedCoupon}
-        wallets={effectiveWallets}
-        selectedWalletId={selectedWalletId}
-        onSelectWallet={setSelectedWalletId}
-        confirming={creatingOrder}
+      {/* Modal: fora do hidden md:block → aparece no mobile e no desktop.
+          A abertura é controlada por modalOpen, então só monta quando
+          o usuário clica em "Confirmar compra". */}
+      <CheckoutWalletModal
+        open={modalOpen}
+        wallet={pendingWallet}
+        onCancel={() => {
+          setModalOpen(false);
+          setPendingValues(null);
+          setPendingWallet(null);
+        }}
+        onConnected={onModalConnected}
       />
+
+      {/* Mobile: só carteiras + botão confirmar. Esconde no desktop. */}
+      <div className="md:hidden">
+        <CheckoutWalletMobiles
+          cart={cart}
+          appliedCoupon={appliedCoupon}
+          onApplyCoupon={setAppliedCoupon}
+          wallets={effectiveWallets}
+          selectedWalletId={selectedWalletId}
+          onSelectWallet={setSelectedWalletId}
+          confirming={creatingOrder}
+        />
+      </div>
     </div>
   );
 }

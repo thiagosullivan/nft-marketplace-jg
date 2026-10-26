@@ -37,7 +37,11 @@ export function useQuote(
     queryKey: [...quoteKeys.current(), "base", signature],
     queryFn: () => requestQuote(undefined),
     enabled,
-    staleTime: 0,
+    // A cotação é a referência para finalizar o pedido; fica "stale" por
+    // 30s para evitar refetch durante interações (ex.: modal de conexão
+    // de carteira), que mudaria o `issuedAt` e faria a revalidação
+    // considerar que o preço mudou sem motivo.
+    staleTime: 30_000,
     retry: 0,
     placeholderData: keepPreviousData,
   });
@@ -46,7 +50,7 @@ export function useQuote(
     queryKey: [...quoteKeys.current(input.couponCode), signature],
     queryFn: () => requestQuote(input.couponCode),
     enabled: enabled && !!input.couponCode,
-    staleTime: 0,
+    staleTime: 30_000,
     retry: 0,
     placeholderData: keepPreviousData,
   });
