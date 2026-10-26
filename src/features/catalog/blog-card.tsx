@@ -13,8 +13,11 @@ export type BlogPost = {
 
 export function BlogCard({ post }: { post: BlogPost }) {
   return (
-    <div key={post.id} className="rounded-md overflow-hidden bg-surface-card">
-      <div className="relative w-full max-w-[268px] aspect-[268/195] overflow-hidden rounded-3xl">
+    <div
+      key={post.id}
+      className="rounded-md overflow-hidden bg-surface-card py-5"
+    >
+      <div className="relative w-full max-w-[268px] aspect-[268/195] overflow-hidden rounded-3xl mx-auto">
         <img
           src={post.image}
           alt="Card de notícia"
@@ -22,7 +25,7 @@ export function BlogCard({ post }: { post: BlogPost }) {
         />
       </div>
       <div className="py-3 px-4 space-y-2">
-        <div className="text-secondary text-xs font-medium flex items-start justify-between gap-x-2">
+        <div className="text-secondary text-xs font-medium flex items-start justify-center lg:justify-between gap-x-2">
           <p className="text-nowrap">{post.date}</p>
           <span>|</span>
           <p>{post.readTime}</p>
