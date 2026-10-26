@@ -15,7 +15,11 @@ async function reset(page: Page) {
 }
 
 async function selectEdition(page: Page, label: RegExp) {
-  await page.locator("label", { hasText: label }).first().click();
+  await page
+    .locator("label", { hasText: label })
+    .filter({ visible: true })
+    .first()
+    .click();
 }
 
 test.describe("NFT detail", () => {
@@ -37,11 +41,17 @@ test.describe("NFT detail", () => {
     ).toBeVisible();
 
     // A edição padrão do nft-002 (1/1) custa 0.05 ETH.
-    await expect(page.getByText("0.05 ETH").first()).toBeVisible();
+    // Existe em dobro no DOM (desktop + mobile). O filter reduz para o
+    // visível no breakpoint atual; o first() é só por segurança.
+    await expect(
+      page.getByText("0.05 ETH").filter({ visible: true }).first(),
+    ).toBeVisible();
 
     // A edição ABERTA custa 0.06 ETH (0.05 × 1.15, arredondado).
     await selectEdition(page, /^aberta/i);
-    await expect(page.getByText("0.06 ETH").first()).toBeVisible();
+    await expect(
+      page.getByText("0.06 ETH").filter({ visible: true }).first(),
+    ).toBeVisible();
   });
 
   test("quantity stepper clamps to availability", async ({ page }) => {
@@ -50,7 +60,11 @@ test.describe("NFT detail", () => {
       page.getByRole("heading", { name: /ivory baron #003/i }),
     ).toBeVisible();
 
-    const input = page.getByRole("spinbutton").first();
+    // Spinbutton também existe em dobro (desktop + mobile).
+    const input = page
+      .getByRole("spinbutton")
+      .filter({ visible: true })
+      .first();
     await input.fill("9999");
     await input.blur();
     // A edição 1/1 do nft-003 tem available=1; o input deve ficar em 1.
@@ -63,28 +77,43 @@ test.describe("NFT detail", () => {
       page.getByRole("heading", { name: /emerald ape #001/i }),
     ).toBeVisible();
 
-    const soldOut = page.locator("label", { hasText: /^1\/1/i }).first();
+    // Label "1/1" existe em dobro (desktop + mobile).
+    const soldOut = page
+      .locator("label", { hasText: /^1\/1/i })
+      .filter({ visible: true })
+      .first();
     await expect(soldOut).toHaveAttribute("aria-disabled", "true");
-    await expect(
-      soldOut.getByRole("radio", { name: /edição 1\/1/i }),
-    ).toBeDisabled();
 
-    await expect(page.getByRole("button", { name: /^comprar$/i })).toHaveCount(
-      0,
-    );
+    // O radio dentro do label pode ser sr-only, então usamos
+    // locator("input[type=radio]") em vez de getByRole("radio")
+    // (que depende do input estar na árvore de acessibilidade).
+    await expect(soldOut.locator('input[type="radio"]').first()).toBeDisabled();
+
     await expect(
-      page.getByRole("button", { name: /^esgotado$/i }),
+      page
+        .getByRole("button", { name: /^comprar$/i })
+        .filter({ visible: true }),
+    ).toHaveCount(0);
+    await expect(
+      page
+        .getByRole("button", { name: /^esgotado$/i })
+        .filter({ visible: true }),
     ).toBeDisabled();
   });
 
   test("buy while logged out adds to guest cart", async ({ page }) => {
     await page.goto("/nft/nft-002");
-    const buy = page.getByRole("button", { name: /^comprar$/i });
+    const buy = page
+      .getByRole("button", { name: /^comprar$/i })
+      .filter({ visible: true });
     await buy.focus();
     await buy.press("Enter");
     await expect(page).toHaveURL(/\/cart/);
     await expect(
-      page.getByRole("listitem").filter({ hasText: /violet nomad #002/i }),
+      page
+        .getByRole("listitem")
+        .filter({ hasText: /violet nomad #002/i })
+        .filter({ visible: true }),
     ).toBeVisible();
   });
 });
