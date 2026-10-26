@@ -19,7 +19,7 @@ function currentUrl(): string {
 
 export function useToggleFavorite() {
   const queryClient = useQueryClient();
-  const { data: session } = useSession();
+  const { data: session, isLoading: sessionLoading } = useSession();
   const { open } = useAuthModal();
   const favoritesQuery = useFavorites();
 
@@ -73,6 +73,9 @@ export function useToggleFavorite() {
   });
 
   const toggle = async (nft: Nft): Promise<void> => {
+    // Se a sessão ainda está carregando, não faz nada. O caller deve
+    // desabilitar o botão enquanto `isLoading` for `true`.
+    if (sessionLoading) return;
     if (!session) {
       open("login", currentUrl());
       return;
@@ -85,6 +88,8 @@ export function useToggleFavorite() {
   return {
     toggle,
     isPending: mutation.isPending,
+    // Expõe `sessionLoading` para o caller desabilitar o botão.
+    isLoading: sessionLoading,
     isFavorite: (nftId: string) =>
       isFavoriteIn(favoritesQuery.data?.items, nftId),
   };
