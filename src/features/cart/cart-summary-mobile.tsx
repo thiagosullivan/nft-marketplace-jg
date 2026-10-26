@@ -52,6 +52,10 @@ export function CartSummaryMobile({ cart }: Props) {
       aria-labelledby="cart-summary-title"
       className="fixed bottom-0 left-0 lg:top-24 bg-surface-raised rounded-4xl z-20 shadow-md w-full"
     >
+      <h2 id="cart-summary-title" className="sr-only">
+        Resumo da compra
+      </h2>
+
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -60,8 +64,11 @@ export function CartSummaryMobile({ cart }: Props) {
         className="space-y-2 pt-6 px-6"
       >
         <div className="flex relative h-12.5 mb-3">
+          <label htmlFor="cart-coupon-mobile" className="sr-only">
+            Código promocional
+          </label>
           <Input
-            id="cart-coupon"
+            id="cart-coupon-mobile"
             type="text"
             value={couponInput}
             onChange={(e) => setCouponInput(e.target.value)}

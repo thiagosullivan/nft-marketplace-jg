@@ -111,10 +111,22 @@ test.describe("Cart", () => {
     ).toBeVisible();
     await dismissToasts(page);
 
-    await page.getByLabel("Código promocional").fill("INVALIDO");
-    const apply = page.getByRole("button", { name: /aplicar/i });
-    await apply.focus();
-    await apply.press("Enter");
-    await expect(page.getByText(/cupom inválido ou expirado/i)).toBeVisible();
+    // Existem 2 inputs (desktop + mobile) no DOM; só um está visível.
+    // `.filter({ visible: true })` reduz para o visível antes de agir.
+    await page
+      .getByLabel("Código promocional")
+      .filter({ visible: true })
+      .fill("INVALIDO");
+
+    // O botão "Aplicar" também aparece 2x (desktop + mobile).
+    await page
+      .getByRole("button", { name: /aplicar/i })
+      .filter({ visible: true })
+      .click();
+
+    // A mensagem de erro também aparece 2x no DOM.
+    await expect(
+      page.getByText(/cupom inválido ou expirado/i).filter({ visible: true }),
+    ).toBeVisible();
   });
 });
