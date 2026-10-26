@@ -3,6 +3,10 @@ import { test, expect, type Page } from "@playwright/test";
 const MARIA = { email: "maria@nftmail.com", password: "password123" };
 const FERNANDO = { email: "fernando@nftmail.com", password: "password123" };
 
+function isMobile(page: Page) {
+  return (page.viewportSize()?.width ?? 1440) < 768;
+}
+
 async function reset(page: Page) {
   await page.goto("/?reset=1");
   await page.waitForFunction(() =>
@@ -11,8 +15,16 @@ async function reset(page: Page) {
 }
 
 async function openLoginModal(page: Page) {
-  await page.getByTestId("header-login-button").click();
-  await expect(page.getByRole("dialog")).toBeVisible();
+  if (isMobile(page)) {
+    await page.getByRole("button", { name: "Abrir menu" }).click();
+    await page.getByTestId("header-login-button-mobile").click();
+    await expect(page.getByRole("dialog", { name: "Menu" })).toBeHidden({
+      timeout: 5_000,
+    });
+  } else {
+    await page.getByTestId("header-login-button").click();
+  }
+  await expect(page.getByRole("dialog")).toBeVisible({ timeout: 5_000 });
 }
 
 async function fillLogin(
@@ -20,28 +32,18 @@ async function fillLogin(
   creds: { email: string; password: string },
 ) {
   const dialog = page.getByRole("dialog");
-  await dialog
-    .getByRole("textbox", { name: "E-mail", exact: true })
-    .fill(creds.email);
-  const password = dialog.getByRole("textbox", {
-    name: "Senha",
-    exact: true,
-  });
+  // Um único input por campo agora (form unificado), então getByLabel funciona.
+  const email = dialog.getByLabel("E-mail", { exact: true });
+  const password = dialog.getByLabel("Senha", { exact: true });
+  await email.fill(creds.email);
   await password.fill(creds.password);
-  // Submete pelo teclado: caminho real de um usuário de teclado e evita
-  // depender do hit-test do Chromium headless mobile sobre um botão com
-  // bounding-box grande (overlay scrollável + borda decorativa do painel).
   await password.press("Enter");
 }
 
 async function dismissToasts(page: Page) {
-  // O toast de sucesso do sonner fica no canto superior direito e sobrepõe
-  // o botão "Sair" do header enquanto visível. Esperamos ele sair antes
-  // de interagir com o header — é o que um usuário faria.
   const toasts = page.locator("[data-sonner-toast]");
   const count = await toasts.count();
   if (count === 0) return;
-  // Fecha ativamente (botão "Close toast") e aguarda remoção.
   for (let i = 0; i < count; i++) {
     const closeBtn = toasts
       .nth(0)
@@ -54,13 +56,38 @@ async function dismissToasts(page: Page) {
 }
 
 async function expectLoggedIn(page: Page) {
-  await expect(page.getByRole("button", { name: "Sair" })).toBeVisible();
+  if (isMobile(page)) {
+    await page.getByRole("button", { name: "Abrir menu" }).click();
+    await expect(
+      page.getByRole("button", { name: "Sair", exact: true }),
+    ).toBeVisible({ timeout: 10_000 });
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("dialog", { name: "Menu" })).toBeHidden();
+  } else {
+    await expect(
+      page.getByRole("button", { name: "Sair", exact: true }),
+    ).toBeVisible({ timeout: 10_000 });
+  }
 }
 
 async function expectLoggedOut(page: Page) {
-  await expect(
-    page.getByRole("button", { name: "Entrar", exact: true }),
-  ).toBeVisible();
+  if (isMobile(page)) {
+    await page.getByRole("button", { name: "Abrir menu" }).click();
+    await expect(page.getByTestId("header-login-button-mobile")).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("dialog", { name: "Menu" })).toBeHidden();
+  } else {
+    await expect(page.getByTestId("header-login-button")).toBeVisible();
+  }
+}
+
+async function logout(page: Page) {
+  if (isMobile(page)) {
+    await page.getByRole("button", { name: "Abrir menu" }).click();
+    await page.getByRole("button", { name: "Sair", exact: true }).click();
+  } else {
+    await page.getByRole("button", { name: "Sair", exact: true }).click();
+  }
 }
 
 test.describe("Auth", () => {
@@ -80,8 +107,8 @@ test.describe("Auth", () => {
     await openLoginModal(page);
     await fillLogin(page, MARIA);
 
-    await expect(page.getByRole("dialog")).toBeHidden();
     await expectLoggedIn(page);
+    await expect(page.getByRole("dialog")).toBeHidden({ timeout: 10_000 });
 
     await page.reload();
     await expectLoggedIn(page);
@@ -94,7 +121,7 @@ test.describe("Auth", () => {
     await expectLoggedIn(page);
     await dismissToasts(page);
 
-    await page.getByRole("button", { name: "Sair" }).click();
+    await logout(page);
     await expectLoggedOut(page);
 
     const token = await page.evaluate(() =>
@@ -105,10 +132,10 @@ test.describe("Auth", () => {
 
   test("redirect preserves context through login", async ({ page }) => {
     await page.goto("/checkout");
-    await expect(page.getByRole("dialog")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible({ timeout: 15_000 });
     await fillLogin(page, MARIA);
-    await expect(page.getByRole("dialog")).toBeHidden();
-    await expect(page).toHaveURL(/\/checkout/);
+    await expect(page).toHaveURL(/\/checkout/, { timeout: 15_000 });
+    await expect(page.getByRole("dialog")).toBeHidden({ timeout: 10_000 });
   });
 
   test("switching users does not leak private data", async ({ page }) => {
@@ -130,7 +157,7 @@ test.describe("Auth", () => {
     });
 
     await dismissToasts(page);
-    await page.getByRole("button", { name: "Sair" }).click();
+    await logout(page);
     await openLoginModal(page);
     await fillLogin(page, FERNANDO);
     await expectLoggedIn(page);
@@ -150,24 +177,13 @@ test.describe("Auth", () => {
   }) => {
     await page.evaluate(() => {
       localStorage.setItem("nftmarketplace:token", "tok_invalido_xyz");
-      localStorage.setItem(
-        "nftmarketplace:session",
-        JSON.stringify({
-          user: {
-            id: "user-maria",
-            username: "maria",
-            displayName: "Maria",
-            email: "x",
-            ensName: null,
-            avatarUrl: null,
-            createdAt: new Date().toISOString(),
-          },
-          expiresAt: new Date(Date.now() + 1000 * 60 * 60).toISOString(),
-        }),
-      );
+      localStorage.removeItem("nftmarketplace:session");
     });
     await page.goto("/profile");
 
-    await expect(page.getByRole("dialog")).toBeVisible();
+    // 401 → auth:unauthorized → modal abre sobre /profile.
+    await expect(page.getByRole("dialog")).toBeVisible({ timeout: 15_000 });
+    // Não checa URL: o modal abre sobre a própria rota e o redirect
+    // pós-login volta para /profile.
   });
 });

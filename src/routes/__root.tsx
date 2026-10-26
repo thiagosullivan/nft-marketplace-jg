@@ -1,20 +1,21 @@
-import { lazy, Suspense, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { Header } from "@/shared/components/layout/header";
 import { Footer } from "@/shared/components/layout/footer";
 import { AuthModalProvider } from "@/features/auth/auth-modal-provider";
+import { AuthModalHost } from "@/features/auth/auth-modal-host";
 
 export const Route = createRootRoute({
   component: RootLayout,
   notFoundComponent: NotFoundPage,
 });
 
-const AuthModalHost = lazy(() =>
-  import("@/features/auth/auth-modal-host").then((m) => ({
-    default: m.AuthModalHost,
-  })),
-);
+// const AuthModalHost = lazy(() =>
+//   import("@/features/auth/auth-modal-host").then((m) => ({
+//     default: m.AuthModalHost,
+//   })),
+// );
 
 function RootLayout() {
   return (
@@ -27,9 +28,9 @@ function RootLayout() {
         <Footer />
       </div>
       <ModalPortal>
-        <Suspense fallback={null}>
-          <AuthModalHost />
-        </Suspense>
+        <AuthModalHost />
+        {/* <Suspense fallback={null}>
+        </Suspense> */}
       </ModalPortal>
     </AuthModalProvider>
   );

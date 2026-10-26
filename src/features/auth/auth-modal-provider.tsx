@@ -61,11 +61,22 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
       const detail = (e as CustomEvent<{ redirect?: string }>).detail;
       open("register", detail?.redirect);
     };
+    // 401 global: http.ts dispara este evento quando qualquer request
+    // autenticado recebe 401. Abrimos o modal para reautenticar.
+    const onUnauthorized = (e: Event) => {
+      const detail = (e as CustomEvent<{ redirect?: string }>).detail;
+      const nextRedirect =
+        detail?.redirect ??
+        `${window.location.pathname}${window.location.search}`;
+      open("login", nextRedirect);
+    };
     window.addEventListener("auth:open-login", onOpenLogin);
     window.addEventListener("auth:open-register", onOpenRegister);
+    window.addEventListener("auth:unauthorized", onUnauthorized);
     return () => {
       window.removeEventListener("auth:open-login", onOpenLogin);
       window.removeEventListener("auth:open-register", onOpenRegister);
+      window.removeEventListener("auth:unauthorized", onUnauthorized);
     };
   }, [open]);
 

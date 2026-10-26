@@ -70,7 +70,7 @@ export function LoginPage() {
         noValidate
       >
         <div className="space-y-3 md:space-y-2 md:max-w-85 w-full px-7 md:p-0">
-          <div className="space-y-2 w-full hidden md:block">
+          <div className="space-y-2 w-full">
             <Input
               id="login-email"
               type="email"
@@ -80,25 +80,7 @@ export function LoginPage() {
               aria-describedby={errors.email ? "login-email-error" : undefined}
               placeholder="e-mail"
               {...register("email")}
-              className="rounded-sm min-h-10 border-border bg-transparent! focus:outline-none! focus:ring-0!"
-            />
-            {errors.email && (
-              <p id="login-email-error" className="text-sm text-destructive">
-                {errors.email.message}
-              </p>
-            )}
-          </div>
-          <div className="space-y-2 md:hidden block">
-            <Input
-              id="login-email"
-              type="email"
-              autoComplete="email"
-              aria-label="E-mail"
-              aria-invalid={!!errors.email}
-              aria-describedby={errors.email ? "login-email-error" : undefined}
-              placeholder="contato@email.com"
-              {...register("email")}
-              className="rounded-sm min-h-12.5 border-border bg-transparent! focus:outline-none! focus:ring-0!"
+              className="rounded-sm min-h-12.5 md:min-h-10 border-border bg-transparent! focus:outline-none! focus:ring-0!"
             />
             {errors.email && (
               <p id="login-email-error" className="text-sm text-destructive">
@@ -107,7 +89,7 @@ export function LoginPage() {
             )}
           </div>
 
-          <div className="space-y-2 w-full hidden md:block">
+          <div className="space-y-2 w-full">
             <PasswordInput
               id="login-password"
               autoComplete="current-password"
@@ -119,26 +101,6 @@ export function LoginPage() {
               placeholder="senha"
               {...register("password")}
               className="rounded-sm md:min-h-10 border-border bg-transparent! focus:outline-none! focus:ring-0!"
-            />
-            {errors.password && (
-              <p id="login-password-error" className="text-sm text-destructive">
-                {errors.password.message}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2 md:hidden block mb-4">
-            <PasswordInput
-              id="login-password"
-              autoComplete="current-password"
-              aria-label="Senha"
-              aria-invalid={!!errors.password}
-              aria-describedby={
-                errors.password ? "login-password-error" : undefined
-              }
-              placeholder="senha"
-              {...register("password")}
-              className="rounded-sm min-h-12.5 border-border bg-transparent! focus:outline-none! focus:ring-0!"
             />
             {errors.password && (
               <p id="login-password-error" className="text-sm text-destructive">
