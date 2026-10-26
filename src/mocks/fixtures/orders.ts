@@ -6,14 +6,6 @@ import type {
   WalletNetwork,
 } from "@/shared/api/types";
 
-// Seed orders. Cobre todos os estados para a lista /orders.
-//
-// Maria:     confirmed (Figma), pending→confirmed (polling),
-//            declined (ethereum), confirmed polygon com note,
-//            declined polygon (rede distinta), confirmed com cupom
-// Fernando:  confirmed (isolamento — não aparece para Maria)
-// Thaís:     sem pedidos (empty state)
-
 function item(
   nftId: string,
   editionId: string,
@@ -95,7 +87,8 @@ export const seedOrders: readonly Order[] = [
     settleStatus: null,
   },
 
-  // 2) Pendente → confirmado em 10s (polling)
+  // 2) Pendente ESTÁVEL (visual) — nunca settle (settleStatus null).
+  // Usado para inspecionar o estado pendente no browser sem prazo.
   {
     id: "order-seed-pending",
     note: null,
@@ -127,7 +120,46 @@ export const seedOrders: readonly Order[] = [
     transactionRef: null,
     explorerUrl: null,
     version: 1,
-    settleAt: new Date(Date.now() + 10_000).toISOString(),
+    settleAt: null,
+    settleStatus: null,
+  },
+
+  // 2b) Pendente → confirmado (E2E de transição). settleStatus="confirmed"
+  // e settleAt=null: o handler no GET /orders/:id agenda settleAt
+  // = now + SETTLE_DELAY_MS na primeira leitura, e aplica o settle
+  // na segunda. Usado pelo teste "pedido pendente vira confirmado".
+  {
+    id: "order-seed-settling",
+    note: null,
+    status: "pending",
+    createdAt: "2026-07-29T14:20:00.000Z" as IsoDate,
+    updatedAt: "2026-07-29T14:20:00.000Z" as IsoDate,
+    confirmedAt: null,
+    items: [
+      item(
+        "nft-003",
+        "nft-003-ed-1",
+        "#0003",
+        "Ivory Baron #003",
+        "/nfts/prod-3.png",
+        1,
+        "0.08",
+        "Edição padrão",
+      ),
+    ],
+    subtotalEth: "0.08" as EthAmount,
+    discountEth: "0.00" as EthAmount,
+    networkFeeEth: "0.016" as EthAmount,
+    totalEth: "0.096" as EthAmount,
+    couponCode: null,
+    walletId: "wallet-maria-eth",
+    walletLabel: "MetaMask",
+    walletAddress: "0xA91F4C2b8E7d3A1f5B6c9D0e2F3a4B5c6D7e8E82",
+    network: "ethereum" as WalletNetwork,
+    transactionRef: null,
+    explorerUrl: null,
+    version: 1,
+    settleAt: null,
     settleStatus: "confirmed",
   },
 
@@ -215,7 +247,7 @@ export const seedOrders: readonly Order[] = [
     settleStatus: null,
   },
 
-  // 5) Recusado em Polygon (rede distinta, dono Maria)
+  // 5) Recusado em Polygon
   {
     id: "order-seed-declined-polygon",
     note: null,

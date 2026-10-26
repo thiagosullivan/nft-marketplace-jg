@@ -348,6 +348,20 @@ export const orderHandlers = [
       return errorResponse(403, "FORBIDDEN", "Acesso negado a este pedido.");
     }
 
+    // Regeneração lazy: se o pedido está pending com settleStatus mas
+    // sem settleAt (ex.: fixture `order-seed-settling`), agenda o settle
+    // para daqui a SETTLE_DELAY_MS e retorna pending. A próxima leitura
+    // (após o delay) aplica settleIfDue e confirma. Assim o teste E2E
+    // vê pending na primeira requisição e confirmed na segunda.
+    if (order.status === "pending" && order.settleStatus && !order.settleAt) {
+      const settleAt = new Date(Date.now() + SETTLE_DELAY_MS).toISOString();
+      const updated: Order = { ...order, settleAt };
+      const idx = db.orders.findIndex((o) => o.id === id);
+      db.orders[idx] = updated;
+      saveDb(db);
+      return json(updated);
+    }
+
     const { order: settled, changed } = settleIfDue(order);
     if (changed) {
       const idx = db.orders.findIndex((o) => o.id === id);

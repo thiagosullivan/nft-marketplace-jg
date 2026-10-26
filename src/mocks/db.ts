@@ -20,7 +20,7 @@ import {
 // mock persists on localStorage.
 
 const STORAGE_KEY = "nftmarketplace:db";
-const DB_VERSION = 7;
+const DB_VERSION = 9;
 
 export type DbWallet = Wallet & { ownerId: string };
 
@@ -66,6 +66,11 @@ function buildInitialDb(): Db {
     favoritesByUser: {},
     carts: {},
     coupons: clone(seedCoupons as Coupon[]),
+    // `seedOrders` é clonado como está. O `settleAt` de pedidos pending
+    // é controlado pelo handler em GET /api/orders/:id (regeneração
+    // lazy). Assim `order-seed-pending` fica estável para inspeção
+    // visual (settleStatus null) e `order-seed-settling` transiciona
+    // para confirmed no teste E2E.
     orders: clone(seedOrders as Order[]),
     wallets: clone(seedWallets as Wallet[]).map((w) => ({
       ...w,
