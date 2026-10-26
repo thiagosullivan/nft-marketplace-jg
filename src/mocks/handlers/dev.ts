@@ -1,5 +1,9 @@
 import { http } from "msw";
-import { emitToAll } from "../socket";
+import {
+  disconnectAllConnections,
+  emitToAll,
+  activeConnectionCount,
+} from "../socket";
 import { env } from "@/shared/lib/env";
 import { applyScenario, errorResponse, json } from "../utils";
 import { loadDb, saveDb } from "../db";
@@ -18,6 +22,24 @@ function fakeTxHash(orderId: string): string {
 }
 
 export const devHandlers = [
+  // Fecha todas as conexões Socket.IO ativas. O socket.io-client
+  // reconecta sozinho (reconnection: true), e o SocketProvider invalida
+  // os caches no onConnect da reconexão.
+  http.post("/api/dev/disconnect-socket", async () => {
+    if (!env.VITE_ENABLE_MOCKS) {
+      return errorResponse(404, "NOT_FOUND", "Endpoint indisponível.");
+    }
+    const closed = disconnectAllConnections();
+    return json({ ok: true, closed });
+  }),
+
+  http.get("/api/dev/socket-status", async () => {
+    if (!env.VITE_ENABLE_MOCKS) {
+      return errorResponse(404, "NOT_FOUND", "Endpoint indisponível.");
+    }
+    return json({ count: activeConnectionCount() });
+  }),
+
   http.post("/api/dev/emit", async ({ request }) => {
     if (!env.VITE_ENABLE_MOCKS) {
       return errorResponse(404, "NOT_FOUND", "Endpoint indisponível.");
@@ -37,7 +59,6 @@ export const devHandlers = [
       });
     }
 
-    // nft.updated: altera o db e emite com version incrementada.
     if (body.event === "nft.updated") {
       const payload = body.payload as {
         nftId?: string;
@@ -76,7 +97,6 @@ export const devHandlers = [
       return json({ ok: true, event: body.event, version: nft.version });
     }
 
-    // order.updated: força o settle do pedido e emite.
     if (body.event === "order.updated") {
       const payload = body.payload as {
         orderId?: string;

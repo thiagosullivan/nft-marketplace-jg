@@ -56,6 +56,7 @@ export function CheckoutPage() {
   );
 
   const quote = useQuote({ couponCode: appliedCoupon, cart });
+
   const revalidation = useCheckoutRevalidation({
     cart: cart ?? { items: [], updatedAt: new Date().toISOString() },
     couponCode: appliedCoupon,

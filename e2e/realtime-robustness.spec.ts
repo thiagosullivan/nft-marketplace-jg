@@ -3,6 +3,7 @@ import { login, resetAppState, MARIA } from "./helpers/login";
 
 async function waitForSocket(page: import("@playwright/test").Page) {
   await page.waitForSelector('body[data-socket-connected="true"]', {
+    state: "attached",
     timeout: 10_000,
   });
 }

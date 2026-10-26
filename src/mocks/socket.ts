@@ -1,26 +1,32 @@
 import { WebSocketInterceptor } from "@mswjs/interceptors/WebSocket";
 import { toSocketIo } from "@mswjs/socket.io-binding";
 
-const activeConnections = new Set<{
+type ActiveConnection = {
   emit: (event: string, payload: unknown) => void;
-}>();
+  close: () => void;
+};
+
+const activeConnections = new Set<ActiveConnection>();
 
 const interceptor = new WebSocketInterceptor();
 
 interceptor.on("connection", (connection) => {
-  // O toSocketIo espera WebSocketHandlerConnection (tipo do ws.link do MSW),
-  // mas o interceptor direto emite WebSocketConnectionData (sem params).
-  // O runtime funciona; o cast silencia o TS.
   const io = toSocketIo(connection as never);
 
-  const wrapper = {
-    emit: (event: string, payload: unknown) => {
+  const wrapper: ActiveConnection = {
+    emit: (event, payload) => {
       io.client.emit(event, payload);
+    },
+    close: () => {
+      try {
+        connection.client.close(1000, "mock-disconnect");
+      } catch {
+        /* noop */
+      }
     },
   };
   activeConnections.add(wrapper);
 
-  // Remove do Set quando a conexão fechar.
   connection.client.addEventListener("close", () => {
     activeConnections.delete(wrapper);
   });
@@ -38,4 +44,17 @@ export function emitToAll(event: string, payload: unknown): void {
   for (const connection of activeConnections) {
     connection.emit(event, payload);
   }
+}
+
+export function disconnectAllConnections(): number {
+  const count = activeConnections.size;
+  for (const connection of activeConnections) {
+    connection.close();
+  }
+  activeConnections.clear();
+  return count;
+}
+
+export function activeConnectionCount(): number {
+  return activeConnections.size;
 }

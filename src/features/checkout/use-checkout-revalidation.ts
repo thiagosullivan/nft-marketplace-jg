@@ -46,6 +46,11 @@ export function useCheckoutRevalidation({
       }
 
       const reasons: string[] = [];
+      // A cotação foi refeita (issuedAt mais recente)? Isso indica que o
+      // preço mudou via socket ou REST desde o snapshot inicial.
+      if (currentQuote && quote.issuedAt !== currentQuote.issuedAt) {
+        reasons.push("O total mudou.");
+      }
       if (currentQuote && quote.totalEth !== currentQuote.totalEth) {
         reasons.push("O total mudou.");
       }
