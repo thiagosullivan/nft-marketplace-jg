@@ -6,6 +6,8 @@ import type { Nft } from "@/shared/api/types";
 import { nftKeys } from "@/shared/api/query-keys";
 import { Badge } from "@/shared/components/ui/badge";
 import { useAddToCart } from "@/features/cart";
+import { useToggleFavorite } from "@/features/favorites";
+import { cn } from "@/shared/lib/utils";
 import { useNftAvailability } from "./use-nft-availability";
 import CartIcon from "../../../public/icons/cart-icon.png";
 
@@ -18,16 +20,20 @@ export function NftCard({ nft, onQuickView }: Props) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { add } = useAddToCart();
+  const {
+    toggle,
+    isFavorite,
+    isPending: favoritePending,
+  } = useToggleFavorite();
   const { edition, canAdd, isSoldOut, reachedMaxInCart } =
     useNftAvailability(nft);
 
   const showSoldOut = isSoldOut || reachedMaxInCart;
+  const isFav = isFavorite(nft.id);
 
   const onBuy = async () => {
     if (!canAdd || !edition) return;
 
-    // Garante que o useAddToCart encontre o NFT no cache (visitante usa
-    // esse dado para montar o item local).
     queryClient.setQueryData(nftKeys.detail(nft.id), nft);
 
     try {
@@ -40,6 +46,14 @@ export function NftCard({ nft, onQuickView }: Props) {
       toast.error("Não foi possível adicionar ao carrinho.");
     } finally {
       toast.success("Produto adicionado ao carrinho.");
+    }
+  };
+
+  const onToggleFavorite = async () => {
+    try {
+      await toggle(nft);
+    } catch {
+      toast.error("Não foi possível atualizar favoritos.");
     }
   };
 
@@ -72,7 +86,7 @@ export function NftCard({ nft, onQuickView }: Props) {
               </span>
             </div>
           )}
-          <div className=" pointer-events-none absolute bottom-0 -translate-y-1/2 left-1/2 -translate-x-1/2 hidden md:flex gap-x-2.5 opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100 focus-within:pointer-events-auto focus-within:opacity-100">
+          <div className="pointer-events-none absolute bottom-0 -translate-y-1/2 left-1/2 -translate-x-1/2 hidden md:flex gap-x-2.5 opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100 focus-within:pointer-events-auto focus-within:opacity-100">
             <button
               type="button"
               aria-label="Adicionar ao carrinho"
@@ -88,15 +102,23 @@ export function NftCard({ nft, onQuickView }: Props) {
             </button>
             <button
               type="button"
-              aria-label="Favoritar"
-              className="rounded-xs bg-surface-raised p-1.5 border-border hover:bg-primary hover:text-primary-foreground cursor-pointer"
+              aria-label={isFav ? "Remover favorito" : "Favoritar"}
+              aria-pressed={isFav}
+              disabled={favoritePending}
+              className={cn(
+                "rounded-xs bg-surface-raised p-1.5 border-border hover:bg-primary hover:text-primary-foreground cursor-pointer",
+                isFav && "text-primary",
+              )}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                toast.info("Em breve: favoritar.");
+                void onToggleFavorite();
               }}
             >
-              <Heart className="size-4" />
+              <Heart
+                className={cn("size-4", isFav && "fill-primary")}
+                aria-hidden
+              />
             </button>
             <button
               type="button"

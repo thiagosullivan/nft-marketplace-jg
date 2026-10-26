@@ -66,44 +66,39 @@ export function NftDetailView({
 
   return (
     <div className="container mx-auto max-w-300 pt-6 md:pt-10 bg-surface-raised md:bg-transparent">
-      <div className="px-4 hidden md:block mb-3 text-foreground text-[15px] font-bold">
-        <Link to="/">Início /</Link>
-        <Link to="/"> Mercado</Link>
-      </div>
-      <div className="hidden md:flex flex-col md:flex-row md:gap-8 items-start mb-24">
-        <div className="max-w-[575px] w-full mx-auto">
-          <NftGallery images={gallery} alt={nft.name} />
+      {/* Desktop (>= md) */}
+      <div className="hidden md:block">
+        <div className="px-4 mb-3 text-foreground text-[15px] font-bold">
+          <Link to="/">Início /</Link>
+          <Link to="/"> Mercado</Link>
         </div>
-        <div className="flex-1 max-w-[595px] w-full hidden md:block">
-          <NftInfoPanel
-            nft={nft}
-            edition={edition}
-            onEditionChange={onEditionChange}
-            quantity={quantity}
-            onQuantityChange={onQuantityChange}
-            onBuy={onBuy}
-            buyPending={buyPending}
-          />
-        </div>
-        <div className="flex-1 w-full block md:hidden bg-surface-card pt-8 rounded-t-4xl">
-          <NftInfoPanelMobile
-            nft={nft}
-            edition={edition}
-            onEditionChange={onEditionChange}
-            quantity={quantity}
-            onQuantityChange={onQuantityChange}
-            onBuy={onBuy}
-            buyPending={buyPending}
-          />
+        <div className="flex flex-row gap-8 items-start mb-24">
+          <div className="max-w-[575px] w-full mx-auto">
+            <NftGallery images={gallery} alt={nft.name} />
+          </div>
+          <div className="flex-1 max-w-[595px] w-full">
+            <NftInfoPanel
+              nft={nft}
+              edition={edition}
+              onEditionChange={onEditionChange}
+              quantity={quantity}
+              onQuantityChange={onQuantityChange}
+              onBuy={onBuy}
+              buyPending={buyPending}
+            />
+          </div>
         </div>
       </div>
-      <div className="flex flex-col md:flex-row md:gap-8 items-start mb-24 md:hidden">
-        <div className="flex justify-between items-center w-full px-2">
+
+      {/* Mobile (< md) */}
+      <div className="md:hidden">
+        <div className="flex justify-between items-center w-full px-2 mb-3">
           <Button
             type="button"
             variant="outline"
             onClick={() => void navigate({ to: "/" })}
-            className="mb-3 rounded-full w-[35px] h-[35px] text-sm font-medium border border-border! text-accent bg-surface-raised! hover:text-accent cursor-pointer md:hidden"
+            aria-label="Voltar ao catálogo"
+            className="rounded-full w-[35px] h-[35px] text-sm font-medium border border-border! text-accent bg-surface-raised! hover:text-accent cursor-pointer"
           >
             <RiArrowLeftSLine />
           </Button>
@@ -113,10 +108,11 @@ export function NftDetailView({
             onClick={() => void onToggleFavorite()}
             disabled={favoritePending}
             aria-pressed={isFav}
+            data-testid="favorite-button"
             aria-label={
               isFav ? "Remover dos favoritos" : "Adicionar aos favoritos"
             }
-            className="ml-auto mb-3 rounded-full w-[35px] h-[35px] text-sm font-medium border border-border! text-accent bg-surface-raised! hover:text-accent cursor-pointer md:hidden"
+            className="rounded-full w-[35px] h-[35px] text-sm font-medium border border-border! text-accent bg-surface-raised! hover:text-accent cursor-pointer"
           >
             {isFav ? <FaHeart /> : <FaRegHeart />}
           </Button>
@@ -124,18 +120,7 @@ export function NftDetailView({
         <div className="max-w-[575px] w-full mx-auto">
           <NftGallery images={gallery} alt={nft.name} />
         </div>
-        <div className="flex-1 max-w-[595px] w-full hidden md:block">
-          <NftInfoPanel
-            nft={nft}
-            edition={edition}
-            onEditionChange={onEditionChange}
-            quantity={quantity}
-            onQuantityChange={onQuantityChange}
-            onBuy={onBuy}
-            buyPending={buyPending}
-          />
-        </div>
-        <div className="flex-1 w-full block md:hidden bg-surface-card pt-8 rounded-t-4xl">
+        <div className="w-full bg-surface-card pt-8 rounded-t-4xl">
           <NftInfoPanelMobile
             nft={nft}
             edition={edition}
@@ -147,7 +132,8 @@ export function NftDetailView({
           />
         </div>
       </div>
-      <div className="">
+
+      <div>
         <NftTabs
           details={
             <div className="space-y-6">

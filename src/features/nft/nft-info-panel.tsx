@@ -105,13 +105,13 @@ export function NftInfoPanel({
             onClick={() => void onToggleFavorite()}
             disabled={favoritePending}
             aria-pressed={isFav}
+            data-testid="favorite-button"
             aria-label={
               isFav ? "Remover dos favoritos" : "Adicionar aos favoritos"
             }
-            className={`min-h-10 ${isFav ? "w-[180px]" : "w-[130px]"} rounded-sm text-sm font-medium border border-accent! text-accent bg-transparent! hover:text-accent cursor-pointer`}
+            className={`...`}
           >
             {isFav ? <FaHeart /> : <FaRegHeart />}
-
             {isFav ? "Remover favorito" : "Favoritar"}
           </Button>
         </div>

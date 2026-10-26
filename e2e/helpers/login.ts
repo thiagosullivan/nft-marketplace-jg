@@ -19,7 +19,10 @@ export async function resetAppState(page: Page): Promise<void> {
   await page.waitForLoadState("networkidle");
 }
 
-async function dismissToasts(page: Page, timeoutMs = 8_000): Promise<void> {
+export async function dismissToasts(
+  page: Page,
+  timeoutMs = 8_000,
+): Promise<void> {
   const toasts = page.locator("[data-sonner-toast]");
   if ((await toasts.count()) === 0) return;
 
@@ -35,6 +38,8 @@ async function dismissToasts(page: Page, timeoutMs = 8_000): Promise<void> {
 
 export async function login(page: Page, email: string): Promise<void> {
   await page.waitForLoadState("networkidle");
+
+  await dismissToasts(page);
 
   if (isMobile(page)) {
     await page.getByRole("button", { name: "Abrir menu" }).click();
@@ -60,9 +65,5 @@ export async function login(page: Page, email: string): Promise<void> {
 
   await expect(dialog).toBeHidden({ timeout: 10_000 });
 
-  // Dispensa o toast "Bem-vindo(a)" (mobile) para não interceptar cliques
-  // no header. No desktop, o toast não bloqueia nada.
-  if (isMobile(page)) {
-    await dismissToasts(page);
-  }
+  await dismissToasts(page);
 }

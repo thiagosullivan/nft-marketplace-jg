@@ -1,5 +1,12 @@
 import { test, expect, type Page } from "@playwright/test";
-import { isMobile, login, resetAppState, MARIA, THAIS } from "./helpers/login";
+import {
+  isMobile,
+  login,
+  resetAppState,
+  dismissToasts,
+  MARIA,
+  THAIS,
+} from "./helpers/login";
 
 async function gotoNftDetail(page: Page, id: string, name: string) {
   await page.goto(`/nft/${id}`);
@@ -9,12 +16,7 @@ async function gotoNftDetail(page: Page, id: string, name: string) {
 }
 
 function favoriteButton(page: Page) {
-  // O NftInfoPanel tem o botão "Favoritar" / "Remover favorito" (único
-  // por breakpoint agora — o painel mobile é o mesmo componente).
-  return page
-    .getByRole("button", { name: /favoritar|remover favorito/i })
-    .filter({ visible: true })
-    .first();
+  return page.getByTestId("favorite-button").filter({ visible: true }).first();
 }
 
 async function setScenario(page: Page, scenario: string) {
@@ -39,42 +41,31 @@ test.describe("Favoritos", () => {
     await expect(favButton).toHaveAttribute("aria-pressed", "false");
     await favButton.click();
 
-    const removeButton = page
-      .getByRole("button", { name: /remover favorito/i })
-      .filter({ visible: true })
-      .first();
-    await expect(removeButton).toBeVisible({ timeout: 5_000 });
-    await expect(removeButton).toHaveAttribute("aria-pressed", "true");
+    await expect(favoriteButton(page)).toHaveAttribute("aria-pressed", "true", {
+      timeout: 5_000,
+    });
 
     await page.reload();
-    await expect(
-      page
-        .getByRole("button", { name: /remover favorito/i })
-        .filter({ visible: true })
-        .first(),
-    ).toHaveAttribute("aria-pressed", "true", { timeout: 10_000 });
+    await expect(favoriteButton(page)).toHaveAttribute("aria-pressed", "true", {
+      timeout: 10_000,
+    });
   });
 
   test("desfavorita no detalhe", async ({ page }) => {
     await login(page, MARIA.email);
     await gotoNftDetail(page, "nft-002", "violet nomad #002");
 
-    // Favorita primeiro.
     await favoriteButton(page).click();
-    const removeButton = page
-      .getByRole("button", { name: /remover favorito/i })
-      .filter({ visible: true })
-      .first();
-    await expect(removeButton).toBeVisible({ timeout: 5_000 });
+    await expect(favoriteButton(page)).toHaveAttribute("aria-pressed", "true", {
+      timeout: 5_000,
+    });
 
-    // Desfavorita.
-    await removeButton.click();
-    await expect(
-      page
-        .getByRole("button", { name: /favoritar/i })
-        .filter({ visible: true })
-        .first(),
-    ).toHaveAttribute("aria-pressed", "false", { timeout: 5_000 });
+    await favoriteButton(page).click();
+    await expect(favoriteButton(page)).toHaveAttribute(
+      "aria-pressed",
+      "false",
+      { timeout: 5_000 },
+    );
   });
 
   test("falha de mutation faz rollback do estado otimista", async ({
@@ -83,14 +74,12 @@ test.describe("Favoritos", () => {
     await login(page, MARIA.email);
     await gotoNftDetail(page, "nft-002", "violet nomad #002");
 
-    // Ativa o cenário de erro antes do clique.
     await setScenario(page, "error-500");
 
     const favButton = favoriteButton(page);
     await expect(favButton).toHaveAttribute("aria-pressed", "false");
     await favButton.click();
 
-    // Toast de erro deve aparecer (o `useToggleFavorite.onError` dispara).
     await expect(
       page
         .locator("[data-sonner-toast]")
@@ -98,15 +87,12 @@ test.describe("Favoritos", () => {
         .first(),
     ).toBeVisible({ timeout: 10_000 });
 
-    // Rollback: o coração deve voltar ao estado anterior (não favoritado).
-    await expect(
-      page
-        .getByRole("button", { name: /favoritar/i })
-        .filter({ visible: true })
-        .first(),
-    ).toHaveAttribute("aria-pressed", "false", { timeout: 5_000 });
+    await expect(favoriteButton(page)).toHaveAttribute(
+      "aria-pressed",
+      "false",
+      { timeout: 5_000 },
+    );
 
-    // Reset do cenário.
     await setScenario(page, "default");
   });
 
@@ -115,23 +101,20 @@ test.describe("Favoritos", () => {
 
     await favoriteButton(page).click();
 
-    // O `useToggleFavorite.toggle` chama `open("login", currentUrl())`.
     await expect(page.getByRole("dialog")).toBeVisible({ timeout: 5_000 });
   });
 
   test("isola favoritos entre usuários", async ({ page }) => {
-    // Maria favorita.
     await login(page, MARIA.email);
     await gotoNftDetail(page, "nft-002", "violet nomad #002");
     await favoriteButton(page).click();
-    await expect(
-      page
-        .getByRole("button", { name: /remover favorito/i })
-        .filter({ visible: true })
-        .first(),
-    ).toBeVisible({ timeout: 5_000 });
+    await expect(favoriteButton(page)).toHaveAttribute("aria-pressed", "true", {
+      timeout: 5_000,
+    });
 
-    // Logout (via header) e login como Fernando.
+    // O toast "Adicionado aos favoritos." cobre o botão "Sair". Dispensa.
+    await dismissToasts(page);
+
     if (isMobile(page)) {
       await page.getByRole("button", { name: "Abrir menu" }).click();
       await page.getByRole("button", { name: /sair/i }).click();
@@ -141,13 +124,11 @@ test.describe("Favoritos", () => {
     await login(page, THAIS.email);
     await gotoNftDetail(page, "nft-002", "violet nomad #002");
 
-    // Fernando não deve ver o favorito da Maria.
-    await expect(
-      page
-        .getByRole("button", { name: /favoritar/i })
-        .filter({ visible: true })
-        .first(),
-    ).toHaveAttribute("aria-pressed", "false", { timeout: 10_000 });
+    await expect(favoriteButton(page)).toHaveAttribute(
+      "aria-pressed",
+      "false",
+      { timeout: 10_000 },
+    );
   });
 
   test("favorita no card da home (desktop)", async ({ page }) => {
@@ -159,8 +140,6 @@ test.describe("Favoritos", () => {
     await login(page, MARIA.email);
     await page.goto("/");
 
-    // O card da home mostra o coração no hover. Localizamos o card pelo
-    // nome do NFT, fazemos hover e clicamos no botão "Favoritar".
     const card = page
       .locator("div.max-w-\\[260px\\]")
       .filter({ hasText: "Violet Nomad #002" })
@@ -182,15 +161,10 @@ test.describe("Favoritos", () => {
     await login(page, MARIA.email);
     await gotoNftDetail(page, "nft-002", "violet nomad #002");
 
-    const favButton = favoriteButton(page);
-    await expect(favButton).toHaveAttribute("aria-pressed", "false");
-    await favButton.click();
-
-    await expect(
-      page
-        .getByRole("button", { name: /remover favorito/i })
-        .filter({ visible: true })
-        .first(),
-    ).toHaveAttribute("aria-pressed", "true", { timeout: 5_000 });
+    await expect(favoriteButton(page)).toHaveAttribute("aria-pressed", "false");
+    await favoriteButton(page).click();
+    await expect(favoriteButton(page)).toHaveAttribute("aria-pressed", "true", {
+      timeout: 5_000,
+    });
   });
 });
