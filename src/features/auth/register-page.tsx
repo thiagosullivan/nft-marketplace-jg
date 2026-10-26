@@ -147,6 +147,7 @@ export function RegisterPage() {
             <Input
               id="register-email"
               type="email"
+              autoFocus
               aria-label="E-mail"
               autoComplete="email"
               aria-invalid={!!errors.email}

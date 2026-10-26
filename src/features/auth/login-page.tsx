@@ -73,6 +73,7 @@ export function LoginPage() {
           <div className="space-y-2 w-full">
             <Input
               id="login-email"
+              autoFocus
               type="email"
               autoComplete="email"
               aria-label="E-mail"
