@@ -19,11 +19,6 @@ export function useOrder(id: string | null | undefined) {
       const status = query.state.data?.status;
       return status === "pending" ? 0 : Number.POSITIVE_INFINITY;
     },
-    refetchInterval: (query) => {
-      const status = query.state.data?.status;
-      return status === "pending" ? 1000 : false;
-    },
-    refetchIntervalInBackground: true,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
   });
 }
