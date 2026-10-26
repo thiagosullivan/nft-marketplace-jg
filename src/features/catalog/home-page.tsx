@@ -26,6 +26,7 @@ import NftTrending from "./nft-trending.tsx";
 import { PromoBanner, type Promo } from "./promo-banner.tsx";
 import { BlogCard, type BlogPost } from "./blog-card.tsx";
 import { useNftUpdated } from "../realtime/use-nft-updated.ts";
+import { MobileHeroCarousel } from "./hero-carousel-mobile.tsx";
 
 export type HomeSearch = {
   q?: string;
@@ -207,8 +208,12 @@ export function HomePage({ search }: { search: HomeSearch }) {
 
   return (
     <div className="container mx-auto max-w-300 px-4 py-8">
-      <div className="mb-24">
+      <div className="mb-24 hidden md:block">
         <HeroCarousel />
+      </div>
+
+      <div className="block md:hidden">
+        <MobileHeroCarousel />
       </div>
 
       <div className="flex items-start gap-12 w-full mb-23">
