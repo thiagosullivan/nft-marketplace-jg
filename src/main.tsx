@@ -37,25 +37,31 @@ async function bootstrap() {
     const { handleResetFromUrl, exposeMswHelpers } =
       await import("@/mocks/reset");
     handleResetFromUrl();
+
+    // Aplica o WebSocketInterceptor ANTES do worker.start() e do
+    // import do socket.io-client.
+    const { applySocketInterceptor } = await import("@/mocks/socket");
+    applySocketInterceptor();
+
     const { enableMocking } = await import("@/mocks");
     await enableMocking();
     exposeMswHelpers();
   }
 
-  window.addEventListener("auth:unauthorized", () => {
-    const current = window.location.pathname + window.location.search;
-    window.dispatchEvent(
-      new CustomEvent("auth:open-login", { detail: { redirect: current } }),
-    );
-  });
+  // Carrega o SocketProvider DEPOIS do enableMocking.
+  // O socket.io-client precisa ser importado depois do worker.start()
+  // para o MSW substituir o globalThis.WebSocket antes [citation:9][citation:25].
+  const { SocketProvider } = await import("./shared/socket/socket-provider");
 
   createRoot(document.getElementById("root")!).render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <RouterProvider router={router} />
-          <Toaster position="top-right" richColors closeButton />
-        </TooltipProvider>
+        <SocketProvider>
+          <TooltipProvider>
+            <RouterProvider router={router} />
+            <Toaster position="top-right" richColors closeButton />
+          </TooltipProvider>
+        </SocketProvider>
       </QueryClientProvider>
     </StrictMode>,
   );
