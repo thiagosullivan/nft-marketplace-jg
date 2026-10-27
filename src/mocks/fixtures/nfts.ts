@@ -28,10 +28,10 @@ export const NETWORKS: readonly NftNetwork[] = [
 ];
 
 export const NFT_IMAGES = [
-  "/nfts/prod-1.png",
-  "/nfts/prod-2.png",
-  "/nfts/prod-3.png",
-  "/nfts/prod-4.png",
+  "/nfts/prod-1.webp",
+  "/nfts/prod-2.webp",
+  "/nfts/prod-3.webp",
+  "/nfts/prod-4.webp",
 ] as const;
 
 const CREATORS = [

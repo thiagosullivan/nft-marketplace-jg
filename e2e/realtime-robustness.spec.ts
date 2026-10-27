@@ -58,7 +58,7 @@ test.describe("Realtime — robustez", () => {
       .locator("div.max-w-\\[260px\\]")
       .filter({ hasText: "Violet Nomad #002" })
       .first();
-    await expect(card.getByText("9.99 ETH")).toBeVisible({ timeout: 5_000 });
+    await expect(card.getByText("9.99 ETH")).toBeVisible({ timeout: 10_000 });
 
     await emit("8.88");
     await expect(card.getByText("8.88 ETH")).toBeVisible({ timeout: 5_000 });

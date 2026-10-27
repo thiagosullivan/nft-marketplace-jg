@@ -85,7 +85,7 @@ test.describe("Search do header", () => {
             quantity: 1,
             unitPriceEth: "0.02",
             name: "Emerald Ape #001",
-            imageUrl: "/nfts/prod-1.png",
+            imageUrl: "/nfts/prod-1.webp",
             network: "ethereum",
             tokenId: "#0042",
             editionLabel: null,

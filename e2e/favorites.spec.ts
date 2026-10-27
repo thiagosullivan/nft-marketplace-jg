@@ -41,9 +41,19 @@ test.describe("Favoritos", () => {
     await expect(favButton).toHaveAttribute("aria-pressed", "false");
     await favButton.click();
 
+    // Otimista: vira true imediatamente.
     await expect(favoriteButton(page)).toHaveAttribute("aria-pressed", "true", {
       timeout: 5_000,
     });
+
+    // Espera o servidor confirmar (toast "Adicionado aos favoritos.") antes do reload.
+    // Sem isso, o reload pode acontecer antes da mutation persistir sob carga.
+    await expect(
+      page
+        .locator("[data-sonner-toast]")
+        .filter({ hasText: /adicionado aos favoritos/i })
+        .first(),
+    ).toBeVisible({ timeout: 10_000 });
 
     await page.reload();
     await expect(favoriteButton(page)).toHaveAttribute("aria-pressed", "true", {
@@ -112,7 +122,18 @@ test.describe("Favoritos", () => {
       timeout: 5_000,
     });
 
-    // O toast "Adicionado aos favoritos." cobre o botão "Sair". Dispensa.
+    // Espera o servidor confirmar o favorito antes de trocar de usuário.
+    // Sem isso, o logout pode acontecer enquanto a mutation ainda está em voo,
+    // e o toast "Adicionado aos favoritos." fica empilhado com o "Bem-vindo(a)
+    // de volta!" do próximo login — o dismissToasts então estoura o budget.
+    await expect(
+      page
+        .locator("[data-sonner-toast]")
+        .filter({ hasText: /adicionado aos favoritos/i })
+        .first(),
+    ).toBeVisible({ timeout: 10_000 });
+
+    // O toast cobre o botão "Sair" no mobile. Fecha antes.
     await dismissToasts(page);
 
     if (isMobile(page)) {
