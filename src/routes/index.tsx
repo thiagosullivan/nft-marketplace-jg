@@ -1,5 +1,5 @@
 import { createFileRoute, lazyRouteComponent } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { z } from "zod";
 import { useAuthModal } from "@/features/auth/auth-modal-provider";
 import { useSession } from "@/features/auth/use-auth";
@@ -57,5 +57,13 @@ function HomeRoute() {
     open(auth, redirect);
   }, [auth, redirect, open, session, isLoading, mode]);
 
-  return <HomePage search={search} />;
+  return (
+    <Suspense fallback={<HomeFallback />}>
+      <HomePage search={search} />
+    </Suspense>
+  );
+}
+
+function HomeFallback() {
+  return <div className="min-h-[calc(100dvh-80px)]" aria-busy="true" />;
 }

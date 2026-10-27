@@ -51,6 +51,10 @@ export const http: AxiosInstance = axios.create({
   timeout: 15_000,
   headers: { "Content-Type": "application/json" },
   withCredentials: false,
+  // Força o adapter fetch para que o wrapper de globalThis.fetch
+  // no main.tsx (que espera mocksReady) intercepte as requisições.
+  // Sem isso, o Axios usa xhr e a primeira query pode sair antes do MSW.
+  adapter: "fetch",
 });
 
 http.interceptors.request.use((config) => {
