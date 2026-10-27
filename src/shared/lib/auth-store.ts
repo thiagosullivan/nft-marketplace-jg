@@ -2,6 +2,7 @@ import type { AuthResponse, Session } from "@/shared/api/types";
 
 const TOKEN_KEY = "nftmarketplace:token";
 const SESSION_KEY = "nftmarketplace:session";
+export const AUTH_CHANGED_EVENT = "auth:changed";
 
 function canUseLocalStorage(): boolean {
   try {
@@ -9,6 +10,11 @@ function canUseLocalStorage(): boolean {
   } catch {
     return false;
   }
+}
+
+function emitAuthChanged(): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent(AUTH_CHANGED_EVENT));
 }
 
 export function getToken(): string | null {
@@ -31,10 +37,12 @@ export function setAuth(response: AuthResponse): void {
   if (!canUseLocalStorage()) return;
   window.localStorage.setItem(TOKEN_KEY, response.token);
   window.localStorage.setItem(SESSION_KEY, JSON.stringify(response.session));
+  emitAuthChanged();
 }
 
 export function clearAuth(): void {
   if (!canUseLocalStorage()) return;
   window.localStorage.removeItem(TOKEN_KEY);
   window.localStorage.removeItem(SESSION_KEY);
+  emitAuthChanged();
 }

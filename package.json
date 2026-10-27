@@ -12,7 +12,9 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:report": "playwright show-report",
-    "lighthouse": "echo \"Lighthouse setup will be added in Phase 6\"",
+    "lighthouse": "npm run lighthouse:mobile && npm run lighthouse:desktop",
+    "lighthouse:mobile": "npm run build && lhci autorun --config=lighthouserc.json",
+    "lighthouse:desktop": "npm run build && lhci autorun --config=lighthouserc.desktop.json",
     "test:visual": "playwright test --project=visual-desktop",
     "test:visual:update": "playwright test --project=visual-desktop --update-snapshots"
   },

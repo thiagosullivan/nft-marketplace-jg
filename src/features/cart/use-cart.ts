@@ -59,11 +59,11 @@ export function useCart() {
   };
 }
 
-export function useCartCount(): number {
-  const { data } = useCart();
-  if (!data) return 0;
-  return data.items.reduce((acc, item) => acc + item.quantity, 0);
-}
+// export function useCartCount(): number {
+//   const { data } = useCart();
+//   if (!data) return 0;
+//   return data.items.reduce((acc, item) => acc + item.quantity, 0);
+// }
 
 export function notifyGuestCartChange(): void {
   notifyGuestCartUpdated();

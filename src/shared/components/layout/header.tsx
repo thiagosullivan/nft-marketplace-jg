@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { useSession, useLogout } from "@/features/auth/use-auth";
 import { useAuthModal } from "@/features/auth/auth-modal-provider";
-import { useCartCount } from "@/features/cart";
+// import { useCartCount } from "@/features/cart";
+import { useCartCount } from "@/features/cart/use-cart-count";
+
 import { useNftList } from "@/features/catalog/use-nft-list";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -45,9 +46,178 @@ function useDebouncedValue<T>(value: T, delay: number): T {
   return debounced;
 }
 
+// ---------------------------------------------------------------------------
+// Lazy auth: mantém o chunk `use-auth` fora do boot da home.
+// O módulo só é importado depois do primeiro paint (useEffect).
+// Enquanto ele não chega, o Header renderiza um placeholder estável.
+// ---------------------------------------------------------------------------
+
+type AuthModule = typeof import("@/features/auth/use-auth");
+
+type AuthState = {
+  mod: AuthModule | null;
+};
+
+function useLazyAuthModule(): AuthState {
+  const [mod, setMod] = useState<AuthModule | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void import("@/features/auth/use-auth").then((m) => {
+      if (!cancelled) setMod(m);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return { mod };
+}
+
+// Desktop auth block — só monta quando o módulo `use-auth` já chegou.
+function DesktopAuthBlock({
+  mod,
+  open,
+}: {
+  mod: AuthModule;
+  open: ReturnType<typeof useAuthModal>["open"];
+}) {
+  const { data: session, isLoading } = mod.useSession();
+  const logout = mod.useLogout();
+
+  if (isLoading) return null;
+
+  if (!session) {
+    return (
+      <Button
+        onClick={() => open("login")}
+        data-testid="header-login-button"
+        className="flex cursor-pointer items-center gap-x-1 rounded-sm bg-primary p-2 text-base font-medium text-ink"
+      >
+        <img
+          src={EnterLogin}
+          alt="login"
+          className="size-5"
+          aria-hidden="true"
+          width={20}
+          height={20}
+        />
+        Entrar
+      </Button>
+    );
+  }
+
+  return (
+    <>
+      <Link to="/profile" className="flex items-center gap-x-2">
+        {session.user.avatarUrl ? (
+          <img
+            src={session.user.avatarUrl}
+            alt={session.user.displayName}
+            className="size-8 rounded-full"
+            width={32}
+            height={32}
+          />
+        ) : (
+          <div className="flex size-8 items-center justify-center rounded-full bg-surface-card text-xs">
+            {session.user.displayName.slice(0, 1).toUpperCase()}
+          </div>
+        )}
+        <span className="hidden text-foreground sm:inline">
+          {session.user.displayName}
+        </span>
+      </Link>
+      <button
+        type="button"
+        onClick={() => logout.mutate()}
+        disabled={logout.isPending}
+        className="text-muted-foreground hover:text-primary"
+      >
+        Sair
+      </button>
+    </>
+  );
+}
+
+// Mobile auth block — mesma lógica, mas dentro do Sheet.
+function MobileAuthBlock({
+  mod,
+  open,
+  onNavigate,
+}: {
+  mod: AuthModule;
+  open: ReturnType<typeof useAuthModal>["open"];
+  onNavigate: () => void;
+}) {
+  const { data: session, isLoading } = mod.useSession();
+  const logout = mod.useLogout();
+
+  if (isLoading) return null;
+
+  if (!session) {
+    return (
+      <Button
+        onClick={() => {
+          onNavigate();
+          open("login");
+        }}
+        data-testid="header-login-button-mobile"
+        className="flex cursor-pointer items-center justify-center gap-x-1 rounded-sm bg-primary p-2 text-base font-medium text-ink"
+      >
+        <img
+          src={EnterLogin}
+          alt="login"
+          className="size-5"
+          aria-hidden="true"
+          width={20}
+          height={20}
+        />
+        Entrar
+      </Button>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-1">
+      <Link
+        to="/profile"
+        onClick={onNavigate}
+        className="flex items-center gap-3 rounded-md px-3 py-3 hover:bg-surface-card"
+      >
+        {session.user.avatarUrl ? (
+          <img
+            src={session.user.avatarUrl}
+            alt={session.user.displayName}
+            className="size-8 rounded-full"
+            width={32}
+            height={32}
+          />
+        ) : (
+          <div className="flex size-8 items-center justify-center rounded-full bg-surface-card text-xs">
+            {session.user.displayName.slice(0, 1).toUpperCase()}
+          </div>
+        )}
+        <span className="truncate text-foreground">
+          {session.user.displayName}
+        </span>
+      </Link>
+      <button
+        type="button"
+        onClick={() => {
+          onNavigate();
+          logout.mutate();
+        }}
+        disabled={logout.isPending}
+        className="rounded-md px-6 py-3 text-left bg-accent hover:bg-surface-card hover:text-primary ml-auto"
+      >
+        Sair
+      </button>
+    </div>
+  );
+}
+
 export function Header() {
-  const { data: session, isLoading } = useSession();
-  const logout = useLogout();
+  const { mod } = useLazyAuthModule();
   const { open } = useAuthModal();
   const cartCount = useCartCount();
 
@@ -283,53 +453,15 @@ export function Header() {
             )}
           </Link>
 
-          {/* Desktop-only auth block (>= md) */}
+          {/* Desktop-only auth block (>= md). Só monta quando o módulo use-auth chega. */}
           <div className="hidden md:flex md:items-center md:gap-3">
-            {isLoading ? null : session ? (
-              <>
-                <Link to="/profile" className="flex items-center gap-x-2">
-                  {session.user.avatarUrl ? (
-                    <img
-                      src={session.user.avatarUrl}
-                      alt={session.user.displayName}
-                      className="size-8 rounded-full"
-                      width={32}
-                      height={32}
-                    />
-                  ) : (
-                    <div className="flex size-8 items-center justify-center rounded-full bg-surface-card text-xs">
-                      {session.user.displayName.slice(0, 1).toUpperCase()}
-                    </div>
-                  )}
-                  <span className="hidden text-foreground sm:inline">
-                    {session.user.displayName}
-                  </span>
-                </Link>
-                <button
-                  type="button"
-                  onClick={() => logout.mutate()}
-                  disabled={logout.isPending}
-                  className="text-muted-foreground hover:text-primary"
-                >
-                  Sair
-                </button>
-              </>
+            {mod ? (
+              <DesktopAuthBlock mod={mod} open={open} />
             ) : (
-              <Button
-                onClick={() => open("login")}
-                data-testid="header-login-button"
-                className="flex cursor-pointer items-center gap-x-1 rounded-sm bg-primary p-2 text-base font-medium text-ink"
-              >
-                <img
-                  src={EnterLogin}
-                  alt="login"
-                  className="size-5"
-                  aria-hidden="true"
-                  width={20}
-                  height={20}
-                />
-                Entrar
-              </Button>
+              <div
+                className="size-8 rounded-full bg-surface-card"
+                aria-hidden="true"
+              />
             )}
           </div>
         </div>
@@ -353,7 +485,11 @@ export function Header() {
               }}
               placeholder="Explorar coleções"
               aria-label="Explorar coleções"
-              aria-controls="header-mobile-search-results"
+              aria-controls={
+                mobileOpen && canSearchMobile
+                  ? "header-mobile-search-results"
+                  : undefined
+              }
               aria-autocomplete="list"
               autoComplete="off"
               className="w-full border-boder h-10 bg-surface-card rounded-md pl-11 pr-4 text-secondary placeholder:text-secondary text-sm font-bold focus:outline-none! focus:ring-0!"
@@ -478,61 +614,17 @@ export function Header() {
 
                 <div className="my-2 h-px bg-primary/40" aria-hidden="true" />
 
-                {isLoading ? null : session ? (
-                  <div className="flex flex-col gap-1">
-                    <Link
-                      to="/profile"
-                      onClick={closeMenu}
-                      className="flex items-center gap-3 rounded-md px-3 py-3 hover:bg-surface-card"
-                    >
-                      {session.user.avatarUrl ? (
-                        <img
-                          src={session.user.avatarUrl}
-                          alt={session.user.displayName}
-                          className="size-8 rounded-full"
-                          width={32}
-                          height={32}
-                        />
-                      ) : (
-                        <div className="flex size-8 items-center justify-center rounded-full bg-surface-card text-xs">
-                          {session.user.displayName.slice(0, 1).toUpperCase()}
-                        </div>
-                      )}
-                      <span className="truncate text-foreground">
-                        {session.user.displayName}
-                      </span>
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        closeMenu();
-                        logout.mutate();
-                      }}
-                      disabled={logout.isPending}
-                      className="rounded-md px-6 py-3 text-left bg-accent hover:bg-surface-card hover:text-primary ml-auto"
-                    >
-                      Sair
-                    </button>
-                  </div>
+                {mod ? (
+                  <MobileAuthBlock
+                    mod={mod}
+                    open={open}
+                    onNavigate={closeMenu}
+                  />
                 ) : (
-                  <Button
-                    onClick={() => {
-                      closeMenu();
-                      open("login");
-                    }}
-                    data-testid="header-login-button-mobile"
-                    className="flex cursor-pointer items-center justify-center gap-x-1 rounded-sm bg-primary p-2 text-base font-medium text-ink"
-                  >
-                    <img
-                      src={EnterLogin}
-                      alt="login"
-                      className="size-5"
-                      aria-hidden="true"
-                      width={20}
-                      height={20}
-                    />
-                    Entrar
-                  </Button>
+                  <div
+                    className="h-10 rounded-md bg-surface-card"
+                    aria-hidden="true"
+                  />
                 )}
               </nav>
             </SheetContent>

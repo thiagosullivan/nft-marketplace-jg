@@ -1,10 +1,20 @@
+import { lazy, Suspense } from "react";
 import { useAuthModal } from "./auth-modal-provider";
-import { LoginPage } from "./login-page";
-import { RegisterPage } from "./register-page";
+
+const LoginPage = lazy(() =>
+  import("./login-page").then((m) => ({ default: m.LoginPage })),
+);
+const RegisterPage = lazy(() =>
+  import("./register-page").then((m) => ({ default: m.RegisterPage })),
+);
 
 export function AuthModalHost() {
   const { mode } = useAuthModal();
   if (!mode) return null;
-  if (mode === "login") return <LoginPage />;
-  return <RegisterPage />;
+
+  return (
+    <Suspense fallback={null}>
+      {mode === "login" ? <LoginPage /> : <RegisterPage />}
+    </Suspense>
+  );
 }

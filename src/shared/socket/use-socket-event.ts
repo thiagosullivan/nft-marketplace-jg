@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useSocketContext } from "@/shared/socket/socket-provider";
+import { useSocketContext } from "./socket-context";
 
 export type SocketEventEnvelope<T> = {
   id: string;

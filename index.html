@@ -9,9 +9,106 @@
       name="description"
       content="Descubra, colecione e negocie NFTs de criadores independentes. Arte digital verificada na blockchain."
     />
+    <style>
+      /* LCP estático: substituído pelo React no mount.
+         Dimensões/cores espelham o NftCard real para evitar CLS. */
+      .lcp-static {
+        min-height: 100dvh;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        background: #0e0907;
+        padding: 24px;
+        box-sizing: border-box;
+      }
+      .lcp-card {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: 250px;
+        gap: 12px;
+        text-decoration: none;
+        color: inherit;
+      }
+      .lcp-image-wrap {
+        position: relative;
+        background: #241612;
+        border-radius: 8px;
+        padding: 28px 4px 20px;
+        box-sizing: border-box;
+      }
+      .lcp-image-wrap img {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1 / 1;
+        object-fit: cover;
+        display: block;
+      }
+      .lcp-badge {
+        position: absolute;
+        top: 14px;
+        left: 0;
+        width: 80px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #d28a4c;
+        color: #140d0a;
+        font-family: "Roboto Mono", ui-monospace, monospace;
+        font-size: 16px;
+        font-weight: 500;
+      }
+      .lcp-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        font-family: "Roboto Mono", ui-monospace, monospace;
+        padding-left: 4px;
+      }
+      .lcp-name {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 400;
+        color: #f7f3ec;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .lcp-price {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+        color: #e89b55;
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- LCP estático do nft-001. O React substitui este conteúdo
+           no primeiro commit. Valores batem com src/mocks/fixtures/nfts.ts
+           (index 0): Emerald Ape #001, RARO, 0.02 ETH, /nfts/prod-1-250.webp -->
+      <div class="lcp-static" aria-hidden="true">
+        <a class="lcp-card" href="/nft/nft-001">
+          <div class="lcp-image-wrap">
+            <img
+              src="/nfts/prod-1-250.webp"
+              alt=""
+              width="250"
+              height="250"
+              fetchpriority="high"
+              loading="eager"
+              decoding="async"
+            />
+            <span class="lcp-badge">RARO</span>
+          </div>
+          <div class="lcp-meta">
+            <p class="lcp-name">Emerald Ape #001</p>
+            <p class="lcp-price">0.02 ETH</p>
+          </div>
+        </a>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -1,6 +1,6 @@
 export {
   useCart,
-  useCartCount,
+  // useCartCount,
   notifyGuestCartChange,
   GUEST_CART_UPDATED_EVENT,
 } from "./use-cart";

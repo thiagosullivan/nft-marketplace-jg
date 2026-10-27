@@ -34,24 +34,74 @@ declare module "@tanstack/react-router" {
   }
 }
 
-// mocks só resolvem depois de prontos; fora do modo mock, resolve na hora
-const mocksReady: Promise<void> = (async () => {
-  if (!env.VITE_ENABLE_MOCKS) return;
-  const { handleResetFromUrl, exposeMswHelpers } =
-    await import("@/mocks/reset");
-  handleResetFromUrl();
-  const { applySocketInterceptor } = await import("@/mocks/socket");
-  applySocketInterceptor();
-  const { enableMocking } = await import("@/mocks");
-  await enableMocking();
-  exposeMswHelpers();
-})();
+// Promise resolvida quando o MSW estiver pronto. Fora do modo mock,
+// resolve na hora. O `startMocks` é chamado no `useEffect` do App,
+// depois do primeiro render, para o `msw-vendor` não competir com o
+// first paint.
+let resolveMocks: () => void = () => {};
+const mocksReady: Promise<void> = new Promise((resolve) => {
+  resolveMocks = resolve;
+});
 
-// fetch wrapper: nenhuma query sai antes dos mocks estarem prontos
+// Promise resolvida quando o socket interceptor estiver aplicado.
+// Exposta no window para o SocketProvider aguardar sem importar main.tsx.
+let resolveSocket: () => void = () => {};
+const socketReady: Promise<void> = new Promise((resolve) => {
+  resolveSocket = resolve;
+});
+
+(window as unknown as { __socketReady?: Promise<void> }).__socketReady =
+  socketReady;
+
+function startMocks(): void {
+  if (!env.VITE_ENABLE_MOCKS) {
+    resolveMocks();
+    resolveSocket();
+    return;
+  }
+
+  void (async () => {
+    const { handleResetFromUrl, exposeMswHelpers } =
+      await import("@/mocks/reset");
+    handleResetFromUrl();
+
+    const { enableMocking } = await import("@/mocks");
+    await enableMocking();
+
+    exposeMswHelpers();
+    resolveMocks();
+
+    // Socket binding só depois do worker pronto. Isso permite que o
+    // bundler coloque o binding em OUTRO chunk, separado do `browser`
+    // do MSW.
+    const { applySocketInterceptor } = await import("@/mocks/socket");
+    applySocketInterceptor();
+    resolveSocket();
+  })().catch(() => {
+    // Em caso de falha, libera as promises para não travar a app.
+    resolveMocks();
+    resolveSocket();
+  });
+}
+
+// fetch wrapper: só requests de API e socket esperam os mocks.
+// Imagens, fontes e assets fluem imediatamente.
 const originalFetch = globalThis.fetch.bind(globalThis);
-globalThis.fetch = (async (...args: Parameters<typeof fetch>) => {
-  await mocksReady;
-  return originalFetch(...args);
+globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+  const url =
+    typeof input === "string"
+      ? input
+      : input instanceof URL
+        ? input.href
+        : input.url;
+
+  const isApi = url.includes("/api/");
+  const isSocket = url.startsWith("ws") || url.includes("/socket.io/");
+
+  if (isApi || isSocket) {
+    await mocksReady;
+  }
+  return originalFetch(input, init);
 }) as typeof fetch;
 
 type LazyProvider = ComponentType<{ children: ReactNode }>;
@@ -62,9 +112,21 @@ function App() {
   );
 
   useEffect(() => {
-    void import("./shared/socket/socket-provider").then((m) => {
-      setSocketProvider(() => m.SocketProvider);
-    });
+    startMocks();
+  }, []);
+
+  useEffect(() => {
+    const load = () => {
+      void import("./shared/socket/socket-provider").then((m) => {
+        setSocketProvider(() => m.SocketProvider);
+      });
+    };
+    if ("requestIdleCallback" in window) {
+      const id = requestIdleCallback(load, { timeout: 3000 });
+      return () => cancelIdleCallback(id);
+    }
+    const t = setTimeout(load, 2000);
+    return () => clearTimeout(t);
   }, []);
 
   const inner = (
