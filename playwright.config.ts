@@ -13,6 +13,13 @@ export default defineConfig({
     ["list"],
     ["html", { outputFolder: "playwright-report", open: "never" }],
   ],
+  expect: {
+    toHaveScreenshot: {
+      maxDiffPixelRatio: 0.02,
+      animations: "disabled",
+      caret: "hide",
+    },
+  },
   use: {
     baseURL: BASE_URL,
     trace: "retain-on-failure",
@@ -26,6 +33,7 @@ export default defineConfig({
         ...devices["Desktop Chrome"],
         viewport: { width: 1440, height: 900 },
       },
+      testIgnore: /visual\.spec\.ts/,
     },
     {
       name: "mobile-chromium",
@@ -33,6 +41,19 @@ export default defineConfig({
         ...devices["Pixel 7"],
         viewport: { width: 390, height: 844 },
       },
+      testIgnore: /visual\.spec\.ts/,
+    },
+    {
+      name: "visual-desktop",
+      use: {
+        ...devices["Desktop Chrome"],
+        viewport: { width: 1440, height: 900 },
+        deviceScaleFactor: 1,
+      },
+      testMatch: /visual\.spec\.ts/,
+      snapshotPathTemplate:
+        "{testDir}/{testFileDir}/visual.spec.ts-snapshots/{arg}{ext}",
+      timeout: 60_000,
     },
   ],
   webServer: {
