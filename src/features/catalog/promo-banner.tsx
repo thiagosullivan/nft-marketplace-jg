@@ -18,6 +18,7 @@ export function PromoBanner({ promo }: { promo: Promo }) {
           className="size-full object-cover"
           width={292}
           height={250}
+          loading="lazy"
         />
       </div>
       <div className="text-center md:text-end flex flex-col items-center md:items-end md:pr-7.5 md:pl-2 gap-y-2 md:max-w-[260px]">

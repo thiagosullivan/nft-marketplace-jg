@@ -22,21 +22,21 @@ const SLIDES: readonly Slide[] = [
     big: "SEJA DONO DO FUTURO\nDA ARTE DIGITAL",
     text: "Descubra NFTs selecionados de criadores emergentes e consagrados. Colecione arte digital rara, apoie artistas e tenha uma parte da cultura da internet.",
     cta: "EXPLORAR",
-    image: "/nfts/prod-1.webp",
+    image: "/nfts/prod-1-444.webp",
   },
   {
     small: "Curadoria Kurio",
     big: "APOIE ARTISTAS.\nLEVE A ARTE COM VOCÊ.",
     text: "Cada peça vem de criadores independentes e é verificada on-chain. Ao colecionar, você apoia diretamente quem faz a arte e leva um pedaço único da cultura digital.",
     cta: "VER CRIADORES",
-    image: "/nfts/prod-2.webp",
+    image: "/nfts/prod-2-444.webp",
   },
   {
     small: "Edições limitadas",
     big: "RARIDADE QUE\nATRAVESSA GERAÇÕES.",
     text: "NFTs selecionados em edições limitadas, com procedência registrada na blockchain. Garanta a sua peça antes que a edição se esgote e faça parte da próxima era da arte digital.",
     cta: "GARANTIR A MINHA",
-    image: "/nfts/prod-3.webp",
+    image: "/nfts/prod-3-444.webp",
   },
 ];
 

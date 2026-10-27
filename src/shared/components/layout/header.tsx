@@ -354,7 +354,7 @@ export function Header() {
               placeholder="Explorar coleções"
               aria-label="Explorar coleções"
               aria-controls="header-mobile-search-results"
-              aria-expanded={mobileOpen}
+              aria-autocomplete="list"
               autoComplete="off"
               className="w-full border-boder h-10 bg-surface-card rounded-md pl-11 pr-4 text-secondary placeholder:text-secondary text-sm font-bold focus:outline-none! focus:ring-0!"
             />

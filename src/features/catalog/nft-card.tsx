@@ -14,9 +14,14 @@ import CartIcon from "../../../public/icons/cart-icon.png";
 type Props = {
   nft: Nft;
   onQuickView?: (nft: Nft) => void;
+  priority?: boolean;
 };
 
-export function NftCard({ nft, onQuickView }: Props) {
+function cardImageUrl(imageUrl: string): string {
+  return imageUrl.replace(/\.webp$/, "-250.webp");
+}
+
+export function NftCard({ nft, onQuickView, priority = false }: Props) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { add } = useAddToCart();
@@ -63,11 +68,11 @@ export function NftCard({ nft, onQuickView }: Props) {
         <div className="relative max-w-[200px] md:max-w-[250px] overflow-hidden">
           <div className="flex bg-surface-card px-1 pt-3 md:pt-7.5 pb-5 mb-2 md:mb-3 rounded-lg md:rounded-none">
             <img
-              src={nft.imageUrl}
+              src={cardImageUrl(nft.imageUrl)}
               alt={nft.name}
               className="size-full object-cover transition-transform group-hover:bg-ink/70"
-              loading="eager"
-              fetchPriority="high"
+              loading={priority ? "eager" : "lazy"}
+              fetchPriority={priority ? "high" : "auto"}
               width={250}
               height={250}
             />

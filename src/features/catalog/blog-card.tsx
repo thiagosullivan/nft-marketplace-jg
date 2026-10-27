@@ -20,10 +20,9 @@ export function BlogCard({ post }: { post: BlogPost }) {
       <div className="relative w-full max-w-[268px] aspect-[268/195] overflow-hidden rounded-3xl mx-auto">
         <img
           src={post.image}
-          alt="Card de notícia"
+          alt={post.title}
           className="size-full object-cover"
-          width={268}
-          height={195}
+          loading="lazy"
         />
       </div>
       <div className="py-3 px-4 space-y-2">

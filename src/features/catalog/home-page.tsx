@@ -69,14 +69,14 @@ function defaultSortFor(
 const PROMOS: Promo[] = [
   {
     id: "promo-1",
-    image: "/nfts/prod-1.webp",
+    image: "/nfts/prod-1-444.webp",
     title: "Lançamentos gênesis de edição limitada",
     text: "Colecione edições escassas diretamente dos criadores antes da revelação pública.",
     href: "/",
   },
   {
     id: "promo-2",
-    image: "/nfts/prod-2.webp",
+    image: "/nfts/prod-2-444.webp",
     title: "Arte digital selecionada e muito mais",
     text: "Explore novos artistas, coleções verificadas e obras digitais que definem a cultura.",
     href: "/",
@@ -86,7 +86,7 @@ const PROMOS: Promo[] = [
 const POSTS: BlogPost[] = [
   {
     id: "post-1",
-    image: "/nfts/prod-2.webp",
+    image: "/nfts/prod-2-250.webp",
     title: "Como funciona a propriedade de NFTs",
     date: "12 de setembro",
     readTime: "Leitura de 6 min",
@@ -95,7 +95,7 @@ const POSTS: BlogPost[] = [
   },
   {
     id: "post-2",
-    image: "/nfts/prod-1.webp",
+    image: "/nfts/prod-1-250.webp",
     title: "10 artistas digitais para acompanhar",
     date: "13 de setembro",
     readTime: "Leitura de 2 min",
@@ -104,7 +104,7 @@ const POSTS: BlogPost[] = [
   },
   {
     id: "post-3",
-    image: "/nfts/prod-4.webp",
+    image: "/nfts/prod-4-250.webp",
     title: "Raridade, atributos e procedência",
     date: "15 de setembro",
     readTime: "Leitura de 3 min",
@@ -113,7 +113,7 @@ const POSTS: BlogPost[] = [
   },
   {
     id: "post-4",
-    image: "/nfts/prod-3.webp",
+    image: "/nfts/prod-3-250.webp",
     title: "Como proteger sua carteira",
     date: "15 de setembro",
     readTime: "Leitura de 2 min",
@@ -298,8 +298,8 @@ export function HomePage({ search }: { search: HomeSearch }) {
           ) : (
             <>
               <div className="grid grid-cols-2 gap-x-8.5 gap-y-18 sm:grid-cols-2 lg:grid-cols-3">
-                {data!.items.map((nft) => (
-                  <NftCard key={nft.id} nft={nft} />
+                {data!.items.map((nft, index) => (
+                  <NftCard key={nft.id} nft={nft} priority={index === 0} />
                 ))}
               </div>
 
