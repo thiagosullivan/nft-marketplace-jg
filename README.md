@@ -3,7 +3,7 @@
 Marketplace de NFTs construído como desafio técnico frontend. React + TypeScript, com fluxos completos de descoberta, compra e conta (desktop e mobile), usando dados simulados na camada de rede.
 
 - **Repositório:** <https://github.com/thiagosullivan/nft-marketplace-jg>
-- **Deploy:** [A CONFIRMAR: URL da Vercel]
+- **Deploy:** <https://nft-marketplace-jg.vercel.app/>
 - **Stack obrigatória:** React 19, TypeScript 6, TanStack Router, TanStack Query, Axios, Socket.IO client, Tailwind CSS v4, shadcn/ui, MSW 2.12.7, Playwright, Lighthouse CI.
 
 ---
@@ -66,7 +66,7 @@ Todo o backend é **simulado via MSW** (Mock Service Worker) na camada de rede, 
 
 ## Demonstração
 
-- **App em produção:** [A CONFIRMAR: URL da Vercel]
+- **App em produção:** <https://nft-marketplace-jg.vercel.app/>
 - **Repositório:** <https://github.com/thiagosullivan/nft-marketplace-jg>
 
 ---
@@ -313,7 +313,7 @@ Acessibilidade
 Accessibility = 1.00 no Lighthouse mobile. Cobertura manual em a11y.spec.ts (teclado, focus trap em diálogos, labels/erros associados, sem overflow com zoom, contraste).
 
 Deploy
-Aplicação publicada na Vercel: [A CONFIRMAR: URL da Vercel].
+Aplicação publicada na Vercel: <https://nft-marketplace-jg.vercel.app/>.
 
 A versão publicada corresponde ao código entregue, com mocks e tempo real ativos, e suporta acesso direto e refresh de todas as rotas. O vercel.json (se existir) configura rewrites SPA para /index.html em rotas não-API.
 
