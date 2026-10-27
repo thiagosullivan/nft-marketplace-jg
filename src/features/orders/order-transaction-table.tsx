@@ -35,9 +35,11 @@ export function OrderTransactionTable({ order }: { order: Order }) {
               <div className="flex items-center gap-x-3">
                 <img
                   src={item.imageUrl}
-                  alt=""
+                  alt={item.name}
                   className="size-17.5 shrink-0 rounded-md object-cover"
                   loading="lazy"
+                  width={70}
+                  height={70}
                 />
                 <div className="min-w-0 max-w-[180px] w-full">
                   <p className="truncate text-base font-bold text-foreground">

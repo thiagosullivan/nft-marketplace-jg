@@ -28,3 +28,11 @@ dist-ssr
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+
+lighthouse-reports/
+.lighthouseci/
+lhr-*.json
+lhr-*.html
+localhost-*.json
+localhost-*.html

@@ -80,7 +80,7 @@ export function AccountSidebar() {
             >
               <img
                 src="/icons/svg/logout-icon-primary.svg"
-                alt=""
+                alt="logout"
                 className="h-5 w-5 object-contain"
                 aria-hidden="true"
               />
@@ -122,7 +122,7 @@ function SideLink({
 
         <img
           src={active ? activeIcon : icon}
-          alt=""
+          alt="profile"
           className="h-5 w-5 object-contain"
           aria-hidden="true"
         />
@@ -147,7 +147,7 @@ function SideDisabledButton({ label, icon }: { label: string; icon: string }) {
         {/* {icon} */}
         <img
           src={icon}
-          alt=""
+          alt="items"
           className="h-5 w-5 object-contain"
           aria-hidden="true"
         />

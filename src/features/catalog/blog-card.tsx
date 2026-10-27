@@ -22,6 +22,8 @@ export function BlogCard({ post }: { post: BlogPost }) {
           src={post.image}
           alt="Card de notícia"
           className="size-full object-cover"
+          width={268}
+          height={195}
         />
       </div>
       <div className="py-3 px-4 space-y-2">

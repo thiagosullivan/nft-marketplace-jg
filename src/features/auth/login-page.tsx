@@ -146,9 +146,11 @@ export function LoginPage() {
             >
               <img
                 src={GoogleIcon}
-                alt=""
+                alt="Google Icon"
                 className="size-5"
                 aria-hidden="true"
+                height={20}
+                width={20}
               />
               Continuar com Google
             </Button>
@@ -162,9 +164,11 @@ export function LoginPage() {
             >
               <img
                 src={FacebookIcon}
-                alt=""
+                alt="Facebook Icon"
                 className="size-5"
                 aria-hidden="true"
+                height={20}
+                width={20}
               />
               Continuar com Facebook
             </Button>

@@ -272,7 +272,10 @@ export function HomePage({ search }: { search: HomeSearch }) {
                   setSort(v as NonNullable<HomeSearch["sort"]>)
                 }
               >
-                <SelectTrigger className="w-[200px] bg-transparent! border-none! p-0! h-min! outline-none! focus:outline-none! focus:ring-0! text-foreground! [&_svg]:text-foreground!">
+                <SelectTrigger
+                  aria-label="Ordenar NFTs por"
+                  className="w-[200px] bg-transparent! border-none! p-0! h-min! outline-none! focus:outline-none! focus:ring-0! text-foreground! [&_svg]:text-foreground!"
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-ink!">
@@ -307,6 +310,7 @@ export function HomePage({ search }: { search: HomeSearch }) {
                       {page > 1 && (
                         <PaginationItem>
                           <PaginationPrevious
+                            aria-label="Página anterior"
                             href="#"
                             onClick={(e) => {
                               e.preventDefault();
@@ -322,6 +326,7 @@ export function HomePage({ search }: { search: HomeSearch }) {
                           <PaginationItem key={n}>
                             <PaginationLink
                               href="#"
+                              aria-label={`Ir para a página ${n}`}
                               isActive={n === page}
                               onClick={(e) => {
                                 e.preventDefault();
@@ -337,6 +342,7 @@ export function HomePage({ search }: { search: HomeSearch }) {
                       {page < data!.totalPages && (
                         <PaginationItem>
                           <PaginationNext
+                            aria-label="Próxima página"
                             href="#"
                             onClick={(e) => {
                               e.preventDefault();

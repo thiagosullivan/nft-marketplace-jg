@@ -59,19 +59,17 @@ export function NftCard({ nft, onQuickView }: Props) {
 
   return (
     <div className="max-w-[260px] w-full group relative overflow-hidden">
-      <Link
-        to="/nft/$id"
-        params={{ id: nft.id }}
-        className="block"
-        aria-label={`Ver ${nft.name}`}
-      >
+      <Link to="/nft/$id" params={{ id: nft.id }} className="block">
         <div className="relative max-w-[200px] md:max-w-[250px] overflow-hidden">
           <div className="flex bg-surface-card px-1 pt-3 md:pt-7.5 pb-5 mb-2 md:mb-3 rounded-lg md:rounded-none">
             <img
               src={nft.imageUrl}
               alt={nft.name}
               className="size-full object-cover transition-transform group-hover:bg-ink/70"
-              loading="lazy"
+              loading="eager"
+              fetchPriority="high"
+              width={250}
+              height={250}
             />
           </div>
           {nft.rarityLabel && (
@@ -98,7 +96,7 @@ export function NftCard({ nft, onQuickView }: Props) {
                 void onBuy();
               }}
             >
-              <img src={CartIcon} className="w-5 h-5" alt="" />
+              <img src={CartIcon} width={20} height={20} alt="" />
             </button>
             <button
               type="button"
@@ -135,14 +133,14 @@ export function NftCard({ nft, onQuickView }: Props) {
             </button>
           </div>
         </div>
-      </Link>
 
-      <div className="flex flex-col gap-y-px md:gap-y-3">
-        <p className="truncate text-base font-normal text-foreground">
-          {nft.name}
-        </p>
-        <p className="text-base font-bold text-accent">{nft.priceEth} ETH</p>
-      </div>
+        <div className="flex flex-col gap-y-px md:gap-y-3">
+          <p className="truncate text-base font-normal text-foreground">
+            {nft.name}
+          </p>
+          <p className="text-base font-bold text-accent">{nft.priceEth} ETH</p>
+        </div>
+      </Link>
     </div>
   );
 }

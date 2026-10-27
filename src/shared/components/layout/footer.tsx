@@ -31,6 +31,14 @@ const footerData = {
   ],
 };
 
+const socialLinks = [
+  { name: "Facebook", Icon: FaFacebookF },
+  { name: "Instagram", Icon: FaInstagram },
+  { name: "Twitter", Icon: FaTwitter },
+  { name: "LinkedIn", Icon: FaLinkedinIn },
+  { name: "YouTube", Icon: FaYoutube },
+];
+
 export function Footer() {
   return (
     <footer className="bg-ink mb-6">
@@ -42,7 +50,7 @@ export function Footer() {
               <div className="w-18.5 h-18.5 bg-primary flex items-center justify-center rounded-full">
                 <span className="text-ink text-2xl font-bold">W</span>
               </div>
-              <h5 className="text-base font-bold">Segurança da carteira</h5>
+              <h3 className="text-base font-bold">Segurança da carteira</h3>
               <p className="text-sm text-secondary font-normal">
                 Proteja sua carteira e colecione arte digital verificada com
                 confiança.
@@ -60,7 +68,7 @@ export function Footer() {
               <div className="w-18.5 h-18.5 bg-primary flex items-center justify-center rounded-full">
                 <span className="text-ink text-2xl font-bold">C</span>
               </div>
-              <h5 className="text-base font-bold">Criadores em destaque</h5>
+              <h3 className="text-base font-bold">Criadores em destaque</h3>
               <p className="text-sm text-secondary font-normal">
                 Conheça artistas, estúdios e comunidades que moldam a cultura
                 digital na rede.
@@ -78,7 +86,7 @@ export function Footer() {
               <div className="w-18.5 h-18.5 bg-primary flex items-center justify-center rounded-full">
                 <span className="text-ink text-2xl font-bold">D</span>
               </div>
-              <h5 className="text-base font-bold">Alertas de lançamentos</h5>
+              <h3 className="text-base font-bold">Alertas de lançamentos</h3>
               <p className="text-sm text-secondary font-normal">
                 Receba calendários de cunhagem, novidades de listas de acesso e
                 análises do mercado.
@@ -97,13 +105,18 @@ export function Footer() {
                 Antecipe-se ao próximo lançamento
               </h3>
               <div className="flex rounded-sm overflow-hidden min-h-10">
+                <label htmlFor="footer-email" className="sr-only">
+                  Digite seu e-mail
+                </label>
                 <input
+                  id="footer-email"
                   type="email"
                   className="bg-surface-dark pl-3 text-sm text-secondary w-full min-w-0"
                   placeholder="digite seu e-mail"
                 />
                 <button
-                  className="w-21.25 shrink-0 px-3 text-lg text-ink font-bold bg-primary cursor-pointer"
+                  type="submit"
+                  className="w-21.25 shrink-0 px-3 text-lg text-ink font-bold bg-primary cursor-pointer disabled:opacity-60"
                   disabled
                 >
                   Enviar
@@ -130,11 +143,14 @@ export function Footer() {
         </div>
 
         {/* Bloco de links */}
-        <nav className="mb-6 p-4 md:p-8 bg-surface-card grid grid-cols-2 gap-6 text-foreground md:flex md:justify-between md:gap-0">
+        <nav
+          aria-label="Links do rodapé"
+          className="mb-6 p-4 md:p-8 bg-surface-card grid grid-cols-2 gap-6 text-foreground md:flex md:justify-between md:gap-0"
+        >
           <ul className="space-y-2.5">
-            <p className="text-lg font-bold">Meu perfil</p>
-            {footerData.perfil.map((data, key) => (
-              <li key={key}>
+            <li className="text-lg font-bold">Meu perfil</li>
+            {footerData.perfil.map((data) => (
+              <li key={data.label}>
                 <Link
                   to={data.url}
                   className="text-sm font-normal hover:text-primary duration-150"
@@ -145,9 +161,9 @@ export function Footer() {
             ))}
           </ul>
           <ul className="space-y-2.5">
-            <p className="text-lg font-bold mb-2.5">Central de ajuda</p>
-            {footerData.central.map((data, key) => (
-              <li key={key}>
+            <li className="text-lg font-bold mb-2.5">Central de ajuda</li>
+            {footerData.central.map((data) => (
+              <li key={data.label}>
                 <Link
                   to={data.url}
                   className="text-sm font-normal hover:text-primary duration-150"
@@ -158,9 +174,9 @@ export function Footer() {
             ))}
           </ul>
           <ul className="space-y-2.5">
-            <p className="text-lg font-bold mb-2.5">Coleções</p>
-            {footerData.colecao.map((data, key) => (
-              <li key={key}>
+            <li className="text-lg font-bold mb-2.5">Coleções</li>
+            {footerData.colecao.map((data) => (
+              <li key={data.label}>
                 <Link
                   to={data.url}
                   className="text-sm font-normal hover:text-primary duration-150"
@@ -173,36 +189,18 @@ export function Footer() {
           <div className="col-span-2 md:col-span-1">
             <p className="text-lg font-bold mb-5">Redes sociais</p>
             <ul className="flex flex-wrap items-center gap-2.5 mb-8">
-              <Link
-                to="/"
-                className="flex items-center justify-center rounded-sm w-7.5 h-7.5 border border-primary"
-              >
-                <FaFacebookF className="h-4 text-primary" />
-              </Link>
-              <Link
-                to="/"
-                className="flex items-center justify-center rounded-sm w-7.5 h-7.5 border border-primary"
-              >
-                <FaInstagram className="h-4 text-primary" />
-              </Link>
-              <Link
-                to="/"
-                className="flex items-center justify-center rounded-sm w-7.5 h-7.5 border border-primary"
-              >
-                <FaTwitter className="h-4 text-primary" />
-              </Link>
-              <Link
-                to="/"
-                className="flex items-center justify-center rounded-sm w-7.5 h-7.5 border border-primary"
-              >
-                <FaLinkedinIn className="h-4 text-primary" />
-              </Link>
-              <Link
-                to="/"
-                className="flex items-center justify-center rounded-sm w-7.5 h-7.5 border border-primary"
-              >
-                <FaYoutube className="h-4 text-primary" />
-              </Link>
+              {socialLinks.map(({ name, Icon }) => (
+                <li key={name}>
+                  <Link
+                    to="/"
+                    className="flex items-center justify-center rounded-sm w-7.5 h-7.5 border border-primary"
+                    aria-label={name}
+                    title={name}
+                  >
+                    <Icon className="h-4 text-primary" aria-hidden="true" />
+                  </Link>
+                </li>
+              ))}
             </ul>
             <p className="text-lg font-bold mb-3">Carteiras compatíveis</p>
             <div className="bg-surface-dark py-1.5 px-2.5 border border-primary rounded-sm text-[9px] text-accent font-bold uppercase flex flex-wrap items-center justify-center gap-x-3 gap-y-1">

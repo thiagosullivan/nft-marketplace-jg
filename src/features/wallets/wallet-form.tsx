@@ -152,6 +152,7 @@ export function WalletForm({ profile }: Props) {
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger
+                  aria-label="network"
                   id="network"
                   className="h-10 border border-border rounded-xs bg-transparent! focus:outline-none! focus:ring-0! w-full"
                 >
@@ -227,6 +228,7 @@ export function WalletForm({ profile }: Props) {
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger
+                  aria-label="tipo de carteira"
                   id="walletType"
                   className="h-10 border border-border rounded-xs bg-transparent! focus:outline-none! focus:ring-0! w-full"
                 >

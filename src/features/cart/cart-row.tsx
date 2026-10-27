@@ -38,6 +38,8 @@ export function CartRow({ item }: Props) {
             alt={item.name}
             className="size-full object-cover"
             loading="lazy"
+            width={70}
+            height={70}
           />
         </div>
         <div className="min-w-0 flex-1">

@@ -153,9 +153,11 @@ export function Header() {
               >
                 <img
                   src={SearchIcon}
-                  alt=""
+                  alt="search icon"
                   className="size-5"
                   aria-hidden="true"
+                  width={20}
+                  height={20}
                 />
               </Button>
             </PopoverAnchor>
@@ -229,8 +231,10 @@ export function Header() {
                         >
                           <img
                             src={nft.imageUrl}
-                            alt=""
+                            alt="search icon"
                             className="size-10 shrink-0 rounded object-cover"
+                            width={40}
+                            height={40}
                           />
                           <div className="min-w-0 flex-1">
                             <p className="truncate text-sm font-bold text-foreground">
@@ -261,7 +265,14 @@ export function Header() {
                 : "Carrinho"
             }
           >
-            <img src={CartIcon} alt="" className="size-5" aria-hidden="true" />
+            <img
+              src={CartIcon}
+              alt="cart count"
+              className="size-5"
+              aria-hidden="true"
+              width={20}
+              height={20}
+            />
             {cartCount > 0 && (
               <span
                 aria-hidden="true"
@@ -280,8 +291,10 @@ export function Header() {
                   {session.user.avatarUrl ? (
                     <img
                       src={session.user.avatarUrl}
-                      alt=""
+                      alt={session.user.displayName}
                       className="size-8 rounded-full"
+                      width={32}
+                      height={32}
                     />
                   ) : (
                     <div className="flex size-8 items-center justify-center rounded-full bg-surface-card text-xs">
@@ -309,9 +322,11 @@ export function Header() {
               >
                 <img
                   src={EnterLogin}
-                  alt=""
+                  alt="login"
                   className="size-5"
                   aria-hidden="true"
+                  width={20}
+                  height={20}
                 />
                 Entrar
               </Button>
@@ -390,8 +405,10 @@ export function Header() {
                         >
                           <img
                             src={nft.imageUrl}
-                            alt=""
+                            alt={nft.name}
                             className="size-10 shrink-0 rounded object-cover"
+                            width={40}
+                            height={40}
                           />
                           <div className="min-w-0 flex-1">
                             <p className="truncate text-sm font-bold text-foreground">
@@ -420,7 +437,12 @@ export function Header() {
                 aria-label="Abrir menu"
                 className="md:hidden bg-primary"
               >
-                <img src="/icons/svg/mobile-icon.svg" />
+                <img
+                  src="/icons/svg/mobile-icon.svg"
+                  alt="menu"
+                  width={24}
+                  height={24}
+                />
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[280px] p-0">
@@ -466,8 +488,10 @@ export function Header() {
                       {session.user.avatarUrl ? (
                         <img
                           src={session.user.avatarUrl}
-                          alt=""
+                          alt={session.user.displayName}
                           className="size-8 rounded-full"
+                          width={32}
+                          height={32}
                         />
                       ) : (
                         <div className="flex size-8 items-center justify-center rounded-full bg-surface-card text-xs">
@@ -501,9 +525,11 @@ export function Header() {
                   >
                     <img
                       src={EnterLogin}
-                      alt=""
+                      alt="login"
                       className="size-5"
                       aria-hidden="true"
+                      width={20}
+                      height={20}
                     />
                     Entrar
                   </Button>

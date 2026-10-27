@@ -308,9 +308,11 @@ export function RegisterPage() {
             >
               <img
                 src={GoogleIcon}
-                alt=""
+                alt="Google Icon"
                 className="size-5"
                 aria-hidden="true"
+                width={20}
+                height={20}
               />
               Continuar com Google
             </Button>
@@ -324,9 +326,11 @@ export function RegisterPage() {
             >
               <img
                 src={FacebookIcon}
-                alt=""
+                alt="Facebook Icon"
                 className="size-5"
                 aria-hidden="true"
+                width={20}
+                height={20}
               />
               Continuar com Facebook
             </Button>

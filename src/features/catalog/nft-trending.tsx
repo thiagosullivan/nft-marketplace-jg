@@ -12,6 +12,8 @@ function NftTrending() {
           src="/nfts/prod-3.webp"
           alt="NFT em destaque"
           className="size-full object-cover"
+          width={310}
+          height={368}
         />
       </div>
     </section>

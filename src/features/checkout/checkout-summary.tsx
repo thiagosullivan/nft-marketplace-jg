@@ -66,6 +66,8 @@ export function CheckoutSummary({
               alt={item.name}
               className="size-17.5 shrink-0 rounded-md object-cover"
               loading="lazy"
+              width={70}
+              height={70}
             />
             <div className="min-w-0">
               <p className="truncate text-base font-bold text-foreground mb-1">

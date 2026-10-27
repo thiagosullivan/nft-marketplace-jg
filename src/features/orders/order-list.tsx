@@ -38,9 +38,11 @@ function Line({ order }: { order: Order }) {
         {image ? (
           <img
             src={image}
-            alt=""
+            alt="order"
             className="size-20 shrink-0 rounded-md object-cover"
             loading="lazy"
+            width={80}
+            height={80}
           />
         ) : (
           <div className="size-16 shrink-0 rounded-md bg-surface-dark" />

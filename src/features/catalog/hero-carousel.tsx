@@ -88,7 +88,7 @@ export function HeroCarousel() {
                         aria-label={`Ir para o destaque ${i + 1}`}
                         onClick={() => api?.scrollTo(i)}
                         className={cn(
-                          "size-2 rounded-full transition-colors",
+                          "size-6 rounded-full transition-colors",
                           current === i
                             ? "bg-primary"
                             : "bg-border hover:bg-muted-foreground",
@@ -101,8 +101,10 @@ export function HeroCarousel() {
                 <div className="aspect-square w-full max-w-[450px] overflow-hidden rounded-md">
                   <img
                     src={slide.image}
-                    alt=""
+                    alt="hero image"
                     className="size-full object-cover"
+                    width={450}
+                    height={450}
                   />
                 </div>
               </div>

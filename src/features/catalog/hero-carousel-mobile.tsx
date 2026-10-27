@@ -96,7 +96,7 @@ export function MobileHeroCarousel() {
                         aria-label={`Ir para o destaque ${i + 1}`}
                         onClick={() => api?.scrollTo(i)}
                         className={cn(
-                          "size-2 rounded-full transition-colors",
+                          "size-6 rounded-full transition-colors",
                           current === i
                             ? "bg-primary"
                             : "bg-primary/50 hover:bg-muted-foreground",
@@ -109,8 +109,10 @@ export function MobileHeroCarousel() {
                 <div className="aspect-square w-full max-w-[160px] sm:max-w-[250px] overflow-hidden rounded-md">
                   <img
                     src={slide.image}
-                    alt=""
+                    alt="hero image"
                     className="size-full object-cover"
+                    width={250}
+                    height={250}
                   />
                 </div>
               </div>

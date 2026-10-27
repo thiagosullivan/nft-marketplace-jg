@@ -130,7 +130,7 @@ export function CartRelatedSection({ cart }: Props) {
                 aria-label={`Ir para a página ${i + 1}`}
                 onClick={() => api?.scrollTo(i)}
                 className={cn(
-                  "size-2 rounded-full transition-colors",
+                  "size-6 rounded-full transition-colors",
                   current === i
                     ? "bg-primary"
                     : "bg-border hover:bg-muted-foreground",

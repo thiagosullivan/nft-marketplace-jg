@@ -171,7 +171,10 @@ export function WalletEditDialog({ wallet, open, onOpenChange }: Props) {
                 name="network"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id="edit-network">
+                    <SelectTrigger
+                      aria-label="Editar network"
+                      id="edit-network"
+                    >
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -193,7 +196,10 @@ export function WalletEditDialog({ wallet, open, onOpenChange }: Props) {
                 name="walletType"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id="edit-walletType">
+                    <SelectTrigger
+                      aria-label="Editar tipo de carteira"
+                      id="edit-walletType"
+                    >
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>

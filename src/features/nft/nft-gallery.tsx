@@ -49,10 +49,12 @@ export function NftGallery({ images, alt }: Props) {
                   >
                     <img
                       src={src}
-                      alt=""
+                      alt="item"
                       aria-hidden="true"
                       className="h-full w-full object-cover"
                       loading="lazy"
+                      width={100}
+                      height={100}
                     />
                   </button>
                 </li>
@@ -68,6 +70,9 @@ export function NftGallery({ images, alt }: Props) {
           alt={alt}
           className="max-w-[404px] max-h-[404px] h-full w-full object-cover rounded-xl"
           loading="eager"
+          fetchPriority="high" // ← adicionar (LCP da rota /nft/:id)
+          width={444}
+          height={444}
         />
       </div>
 
@@ -104,10 +109,12 @@ export function NftGallery({ images, alt }: Props) {
                   >
                     <img
                       src={src}
-                      alt=""
+                      alt="item"
                       aria-hidden="true"
                       className="h-full w-full object-cover"
                       loading="lazy"
+                      width={80}
+                      height={80}
                     />
                   </button>
                 </li>

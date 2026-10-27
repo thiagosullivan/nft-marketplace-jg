@@ -139,6 +139,7 @@ export function CheckoutNewWalletFields({ onSaved }: Props) {
             }
           >
             <SelectTrigger
+              aria-label="Nova carteira de network"
               id="new-wallet-network"
               className={fieldSelectTriggerClass}
             >
@@ -167,6 +168,7 @@ export function CheckoutNewWalletFields({ onSaved }: Props) {
             }
           >
             <SelectTrigger
+              aria-label="Novo tipo de carteira"
               id="new-wallet-type"
               className={fieldSelectTriggerClass}
             >

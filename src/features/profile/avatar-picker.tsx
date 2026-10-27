@@ -70,6 +70,8 @@ export function AvatarPicker({ value, onChange }: Props) {
             src={value}
             alt="Pré-visualização do avatar"
             className="size-12.5 rounded-full object-cover"
+            width={50}
+            height={50}
           />
         ) : (
           <div
@@ -80,6 +82,8 @@ export function AvatarPicker({ value, onChange }: Props) {
               src="/icons/svg/image-icon.svg"
               alt="Pré-visualização do avatar"
               className="size-6 rounded-full object-cover"
+              width={50}
+              height={50}
             />
           </div>
         )}

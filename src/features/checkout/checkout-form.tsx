@@ -142,7 +142,11 @@ export function CheckoutForm({
             }
             disabled={!useNewWallet}
           >
-            <SelectTrigger id="network" className={selectTriggerClass}>
+            <SelectTrigger
+              aria-label="Network"
+              id="network"
+              className={selectTriggerClass}
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -175,7 +179,11 @@ export function CheckoutForm({
             onValueChange={(v) => onSelectedWalletChange(v)}
             disabled={useNewWallet}
           >
-            <SelectTrigger id="walletAddress" className={selectTriggerClass}>
+            <SelectTrigger
+              aria-label="Endereços de Carteiras"
+              id="walletAddress"
+              className={selectTriggerClass}
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -210,7 +218,11 @@ export function CheckoutForm({
             }
             disabled={!useNewWallet}
           >
-            <SelectTrigger id="walletType" className={selectTriggerClass}>
+            <SelectTrigger
+              aria-label="Tipo de Carteira"
+              id="walletType"
+              className={selectTriggerClass}
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
