@@ -1,7 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, lazyRouteComponent } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { z } from "zod";
-import { HomePage } from "@/features/catalog/home-page";
 import { useAuthModal } from "@/features/auth/auth-modal-provider";
 import { useSession } from "@/features/auth/use-auth";
 
@@ -27,6 +26,11 @@ const searchSchema = z.object({
   tab: TAB_ENUM.optional(),
   page: z.coerce.number().int().positive().optional(),
 });
+
+const HomePage = lazyRouteComponent(
+  () => import("@/features/catalog/home-page"),
+  "HomePage",
+);
 
 export const Route = createFileRoute("/")({
   validateSearch: searchSchema,

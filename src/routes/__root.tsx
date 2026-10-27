@@ -22,7 +22,7 @@ function RootLayout() {
     <AuthModalProvider>
       <div className="flex min-h-dvh flex-col bg-ink text-foreground">
         <Header />
-        <main className="flex-1">
+        <main className="flex-1 min-h-[calc(100dvh-80px)]">
           <Outlet />
         </main>
         <Footer />

@@ -41,7 +41,7 @@ const socialLinks = [
 
 export function Footer() {
   return (
-    <footer className="bg-ink mb-6">
+    <footer className="bg-ink mb-6 min-h-[1798px] sm:min-h-[790px] md:min-h-[660px]">
       <div className="max-w-300 w-full mx-auto">
         {/* Bloco superior: 4 colunas com separadores */}
         <div className="bg-surface-card px-4 pt-8 pb-4 md:px-8">

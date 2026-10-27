@@ -1,8 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { CheckoutPage } from "@/features/checkout/checkout-page";
+import { createFileRoute, lazyRouteComponent } from "@tanstack/react-router";
 import { requireAuth } from "@/features/auth/auth-guard";
 
 export const Route = createFileRoute("/checkout")({
   beforeLoad: ({ location }) => requireAuth(location.href),
-  component: CheckoutPage,
+  component: lazyRouteComponent(
+    () => import("@/features/checkout/checkout-page"),
+    "CheckoutPage",
+  ),
 });

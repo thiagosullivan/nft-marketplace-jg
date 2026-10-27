@@ -1,4 +1,5 @@
 import { expect, type Page } from "@playwright/test";
+import { enableDevHandlers } from "./dev-handlers";
 
 export const MARIA = { email: "maria@nftmail.com", password: "password123" };
 export const THAIS = { email: "thais@nftmail.com", password: "password123" };
@@ -17,6 +18,10 @@ export async function resetAppState(page: Page): Promise<void> {
   });
   await page.reload();
   await page.waitForLoadState("networkidle");
+  // Bloco C: `devHandlers` saiu do boot do MSW. Registra-os sob demanda
+  // para os specs de realtime (que batem em /api/dev/emit e
+  // /api/dev/disconnect-socket). Idempotente — pode chamar sempre.
+  await enableDevHandlers(page);
 }
 
 export async function dismissToasts(

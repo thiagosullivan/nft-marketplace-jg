@@ -1,5 +1,9 @@
-import { NFTDetailPage } from "@/features/nft/nft-detail-page";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, lazyRouteComponent } from "@tanstack/react-router";
+
+const NFTDetailPage = lazyRouteComponent(
+  () => import("@/features/nft/nft-detail-page"),
+  "NFTDetailPage",
+);
 
 export const Route = createFileRoute("/nft/$id")({
   component: NFTDetailRoute,

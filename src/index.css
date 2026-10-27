@@ -1,9 +1,36 @@
-@import "@fontsource/roboto-mono/latin-400.css";
-@import "@fontsource/roboto-mono/latin-500.css";
-@import "@fontsource/roboto-mono/latin-700.css";
 @import "tw-animate-css";
 
 @import "tailwindcss";
+
+/* Roboto Mono — subset latin, self-host via @fontsource.
+   font-display: optional evita reflow de fonte (CLS) quando a fonte
+   não está pronta no primeiro paint; o browser usa fallback e não troca. */
+@font-face {
+  font-family: "Roboto Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: optional;
+  src: url("@fontsource/roboto-mono/files/roboto-mono-latin-400-normal.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "Roboto Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: optional;
+  src: url("@fontsource/roboto-mono/files/roboto-mono-latin-500-normal.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "Roboto Mono";
+  font-style: normal;
+  font-weight: 700;
+  font-display: optional;
+  src: url("@fontsource/roboto-mono/files/roboto-mono-latin-700-normal.woff2")
+    format("woff2");
+}
 
 @theme {
   /* Font */
